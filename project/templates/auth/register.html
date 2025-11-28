@@ -1,0 +1,46 @@
+{% extends 'layouts/base_landing.html' %}
+{% block title %}Register | Find It Fast{% endblock %}
+{% block content %}
+<div class="register-wrapper mx-auto" 
+     style="max-width: 300px; padding: 1rem;">
+
+  <h5 class="text-center mb-3">Register</h5>
+  <form method="post" enctype="multipart/form-data" style="font-size: 0.9rem;">
+    <div class="mb-2">
+      <label class="form-label">Full name</label>
+      <input type="text" class="form-control form-control-sm" name="name" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Student ID</label>
+      <input type="text" class="form-control form-control-sm" name="student_id" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control form-control-sm" name="email" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control form-control-sm" name="password" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Confirm password</label>
+      <input type="password" class="form-control form-control-sm" name="confirm" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Profile photo (optional)</label>
+      <input type="file" class="form-control form-control-sm" name="profile_photo" accept="image/*">
+    </div>
+
+    <button type="submit" class="btn btn-brand btn-sm w-100">Create Account</button>
+
+    <p class="text-center mt-2" style="font-size: 0.8rem;">
+      <small>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></small>
+    </p>
+  </form>
+</div>
+{% endblock %}

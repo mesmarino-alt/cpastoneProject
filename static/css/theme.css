@@ -1,0 +1,98 @@
+/* Base Layout */
+body {
+    background-color: #1C1C1E; /* charcoal gray */
+    font-family: 'Poppins', sans-serif;
+    color: #f0f0f0;
+  }
+  
+  /* Cards */
+  .card {
+    background-color: #2A2A2E; /* dark card base */
+    border: none;
+    color: #f0f0f0;
+    border-radius: 1rem;
+  }
+  
+  .card-header {
+    background: linear-gradient(90deg, #331940, #5E366A); /* deep purple gradient */
+    color: white;
+    font-weight: 600;
+  }
+  
+  /* Profile Avatar Frame */
+  .profile-avatar {
+    background: #D8B5D8; /* lavender mist */
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  }
+  
+  /* Buttons */
+  .btn-brand {
+    background-color: #0CCA98; /* vibrant green */
+    color: #1C1C1E;
+    font-weight: 500;
+  }
+  
+  .btn-brand:hover {
+    background-color: #09b684;
+    color: #fff;
+  }
+  
+  .btn-purple {
+    background-color: #8A2BE2;
+    color: white;
+  }
+  
+  .btn-purple:hover {
+    background-color: #6A5ACD;
+  }
+  
+  .btn-outline-purple {
+    border-color: #8A2BE2;
+    color: #8A2BE2;
+  }
+  
+  .btn-outline-purple:hover {
+    background-color: #8A2BE2;
+    color: white;
+  }
+  
+  /* Forms */
+  .form-control,
+  .form-select {
+    background-color: #1C1C1E;
+    color: #f0f0f0;
+    border: 1px solid #5E366A;
+  }
+  
+  .form-control::placeholder {
+    color: #aaa;
+  }
+  
+  /* Modals */
+  .modal-content {
+    background-color: #2A2A2E;
+    color: white;
+    border-radius: 1rem;
+  }
+  
+  .modal-header {
+    background: linear-gradient(90deg, #331940, #5E366A);
+    color: white;
+  }
+  
+  .modal-footer {
+    background-color: #1C1C1E;
+  }
+  
+  /* Lists */
+  .list-group-item {
+    background-color: #2A2A2E;
+    color: #f0f0f0;
+    border: none;
+  }
+  
+  .list-group-item small {
+    color: #A8E6CF; /* soft mint for subtle highlights */
+  }
+  

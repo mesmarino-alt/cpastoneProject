@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Find It Fast{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #d0eaff, #00b4d8);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .landing-card {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+      background: white;
+      position: relative; /* allow absolute children like modal */
+    }
+
+    .landing-left {
+      flex: 3;
+      background: linear-gradient(to bottom right, #00b4d8, #0077b6);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .landing-left img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin-bottom: 1rem;
+    }
+
+    .landing-left p {
+      font-size: 1rem;
+      text-align: center;
+      margin: 0;
+    }
+
+    .landing-right {
+      flex: 2;
+      background: white;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .landing-right h4 {
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .form-control {
+      border-radius: 0.5rem;
+    }
+
+    .btn-brand {
+      background-color: #00b4d8;
+      color: white;
+      border-radius: 0.5rem;
+    }
+
+    .btn-brand:hover {
+      background-color: #0096c7;
+    }
+
+    @media (max-width: 768px) {
+      .landing-card {
+        flex-direction: column;
+        margin: 1rem;
+      }
+      .landing-left, .landing-right {
+        flex: none;
+        width: 100%;
+      }
+      .landing-left {
+        padding: 1.5rem 1rem;
+        min-height: auto;
+      }
+      .landing-left img {
+        width: 80px;
+        height: 80px;
+      }
+      .landing-left p {
+        font-size: 0.9rem;
+      }
+      .landing-right {
+        padding: 1.5rem 1rem;
+      }
+      .landing-right h4 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .landing-card {
+        margin: 0.5rem;
+        border-radius: 0.75rem;
+      }
+      body {
+        padding: 0.5rem;
+      }
+      .landing-left, .landing-right {
+        padding: 1rem !important;
+      }
+      .landing-left img {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0.5rem;
+      }
+      .landing-left p {
+        font-size: 0.8rem;
+      }
+      .landing-right h4 {
+        font-size: 1.1rem;
+      }
+      .form-control, .btn {
+        font-size: 16px;
+      }
+    }
+
+    /* Flash modal anchored top-left inside landing-card */
+    .flash-modal-top-left .modal-dialog {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      margin: 0;
+      max-width: 300px;
+      transform: translateX(-120%); /* start off-screen */
+      transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+      opacity: 0;
+    }
+
+    .flash-modal-top-left.show .modal-dialog {
+      transform: translateX(0); /* slide into view */
+      opacity: 1;
+    }
+
+    .flash-modal-top-left .modal-content {
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-card">
+    <div class="landing-left">
+      <img src="{{ url_for('static', filename='images/cict.jpg') }}" alt="Seal" />
+      <p>Campus Lost and Found Management System</p>
+    </div>
+    <div class="landing-right">
+      {% block content %}{% endblock %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <!-- Sliding Modal inside landing-card -->
+          <div class="modal fade flash-modal-top-left" id="flashModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header bg-{{ category }}">
+                  <h5 class="modal-title text-white">{{ category|capitalize }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  {{ msg }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              var modalEl = document.getElementById('flashModal{{ loop.index }}');
+              var flashModal = new bootstrap.Modal(modalEl);
+              flashModal.show();
+              // Auto-dismiss after 3s
+              setTimeout(() => flashModal.hide(), 3000);
+            });
+          </script>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

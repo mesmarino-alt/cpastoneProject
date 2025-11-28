@@ -1,0 +1,381 @@
+<!-- templates/layouts/base_user_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find It Fast - User Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body { background-color: #b7b7b7; }
+    .sidebar {
+      height: 100vh;
+      background-color: #343a40;
+      color: white;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+    }
+    .sidebar.mobile-hidden {
+      transform: translateX(-100%);
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+    }
+    .sidebar a:hover {
+      background-color: #495057;
+    }
+    .sidebar a.active {
+      background-color: #8a2be2;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      font-weight: 600;
+    }
+    .content { 
+      padding: 2rem; 
+      transition: margin-left 0.3s ease;
+    }
+    .bg-purple {
+      background-color: #6f42c1;
+    }
+
+    /* Navbar toggle button */
+    .navbar-toggle {
+      display: none;
+      background-color: #343a40;
+      border: 1px solid #495057;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1051;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-toggle:hover {
+      background-color: #495057;
+      transform: scale(1.1);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1040;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .flash-popup-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+    }
+
+    .flash-card {
+      width: 330px;
+      height: 80px;
+      border-radius: 8px;
+      box-sizing: border-box;
+      padding: 10px 15px;
+      background-color: #ffffff;
+      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .icon {
+      font-size: 17px;
+      color: #269b24;
+    }
+
+    .message-text-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      flex-grow: 1;
+    }
+
+    .message-text {
+      color: #269b24;
+      font-size: 17px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .sub-text {
+      font-size: 14px;
+      color: #555;
+      margin: 0;
+    }
+
+    .cross-icon {
+      font-size: 18px;
+      color: #555;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .cross-icon:hover {
+      color: #000;
+    }
+    .btn-purple {
+      background-color: #8A2BE2;
+      color: white;
+      border: none;
+    }
+    .btn-purple:hover {
+      background-color: #7326c7;
+      color: white;
+    }
+    .welcome-banner {
+      min-height: 160px;
+    }
+
+    .walking-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8px;
+      height: 150px;
+      pointer-events: none;
+    }
+
+    .walker {
+      position: absolute;
+      left: -160px;
+      bottom: 0;
+      animation: walker-move 12s linear infinite;
+      will-change: transform;
+    }
+
+    @keyframes walker-move {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(120vw); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .walker {
+        animation: none;
+      }
+    }
+
+    .walking-track:hover .walker {
+      animation-play-state: paused;
+    }
+    .walking-track::before {
+      content: '';
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      bottom: 16px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(138,43,226,0.25), rgba(105,210,167,0.25));
+      border-radius: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        width: 280px;
+        height: 100vh;
+        z-index: 1045;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+      }
+
+      .sidebar:not(.mobile-hidden) {
+        transform: translateX(0);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .content {
+        padding: 1rem;
+        padding-top: 4rem;
+        margin-left: 0;
+      }
+
+      .navbar-toggle {
+        display: block;
+      }
+
+      .d-flex {
+        flex-direction: column !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 100%;
+      }
+
+      .sidebar .text-center {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .sidebar .text-center img,
+      .sidebar .text-center div:first-child {
+        width: 50px;
+        height: 50px;
+        flex-shrink: 0;
+      }
+
+      .sidebar .text-center p {
+        margin: 0;
+        font-size: 0.8rem;
+      }
+
+      .content {
+        padding: 0.5rem;
+        padding-top: 3.5rem;
+      }
+
+      .navbar-toggle {
+        top: 0.5rem;
+        left: 0.5rem;
+      }
+
+      .input-group {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+      }
+
+      .btn-group {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- <button class="navbar-toggle" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div> -->
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-popup-container">
+      {% for category, msg in messages %}
+        <div class="card flash-card">
+          <div class="icon-container">
+            <i class="bi bi-check-circle-fill icon"></i>
+          </div>
+          <div class="message-text-container">
+            <p class="message-text">{{ msg }}</p>
+            <p class="sub-text">Everything seems great</p>
+          </div>
+          <i class="bi bi-x-lg cross-icon" onclick="this.closest('.flash-card').remove()"></i>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="d-flex">
+    <nav class="sidebar p-3">
+      <div class="text-center mb-4">
+        {% if current_user.is_authenticated and current_user.profile_photo %}
+          <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
+               class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;">
+        {% else %}
+          <div style="
+            width: 100px; height: 100px;
+            background-color: #8a2be2; color: white;
+            font-weight: bold; font-size: 1.5rem;
+            border-radius: 12px; display: flex;
+            align-items: center; justify-content: center;
+            margin: 0 auto;">
+            UD
+          </div>
+        {% endif %}
+        <p class="mt-2 mb-0"><strong>{{ current_user.name }}</strong></p>
+        <p class="small">{{ current_user.email }}</p>
+        <p class="small">ID: {{ current_user.student_id }}</p>        
+      </div>
+      
+      <hr />
+
+      <a href="{{ url_for('user.dashboard') }}"
+      class="{% if request.endpoint == 'user.dashboard' %}active{% endif %}">Dashboard</a>
+ 
+      <a href="{{ url_for('user.lost_items') }}"
+      class="{% if request.endpoint == 'user.lost_items' %}active{% endif %}">My Lost Items</a>
+ 
+      <a href="{{ url_for('user.my_found_items') }}"
+      class="{% if request.endpoint == 'user.found_items' %}active{% endif %}">My Found Items</a>
+ 
+      <a href="{{ url_for('user.profile') }}"
+      class="{% if request.endpoint == 'user.profile' %}active{% endif %}">My Profile</a>
+ 
+      <a href="{{ url_for('user.notifications') }}"
+      class="{% if request.endpoint == 'user.notifications' %}active{% endif %}">Notifications</a>
+      
+      <a href="{{ url_for('auth.logout') }}"
+      class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">Logout</a>
+    </nav>
+    
+    <main class="flex-grow-1 content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const walker = document.querySelector('.walker');
+      if (!walker) return;
+      const delay = Math.random() * 3;
+      walker.style.animationDelay = `${delay}s`;
+    });
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      sidebar.classList.toggle('mobile-hidden');
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('active');
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const flashCards = document.querySelectorAll('.flash-card');
+      flashCards.forEach(card => {
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.5s ease';
+          card.style.opacity = '0';
+          setTimeout(() => card.remove(), 500);
+        }, 3000);
+      });
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

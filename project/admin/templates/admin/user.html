@@ -1,0 +1,186 @@
+{% extends 'layouts/base_admin_dashboard.html' %}
+{% block content %}
+<style>
+  .table-fixed {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-fixed th, 
+.table-fixed td {
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Mobile stacked card layout */
+@media (max-width: 768px) {
+  .table-fixed thead {
+    display: none;
+  }
+  .table-fixed, 
+  .table-fixed tbody, 
+  .table-fixed tr, 
+  .table-fixed td {
+    display: block;
+    width: 100%;
+  }
+  .table-fixed tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: #fff;
+  }
+  .table-fixed td {
+    text-align: left;
+    padding: 0.5rem;
+  }
+  .table-fixed td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+  }
+}
+
+</style>
+<!-- Users Overview Panel -->
+<div class="soft-card shadow-sm rounded mb-4">
+  <div class="card-header soft-header d-flex justify-content-between align-items-center flex-wrap">
+    <h5 class="mb-0">Users Overview</h5>
+  </div>
+
+  <div class="card-body p-0">
+    <table class="table align-middle mb-0 table-fixed">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Profile</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td data-label="ID" class="fw-bold">{{ u.id }}</td>
+          <td data-label="Profile">
+            {% if u.profile_photo %}
+              <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.profile_photo) }}"
+                   class="avatar-sm shadow-sm rounded-circle" alt="avatar">
+            {% else %}
+              <div class="avatar-sm d-flex align-items-center justify-content-center bg-purple text-white fw-bold rounded-circle">
+                {{ u.name[0]|upper }}
+              </div>
+            {% endif %}
+          </td>
+          <td data-label="Name">{{ u.name }}</td>
+          <td data-label="Email" class="text-muted">{{ u.email }}</td>
+          <td data-label="Role">
+            <span class="pill {{ 'pill-active' if u.role == 'admin' else 'pill' }}">{{ u.role|title }}</span>
+          </td>
+          <td data-label="Status">
+            {% if u.active %}
+              <span class="pill pill-active">Active</span>
+            {% else %}
+              <span class="pill pill-disabled">Inactive</span>
+            {% endif %}
+          </td>
+          <td data-label="Actions" class="text-end">
+            <button class="btn btn-sm btn-soft me-1" data-bs-toggle="modal" data-bs-target="#editUserModal{{ u.id }}">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-soft text-danger" data-bs-toggle="modal" data-bs-target="#deactivateUserModal{{ u.id }}">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </td>
+        </tr>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserModal{{ u.id }}" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content soft-card p-3">
+              <div class="modal-header soft-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <form method="POST" action="{{ url_for('admin.edit_user', id=u.id) }}">
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" value="{{ u.name }}" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" value="{{ u.email }}" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select">
+                      <option value="user" {% if u.role == 'user' %}selected{% endif %}>User</option>
+                      <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                  </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="active" {% if u.active %}checked{% endif %}>
+                    <label class="form-check-label">Active</label>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-purple">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deactivate User Modal -->
+        <div class="modal fade" id="deactivateUserModal{{ u.id }}" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content soft-card p-3">
+              <div class="modal-header soft-header">
+                <h5 class="modal-title">Deactivate User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <form method="POST" action="{{ url_for('admin.deactivate_user', id=u.id) }}">
+                <div class="modal-body">
+                  <p>Are you sure you want to deactivate <strong>{{ u.name }}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-danger">Deactivate</button>
+                  <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Success Check Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content soft-card text-center p-4">
+      <div class="modal-body">
+        <div class="text-success mb-3">
+          <i class="bi bi-check-circle-fill" style="font-size:3rem;"></i>
+        </div>
+        <h5 class="fw-bold">Success!</h5>
+        <p class="text-muted">The action was completed successfully.</p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-purple" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

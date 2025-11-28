@@ -1,0 +1,229 @@
+{% extends 'layouts/base_admin_dashboard.html' %}
+{% block content %}
+
+<!-- Filters/Search -->
+<div  style="background: linear-gradient(90deg, #8d8991, #d8b5d8); min-height: 770px;">
+<div class="soft-card p-3 mb-4">
+  <form method="GET" action="{{ url_for('admin.items_page') }}" class="row g-2">
+    <div class="col-12 col-md-6 col-lg-4">
+      <input type="text" name="q" class="form-control" placeholder="Search by name or ID" value="{{ request.args.get('q','') }}">
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <select name="category" class="form-select">
+        <option value="">All Categories</option>
+        <option value="Electronics" {% if request.args.get('category') == 'Electronics' %}selected{% endif %}>Electronics</option>
+        <option value="Clothing" {% if request.args.get('category') == 'Clothing' %}selected{% endif %}>Clothing</option>
+        <option value="Documents" {% if request.args.get('category') == 'Documents' %}selected{% endif %}>Documents</option>
+        <option value="Accessory" {% if request.args.get('category') == 'Accessory' %}selected{% endif %}>Accessory</option>
+        <option value="Bag" {% if request.args.get('category') == 'Bag' %}selected{% endif %}>Bag</option>
+        <option value="ID/Card" {% if request.args.get('category') == 'ID/Card' %}selected{% endif %}>ID/Card</option>
+        <option value="Others" {% if request.args.get('category') == 'Others' %}selected{% endif %}>Others</option>
+      </select>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <select name="type" class="form-select">
+        <option value="">All Types</option>
+        <option value="lost" {% if request.args.get('type') == 'lost' %}selected{% endif %}>Lost Items</option>
+        <option value="found" {% if request.args.get('type') == 'found' %}selected{% endif %}>Found Items</option>
+      </select>
+    </div>
+    <div class="col-12 col-lg-2">
+      <button type="submit" class="btn btn-purple w-100">Filter</button>
+    </div>
+  </form>
+</div>
+
+<!-- Items Overview Table - Responsive -->
+<div class="soft-card shadow-sm rounded mb-4">
+  <div class="card-header soft-header d-flex justify-content-between align-items-center flex-wrap">
+    <span class="fw-bold">Items Overview ({{ items|length }} total)</span>
+  </div>
+
+  <div class="card-body p-0 table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th class="d-none d-md-table-cell">Category</th>
+          <th class="d-none d-lg-table-cell">Type</th>
+          <th>Status</th>
+          <th class="d-none d-lg-table-cell">Date</th>
+          <th class="d-none d-xl-table-cell">Reporter</th>
+          <th class="d-none d-md-table-cell">Location</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if items %}
+          {% for item in items %}
+          <tr>
+            <td class="fw-bold"><span class="d-lg-none">ID:</span> {{ item.id }}</td>
+            <td>{{ item.name[:20] }}</td>
+            <td class="d-none d-md-table-cell"><span class="d-md-none">Cat:</span> {{ item.category }}</td>
+            <td class="d-none d-lg-table-cell">
+              {% if item.type == 'lost' %}
+                <span class="pill pill-disabled">Lost</span>
+              {% else %}
+                <span class="pill pill-active">Found</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.status == 'pending' %}
+                <span class="pill pill-pending">Pending</span>
+              {% elif item.status == 'matched' %}
+                <span class="pill pill-match">Matched</span>
+              {% elif item.status == 'resolved' %}
+                <span class="pill pill-resolved">Resolved</span>
+              {% elif item.status == 'closed' %}
+                <span class="pill pill-disabled">Closed</span>
+              {% else %}
+                <span class="pill">{{ item.status|capitalize }}</span>
+              {% endif %}
+            </td>
+            <td class="d-none d-lg-table-cell" style="font-size: 0.9rem;">{{ item.reported_at.strftime('%d %b') if item.reported_at else '—' }}</td>
+            <td class="d-none d-xl-table-cell text-muted" style="font-size: 0.9rem;">{{ item.reporter_name[:15] }}</td>
+            <td class="d-none d-md-table-cell text-muted" style="font-size: 0.9rem;">{{ item.location[:15] }}</td>
+            <td class="text-end">
+              <!-- View Details Button -->
+              <button class="btn btn-sm btn-soft me-1" data-bs-toggle="modal" data-bs-target="#viewItemModal{{ item.id }}" title="View Details">
+                <i class="bi bi-eye"></i>
+              </button>
+            </td>
+          </tr>
+
+          <!-- View Item Modal - Responsive -->
+          <div class="modal fade" id="viewItemModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:600px;">
+              <div class="modal-content shadow-lg border-0 rounded-4">
+                
+                <!-- Header -->
+                <div class="modal-header text-white rounded-top-4"
+                     style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
+                  <h5 class="modal-title fw-bold" id="viewItemModalLabel">
+                    <i class="bi bi-eye me-2"></i> Item Details
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <!-- Body -->
+                <div class="modal-body p-4 bg-white">
+                  <div class="row g-3">
+                    
+                    <!-- Left column: item details -->
+                    <div class="col-12 col-md-7">
+                      <div class="mb-3">
+                        <i class="bi bi-tag text-purple me-2"></i>
+                        <strong>ID:</strong> <span>{{ item.id }}</span>
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-card-text text-purple me-2"></i>
+                        <strong>Name:</strong> <span>{{ item.name }}</span>
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-list-ul text-purple me-2"></i>
+                        <strong>Category:</strong> <span>{{ item.category }}</span>
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-tag text-purple me-2"></i>
+                        <strong>Type:</strong> 
+                        {% if item.type == 'lost' %}
+                          <span class="pill pill-disabled">Lost Item</span>
+                        {% else %}
+                          <span class="pill pill-active">Found Item</span>
+                        {% endif %}
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-info-circle text-purple me-2"></i>
+                        <strong>Status:</strong>
+                        {% if item.status == 'pending' %}
+                          <span class="pill pill-pending">Pending</span>
+                        {% elif item.status == 'matched' %}
+                          <span class="pill pill-match">Matched</span>
+                        {% elif item.status == 'resolved' %}
+                          <span class="pill pill-resolved">Resolved</span>
+                        {% elif item.status == 'closed' %}
+                          <span class="pill pill-disabled">Closed</span>
+                        {% else %}
+                          <span class="pill">{{ item.status|capitalize }}</span>
+                        {% endif %}
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-geo-alt text-purple me-2"></i>
+                        <strong>Location:</strong> <span>{{ item.location }}</span>
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-calendar-event text-purple me-2"></i>
+                        <strong>Date:</strong> <span>{{ item.reported_at.strftime('%d %b %Y') if item.reported_at else '—' }}</span>
+                      </div>
+                      <div class="mb-3">
+                        <i class="bi bi-person text-purple me-2"></i>
+                        <strong>Reporter:</strong> <span>{{ item.reporter_name }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Right column: item photo -->
+                    <div class="col-12 col-md-5">
+                      <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height:250px;">
+                        <div class="w-100 text-center">
+                          {% if item.photo %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" 
+                                 class="img-fluid rounded border" 
+                                 alt="Item photo"
+                                 style="max-height: 250px; object-fit: cover;">
+                          {% else %}
+                            <div class="text-muted border rounded p-4 text-center">
+                              <i class="bi bi-image" style="font-size: 3rem;"></i>
+                              <p class="mt-2">No photo</p>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="modal-footer bg-light rounded-bottom-4">
+                  <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i> Close
+                  </button>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">
+              No items found. Try adjusting your search or filter criteria.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content soft-card text-center p-4">
+      <div class="modal-body">
+        <div class="text-success mb-3">
+          <i class="bi bi-check-circle-fill" style="font-size:3rem;"></i>
+        </div>
+        <h5 class="fw-bold">Success!</h5>
+        <p class="text-muted">The action was completed successfully.</p>
+
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-purple" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<div class="py-5" >
+  <form method="post" action="{{ url_for('user.profile') }}" enctype="multipart/form-data">
+    <div class="row justify-content-center">
+      <div class="col-xl-11">
+        <div class="row g-3">
+          
+          <!-- Profile Header Column -->
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-90" style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+              <div class="card-body text-center d-flex flex-column justify-content-center align-items-center py-4">
+                <!-- Avatar -->
+                <div class="rounded-circle overflow-hidden mb-3 profile-avatar" style="width:140px; height:140px;">
+                  <img id="profilePhotoImg"
+                       src="{{ url_for('static', filename='uploads/profile_photos/' ~ (current_user.profile_photo or 'default.png')) }}"
+                       alt="Profile photo"
+                       style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <!-- Name + Location -->
+                <h5 class="fw-bold mb-1 text-white">{{ current_user.name or 'Your Name' }}</h5>
+                <p class="small text-white mb-3" style="opacity:0.9;">{{ current_user.location or 'Catanduanes, Philippines' }}</p>
+                <p class="small text-white mb-3" style="opacity:0.9;">ID: {{ current_user.student_id }}</p>  
+                <!-- Buttons -->
+                <div class="d-flex gap-2">
+                  <label class="btn btn-sm btn-outline-light px-3 rounded-pill" style="cursor:pointer;">
+                    Change Photo
+                    <input type="file" class="d-none" id="profilePhotoInput" name="profile_photo" accept="image/*">
+                  </label>
+
+                  <button type="button" class="btn btn-sm btn-outline-light px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                    <i class="bi bi-key me-1"></i> Password
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Account Info + Preferences + Activity -->
+          <div class="col-md-8 d-flex flex-column gap-3">
+            
+            <!-- Account Info -->
+            <div class="card border-0 shadow-sm rounded-3">
+              <div class="card-header fw-bold text-white rounded-top-3"
+                   style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+                <i class="bi bi-person-circle me-2"></i> Account Info
+              </div>
+              <div class="card-body py-3">
+                <div class="row row-cols-2 small">
+                  <div class="col mb-2"><strong>Username:</strong> {{ current_user.name }}</div>
+                  <div class="col mb-2"><strong>Member since:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</div>
+                  <div class="col mb-2"><strong>Last login:</strong> {{ current_user.last_login or 'N/A' }}</div>
+                  <div class="col mb-2"><strong>Location:</strong> {{ current_user.location or 'Catanduanes, Philippines' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="card border-0 shadow-sm rounded-3">
+              <div class="card-header fw-bold text-white rounded-top-3"
+              style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+                <i class="bi bi-sliders me-2"></i> Preferences
+              </div>
+              <div class="card-body py-3 small">
+                <label class="form-label">Theme</label>
+                <select name="theme" class="form-select form-select-sm rounded-pill mb-2">
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="purple">Purple</option>
+                </select>
+                <label class="form-label">Language</label>
+                <select name="language" class="form-select form-select-sm rounded-pill">
+                  <option value="en">English</option>
+                  <option value="fil">Filipino</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm rounded-3">
+              <div class="card-header fw-bold text-white rounded-top-3"
+              style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+                <i class="bi bi-clock-history me-2"></i> Recent Activity
+              </div>
+              <div class="card-body py-3 small">
+                <ul class="list-group list-group-flush">
+                  {% if activities %}
+                    {% for activity in activities %}
+                      <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div><strong>{{ activity.type }}:</strong> {{ activity.name }}</div>
+                          <small class="text-muted">
+                            {% if activity.reported_at %}
+                              {% if activity.reported_at.__class__.__name__ == 'datetime' %}
+                                {{ activity.reported_at.strftime('%Y-%m-%d') }}
+                              {% else %}
+                                {{ activity.reported_at }}
+                              {% endif %}
+                            {% else %} — {% endif %}
+                          </small>
+                        </div>
+                      </li>
+                    {% endfor %}
+                  {% else %}
+                    <li class="list-group-item text-center text-muted">
+                      No activities yet. Start reporting items!
+                    </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-end">
+              <button type="submit" class="btn btn-purple rounded-pill px-4 mt-2">
+                <i class="bi bi-save me-1"></i> Save
+              </button>
+            </div>
+
+          </div> <!-- end right column -->
+
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow-sm">
+        <form method="post" action="{{ url_for('user.change_password') }}">
+          <div class="modal-header text-white rounded-top-3"
+               style="background: linear-gradient(90deg, #8A2BE2, #d8b5d8);">
+            <h5 class="modal-title"><i class="bi bi-key me-2"></i> Change Password</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body py-3 small">
+            <div class="mb-3">
+              <label class="form-label">Current Password</label>
+              <input type="password" name="current_password" class="form-control form-control-sm rounded-pill" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">New Password</label>
+              <input type="password" name="new_password" class="form-control form-control-sm rounded-pill" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" name="confirm_password" class="form-control form-control-sm rounded-pill" required>
+            </div>
+          </div>
+          <div class="modal-footer rounded-bottom-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-purple btn-sm rounded-pill">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const profilePhotoInput = document.getElementById('profilePhotoInput');
+  const profilePhotoImg = document.getElementById('profilePhotoImg');
+  const form = document.querySelector('form');
+
+  // Handle file selection and preview
+  profilePhotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        profilePhotoImg.src = event.target.result;
+        console.log('Photo preview updated');
+      };
+      reader.readAsDataURL(file);
+
+      // Auto-submit the form after a short delay
+      setTimeout(() => {
+        form.submit();
+      }, 500);
+    }
+  });
+
+  // Listen for form submission to update photo after server response
+  form.addEventListener('submit', (e) => {
+    // Form will submit normally and redirect
+    // The redirect will reload the page with the new photo
+  });
+});
+</script>
+{% endblock %}

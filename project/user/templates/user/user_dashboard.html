@@ -1,0 +1,155 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  /* Base palette */
+  :root {
+    --blue: #0d6efd;
+    --purple: #8A2BE2;
+    --peach: #FFB487;
+    --mint: #69D2A7;
+    --yellow: #FFC857;
+    --bg: #f7f8fc;
+    --card: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body, .container-fluid {
+    background: var(--bg);
+  }
+
+  .soft-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: none; 
+  }
+
+  .soft-header {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+
+  /* Welcome banner */
+  .welcome-banner {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(13,110,253,0.08), rgba(138,43,226,0.08));
+    box-shadow: var(--shadow);
+  }
+  .welcome-illustration {
+    min-height: 160px;
+    background:
+      radial-gradient(120px 100px at 20% 50%, rgba(13,110,253,0.12), transparent 60%),
+      radial-gradient(160px 120px at 70% 30%, rgba(138,43,226,0.12), transparent 60%),
+      linear-gradient(135deg, rgba(255,180,135,0.16), rgba(255,255,255,0));
+  }
+  .welcome-copy h5 {
+    color: var(--text);
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .welcome-copy p {
+    color: var(--muted);
+    margin: 0;
+  }
+  .user-pill {
+    background: #fff;
+    border-radius: 14px;
+    padding: 8px 12px;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-pill img {
+    width: 36px; height: 36px; border-radius: 50%;
+    object-fit: cover;
+  }
+  .user-pill .role {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>
+
+<div class="border rounded p-4" style="background: linear-gradient(90deg, #8d8991, #d8b5d8); min-height: 660px;">
+  
+  <!-- Welcome Banner on Left and Controls Row on Right in same row -->
+  <div class="row g-3 align-items-start mb-4">
+    <!-- Left: Welcome banner -->
+    <div class="col-12 col-lg-6">
+      <div class="welcome-banner" style="background: transparent; box-shadow: none; border: none;">
+        <div class="d-flex align-items-center flex-wrap">
+          <div class="me-3">
+            <!-- UD Icon -->
+            <div class="bg-purple text-white fw-bold rounded-3 d-flex justify-content-center align-items-center" 
+                 style="width: 50px; height: 50px; flex-shrink: 0;">
+              UD
+            </div>
+          </div>
+          <div class="me-3">
+            <h5 class="mb-1" style="font-weight: 800; color: #2b2d42;">Dashboard</h5>
+            <p class="mb-0" style="font-size: 0.9rem; color: #6c757d;">Browse Lost & Found Items</p>
+          </div>
+          <div class="d-none d-md-block">
+            <!-- Walking Person Animation -->
+            <lottie-player 
+              src="https://assets9.lottiefiles.com/packages/lf20_3rwasyjy.json"
+              background="transparent"
+              speed="1"
+              style="width:80px; height:60px;"
+              loop
+              autoplay>
+            </lottie-player>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Controls Row -->
+    <div class="col-12 col-lg-6">
+      <form class="d-flex align-items-center gap-2" style="flex-wrap: nowrap;">
+        <!-- Search -->
+        <div class="input-group flex-grow-1">
+          <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control" placeholder="Search..." />
+        </div>
+
+        <!-- Item Type -->
+        <select class="form-select" style="flex: 0 0 140px;">
+          <option selected>All Types</option>
+          <option>Electronics</option>
+          <option>Clothing</option>
+          <option>Documents</option>
+        </select>
+
+        <!-- Apply -->
+        <button type="submit" class="btn text-white" style="background-color: #6f42c1; white-space: nowrap; flex-shrink: 0;">Apply</button>
+
+        <!-- Approved / Rejected + Moon -->
+        <div class="d-flex align-items-center gap-2" style="flex-shrink: 0;">
+          <div class="btn-group btn-group-sm" role="group" aria-label="Approval status">
+            <button type="button" class="btn btn-outline-primary active" style="font-size: 0.85rem;">Approved</button>
+            <button type="button" class="btn btn-outline-primary" style="font-size: 0.85rem;">Rejected</button>
+          </div>
+          <button type="button" class="btn btn-light border" title="Toggle dark mode">
+            <i class="bi bi-moon"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Body -->
+  <div class="alert alert-info text-center mt-4">
+    No approved items found.
+  </div>
+
+  <footer class="mt-5 text-center text-muted">
+    © 2025 Find It Fast - User Dashboard
+  </footer>
+</div>
+{% endblock %}

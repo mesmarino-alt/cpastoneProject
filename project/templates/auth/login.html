@@ -1,0 +1,28 @@
+{% extends 'layouts/base_landing.html' %}
+{% block title %}Login | Find It Fast{% endblock %}
+{% block content %}
+<div class="login-wrapper mx-auto" 
+     style="max-width: 320px; padding: 1rem;">
+
+  <h5 class="text-center mb-3">Login</h5>
+  <form method="post" style="font-size: 0.9rem;">
+    <div class="mb-2">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-control form-control-sm" name="email" required>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control form-control-sm" name="password" required>
+    </div>
+
+    <button type="submit" class="btn btn-brand btn-sm w-100">Login</button>
+
+    <p class="text-center mt-2" style="font-size: 0.8rem;">
+      <small>Don’t have an account? 
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      </small>
+    </p>
+  </form>
+</div>
+{% endblock %}

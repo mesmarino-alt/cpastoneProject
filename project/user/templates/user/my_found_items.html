@@ -1,0 +1,407 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+{% block title %}My Found Items | Find It Fast{% endblock %}
+
+{% block content %}
+<div class="py-5" >
+  <div class="container-fluid">
+    <div class="mx-auto p-4 bg-white rounded shadow" style="max-width: 1400px; background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+      
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-3" >
+        <h3 class="fw-bold mb-0">
+          <i class="bi bi-box-seam me-2"></i> My Found Items
+        </h3>
+        <button class="btn btn-success btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal">
+          <i class="bi bi-plus-lg me-1"></i> Add found item
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4 rounded shadow-sm" >
+        <div class="card-body py-3">
+          <form class="row g-2" method="get">
+            <div class="col-md-4">
+              <input type="text" name="q" value="{{ request.args.get('q','') }}" class="form-control" placeholder="Search item name">
+            </div>
+            <div class="col-md-3">
+              <select name="status" class="form-select">
+                <option value="">All statuses</option>
+                <option value="pending" {{ 'selected' if request.args.get('status')=='pending' }}>Pending</option>
+                <option value="matched" {{ 'selected' if request.args.get('status')=='matched' }}>Matched</option>
+                <option value="closed" {{ 'selected' if request.args.get('status')=='closed' }}>Closed</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <input type="date" name="from" value="{{ request.args.get('from','') }}" class="form-control">
+            </div>
+            <div class="col-md-2 d-grid">
+              <button class="btn btn-outline-primary">Filter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Where Found</th><th>Found At</th><th>Reported At</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in items %}
+            <tr>
+              <td>{{ it.id }}</td>
+              <td>{{ it.name }}</td>
+              <td>{{ it.where_found }}</td>
+              <td>
+                {% if it.found_at %}
+                  {% if it.found_at.__class__.__name__ == 'datetime' %}
+                    {{ it.found_at.strftime('%Y-%m-%d') }}
+                  {% else %}
+                    {{ it.found_at }}
+                  {% endif %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if it.reported_at %}
+                  {% if it.reported_at.__class__.__name__ == 'datetime' %}
+                    {{ it.reported_at.strftime('%Y-%m-%d') }}
+                  {% else %}
+                    {{ it.reported_at }}
+                  {% endif %}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge 
+                  {% if it.status == 'pending' %}bg-warning text-dark
+                  {% elif it.status == 'matched' %}bg-success
+                  {% else %}bg-secondary{% endif %}">
+                  {{ it.status|capitalize }}
+                </span>
+              </td>
+              <td class="d-flex gap-2">
+                <!-- View button -->
+                <button class="btn btn-sm btn-outline-primary rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#viewFoundItemModal"
+                        data-id="{{ it.id }}">
+                  <i class="bi bi-eye"></i>
+                </button>
+              
+              <!-- Edit button -->
+              <button class="btn btn-sm btn-outline-warning rounded-pill"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editFoundItemModal"
+                      data-id="{{ it.id }}"
+                      data-name="{{ it.name }}"
+                      data-category="{{ it.category }}"
+                      data-description="{{ it.description }}"
+                      data-where_found="{{ it.where_found }}"
+                      data-found_at="{{ it.found_at }}"
+                      data-action="{{ url_for('user.update_found_item', id=it.id) }}">
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              
+                <!-- Delete button -->
+                <form method="post" action="{{ url_for('user.delete_found_item', id=it.id) }}" class="d-inline">
+                  <button class="btn btn-sm btn-outline-danger rounded-pill"
+                          onclick="return confirm('Are you sure you want to delete this item?');">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+              
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if items|length == 0 %}
+      <div class="text-center text-muted py-5">
+        <p class="mb-1">No found items reported yet.</p>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<!-- Report Found Item Modal -->
+<div class="modal fade" id="reportFoundModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{{ url_for('user.report_found') }}" enctype="multipart/form-data">
+      <div class="modal-header">
+        <h5 class="modal-title">Report found item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Item name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-select">
+            <option>Accessory</option>
+            <option>Bag</option>
+            <option>Electronics</option>
+            <option>ID/Card</option>
+            <option>Others</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Where found</label>
+          <input type="text" name="where_found" class="form-control" placeholder="Building, room, area">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date/time found</label>
+          <input type="datetime-local" name="found_at" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Photo (optional)</label>
+          <input type="file" name="photo" class="form-control" accept="image/*">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success">Submit report</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View Found Item Modal -->
+<div class="modal fade" id="viewFoundItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+      
+      <!-- Header -->
+      <div class="modal-header text-white rounded-top-4"
+           style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-eye me-2"></i> View Found Item
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <!-- Body -->
+      <div class="modal-body p-4 bg-white">
+        <div class="row g-4 align-items-start">
+          
+          <!-- Left column: item details -->
+          <div class="col-md-7">
+            <div class="mb-3">
+              <i class="bi bi-tag text-purple me-2"></i>
+              <strong>Name:</strong> <span id="foundModalName"></span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-list-ul text-purple me-2"></i>
+              <strong>Category:</strong> <span id="foundModalCategory"></span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-card-text text-purple me-2"></i>
+              <strong>Description:</strong> <span id="foundModalDescription"></span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-geo-alt text-purple me-2"></i>
+              <strong>Where Found:</strong> <span id="foundModalWhere"></span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-calendar-event text-purple me-2"></i>
+              <strong>Date Found:</strong> <span id="foundModalDate"></span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-info-circle text-purple me-2"></i>
+              <strong>Status:</strong>
+              <span id="foundModalStatus" class="badge rounded-pill px-3 py-2"></span>
+            </div>
+          </div>
+          
+          <!-- Right column: item photo -->
+          <div class="col-md-5">
+            <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height:220px;">
+              <div id="foundModalPhotoContainer" class="w-100 text-center">
+                <!-- JS will inject <img> or placeholder here -->
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="modal-footer bg-light rounded-bottom-4">
+        <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+          <i class="bi bi-x-circle me-1"></i> Close
+        </button>
+        <button class="btn btn-purple rounded-pill"
+                id="editButtonInFoundViewModal"
+                style="background-color:#8A2BE2; color:#fff;"
+                data-bs-toggle="modal"
+                data-bs-target="#editFoundItemModal"
+                data-action="">
+          <i class="bi bi-pencil-square me-1"></i> Edit / Manage
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Edit Found Item Modal -->
+<div class="modal fade" id="editFoundItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+      <form method="post" id="editFoundItemForm">
+        <div class="modal-header text-white rounded-top-4"
+             style="background: linear-gradient(90deg,#d8b5d8,#8A2BE2);">
+          <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i> Edit Found Item</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3 bg-white">
+          <div class="mb-2"><label>Name</label>
+            <input type="text" name="name" id="editFoundName" class="form-control rounded-pill">
+          </div>
+          <div class="mb-2"><label>Category</label>
+            <select name="category" id="editFoundCategory" class="form-select rounded-pill">
+              <option>Accessory</option><option>Bag</option><option>Electronics</option>
+              <option>ID/Card</option><option>Others</option>
+            </select>
+          </div>
+          <div class="mb-2"><label>Where Found</label>
+            <input type="text" name="where_found" id="editFoundWhere" class="form-control rounded-pill">
+          </div>
+          <div class="mb-2"><label>Date Found</label>
+            <input type="datetime-local" name="found_at" id="editFoundAt" class="form-control rounded-pill">
+          </div>
+          <div class="mb-2"><label>Description</label>
+            <textarea name="description" id="editFoundDescription" class="form-control rounded-3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer bg-light rounded-bottom-4">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-purple rounded-pill">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('=== my_found_items.js loaded ===');
+
+  const viewModal = document.getElementById('viewFoundItemModal');
+  if (viewModal) {
+    viewModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const itemId = button?.getAttribute('data-id');
+
+      if (!itemId) {
+        console.error('No item ID found');
+        return;
+      }
+
+      // Fetch JSON instead of HTML
+      fetch(`/user/api/found_items/${itemId}`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          console.log('✓ Found item data:', data);
+
+          // Populate modal fields
+          document.getElementById('foundModalName').textContent = data.name || '—';
+          document.getElementById('foundModalCategory').textContent = data.category || '—';
+          document.getElementById('foundModalDescription').textContent = data.description || '—';
+          document.getElementById('foundModalWhere').textContent = data.where_found || '—';
+          document.getElementById('foundModalDate').textContent = data.found_at || '—';
+
+          // Status badge
+          const statusEl = document.getElementById('foundModalStatus');
+          if (statusEl) {
+            const status = (data.status || '').toLowerCase();
+            statusEl.textContent = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+            statusEl.className = 'badge rounded-pill px-3 py-2 ' + (
+              status === 'pending' ? 'bg-warning text-dark' :
+              status === 'matched' ? 'bg-success' :
+              'bg-secondary'
+            );
+          }
+
+          // Photo
+          const photoContainer = document.getElementById('foundModalPhotoContainer');
+          if (photoContainer) {
+            if (data.photo) {
+              const photoUrl = `/static/uploads/${data.photo}`;
+              photoContainer.innerHTML = `<img src="${photoUrl}" class="img-fluid rounded border" alt="Found item photo">`;
+            } else {
+              photoContainer.innerHTML = `<div class="text-muted border rounded p-3 text-center">No photo</div>`;
+            }
+          }
+
+          // Update Edit button in View modal footer
+          const editBtn = document.getElementById('editButtonInFoundViewModal');
+          if (editBtn) {
+            editBtn.setAttribute('data-name', data.name);
+            editBtn.setAttribute('data-category', data.category);
+            editBtn.setAttribute('data-description', data.description);
+            editBtn.setAttribute('data-where_found', data.where_found);
+            editBtn.setAttribute('data-found_at', data.found_at);
+            editBtn.setAttribute('data-action', `/user/found/${data.id}/update`);
+          }
+        })
+        .catch(err => console.error('✗ Fetch failed:', err));
+    });
+  }
+  
+    // Edit Found Item Modal
+    const editModal = document.getElementById('editFoundItemModal');
+    if (editModal) {
+      editModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+  
+        const data = {
+          name: button?.getAttribute('data-name'),
+          category: button?.getAttribute('data-category'),
+          description: button?.getAttribute('data-description'),
+          where_found: button?.getAttribute('data-where_found'),
+          found_at: button?.getAttribute('data-found_at'),
+          action: button?.getAttribute('data-action')
+        };
+  
+        console.log('=== Edit Found Modal Fired ===', data);
+  
+        // Populate form fields
+        document.getElementById('editFoundName').value = data.name || '';
+        document.getElementById('editFoundCategory').value = data.category || '';
+        document.getElementById('editFoundDescription').value = data.description || '';
+        document.getElementById('editFoundWhere').value = data.where_found || '';
+        document.getElementById('editFoundAt').value = data.found_at || '';
+  
+        // Set form action - IMPORTANT: Use the correct route with proper HTTP method
+        const form = document.getElementById('editFoundItemForm');
+        if (form) {
+          form.action = data.action || '';
+          form.method = 'POST';
+          console.log('Form action set to:', data.action);
+        }
+      });
+    }
+  });
+  </script>
+  
+{% endblock %}

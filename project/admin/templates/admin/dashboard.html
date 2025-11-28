@@ -1,0 +1,459 @@
+{% extends 'layouts/base_admin_dashboard.html' %}
+
+{% block content %}
+<style>
+  /* Base palette */
+  :root {
+    --blue: #0d6efd;
+    --purple: #8A2BE2;
+    --peach: #FFB487;
+    --mint: #69D2A7;
+    --yellow: #FFC857;
+    --bg: #f7f8fc;
+    --card: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body, .container-fluid {
+    background: var(--bg);
+  }
+
+  .soft-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: none;
+  }
+
+  .soft-header {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+
+  /* Welcome banner */
+  .welcome-banner {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(13,110,253,0.08), rgba(138,43,226,0.08));
+    box-shadow: var(--shadow);
+  }
+  .welcome-illustration {
+    min-height: 160px;
+    background:
+      radial-gradient(120px 100px at 20% 50%, rgba(13,110,253,0.12), transparent 60%),
+      radial-gradient(160px 120px at 70% 30%, rgba(138,43,226,0.12), transparent 60%),
+      linear-gradient(135deg, rgba(255,180,135,0.16), rgba(255,255,255,0));
+  }
+  .welcome-copy h5 {
+    color: var(--text);
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .welcome-copy p {
+    color: var(--muted);
+    margin: 0;
+  }
+  .user-pill {
+    background: #fff;
+    border-radius: 14px;
+    padding: 8px 12px;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-pill img {
+    width: 36px; height: 36px; border-radius: 50%;
+  }
+  .user-pill .role {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* Summary cards grid */
+  .summary-grid .soft-card {
+    padding: 16px;
+  }
+  .summary-title {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .summary-value {
+    color: var(--text);
+    font-weight: 800;
+    font-size: 1.8rem;
+  }
+  .tag-peach {
+    background: rgba(255,180,135,0.2);
+    color: #d56c12;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 700;
+    display: inline-block;
+  }
+  .mini-chart {
+    height: 80px;
+  }
+  .circle-indicator {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: conic-gradient(var(--blue) calc(var(--pct)*1%), rgba(13,110,253,0.15) 0);
+    display: inline-block;
+  }
+
+  /* Tables */
+  .table-panel .card-header {
+    background: linear-gradient(180deg, rgba(13,110,253,0.08), rgba(255,255,255,0.6));
+    border-bottom: none;
+  }
+  .table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+  }
+  .table thead th {
+    color: var(--muted);
+    font-weight: 700;
+    border: none;
+  }
+  .table tbody tr {
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+  .table tbody tr td {
+    border: none;
+    vertical-align: middle;
+  }
+
+  /* Scrollable table container */
+  .scrollable-table {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .scrollable-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f7f8fc;
+    z-index: 10;
+  }
+
+  /* Main dashboard container - fixed layout */
+  .dashboard-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .dashboard-top {
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+
+  .dashboard-top::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .dashboard-top::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dashboard-top::-webkit-scrollbar-thumb {
+    background: rgba(138, 43, 226, 0.3);
+    border-radius: 3px;
+  }
+
+  .dashboard-top::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 43, 226, 0.5);
+  }
+
+  .soft-card {
+  background: rgba(255,255,255,0.6);
+}
+.circle-indicator {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--purple) calc(var(--pct) * 1%),
+    rgba(138,43,226,0.15) 0
+  );
+  display: inline-block;
+}
+.donut {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: conic-gradient(var(--blue) calc(var(--pct)*1%), #e0e0e0 0);
+  position: relative;
+}
+.donut::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f7f8fc;
+}
+
+.bar-meter {
+  width: 12px;
+  height: 72px;
+  border-radius: 8px;
+  background: linear-gradient(to top, var(--purple) var(--pct), rgba(138,43,226,0.15) 0%);
+}
+
+.pulse-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FFC857;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,200,87,0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(255,200,87,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,200,87,0); }
+}
+
+
+</style>
+
+<div class="border rounded p-4" style="background: linear-gradient(90deg, #8d8991, #d8b5d8); min-height: 600px;">
+
+  <!-- Welcome banner -->
+  <div class="welcome-banner soft-card mb-4">
+    <div class="row align-items-center g-0">
+      <div class="col-12 col-md-6 p-4 welcome-illustration">
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <!-- Walking Person Animation -->
+            <lottie-player 
+              src="https://assets9.lottiefiles.com/packages/lf20_3rwasyjy.json"
+              background="transparent"
+              speed="1"
+              style="width:80px; height:60px;"
+              loop
+              autoplay>
+            </lottie-player>
+          </div>
+          <div>
+            <h5 class="mb-1">Welcome back!</h5>
+            <p class="mb-0">Lost & Found Dashboard</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Summary KPI Cards - Responsive Grid -->
+  <div class="row g-3 mb-4">
+    <!-- Total Reports -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="soft-card p-3 d-flex align-items-center justify-content-between h-100">
+        <div>
+          <div class="summary-title">Total Reports</div>
+          <div class="summary-value">
+            {{ (kpis.lost_items.value + kpis.found_items.value) if kpis else 0 }}
+          </div>
+        </div>
+        <div class="circle-indicator donut" style="
+          --pct: {{ ((kpis.found_items.value / (kpis.lost_items.value + kpis.found_items.value)) * 100)
+                    if (kpis.lost_items.value + kpis.found_items.value) else 0 }};">
+        </div>
+      </div>
+    </div>
+  
+    <!-- Lost Items -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="soft-card p-3 d-flex align-items-center justify-content-between h-100">
+        <div>
+          <div class="summary-title">Lost Items Reported</div>
+          <div class="summary-value">{{ kpis.lost_items.value }}</div>
+        </div>
+        <div class="bar-meter" style="
+          --pct: {{ ((kpis.lost_items.value / (kpis.lost_items.value + kpis.found_items.value)) * 100)
+                    if (kpis.lost_items.value + kpis.found_items.value) else 0 }};">
+        </div>
+      </div>
+    </div>
+  
+    <!-- Found Items -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="soft-card p-3 d-flex align-items-center justify-content-between h-100">
+        <div>
+          <div class="summary-title">Found Items Reported</div>
+          <div class="summary-value">{{ kpis.found_items.value }}</div>
+        </div>
+        <canvas id="foundSparkline" width="80" height="40"></canvas>
+      </div>
+    </div>
+  
+    <!-- Pending Verifications -->
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="soft-card p-3 d-flex align-items-center justify-content-between h-100">
+        <div>
+          <div class="summary-title">Pending Verifications</div>
+          <span class="tag-peach">{{ kpis.pending.value if kpis.get('pending') else 0 }}</span>
+        </div>
+        <div class="pulse-badge">{{ kpis.pending.value }}</div>
+      </div>
+    </div>
+  </div>
+  
+
+<!-- Users Overview Table - Scrollable -->
+<div class="table-panel card soft-card mb-4">
+  <div class="card-header soft-header">Users Overview</div>
+  <!-- Scrollable body -->
+  <div class="card-body p-0 scrollable-table">
+    <table class="table align-middle mb-0">
+      <thead class="table-light sticky-top">
+        <tr>
+          <th class="d-none d-md-table-cell">Profile</th>
+          <th>Full Name</th>
+          <th class="d-none d-lg-table-cell">Email</th>
+          <th class="d-none d-lg-table-cell">Role</th>
+          <th>Status</th>
+          <th class="d-none d-md-table-cell">Reports</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="d-none d-md-table-cell">
+            <img class="avatar-sm"
+              src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.photo_url) if u.photo_url else url_for('static', filename='images/avatar-default.png') }}"
+              alt="avatar">
+          </td>
+          <td class="fw-bold">{{ u.name }}</td>
+          <td class="text-muted d-none d-lg-table-cell">{{ u.email }}</td>
+          <td class="d-none d-lg-table-cell">
+            <span class="pill {{ 'pill-active' if u.role == 'admin' else 'pill' }}">{{ u.role|title }}</span>
+          </td>
+          <td>
+            {% if u.active %}
+              <span class="pill pill-active">Active</span>
+            {% else %}
+              <span class="pill pill-disabled">Disabled</span>
+            {% endif %}
+          </td>
+          <td class="fw-bold d-none d-md-table-cell">{{ u.reports_count or 0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Reports Overview Table - Scrollable -->
+<div class="table-panel card soft-card">
+  <div class="card-header soft-header">Reports Overview</div>
+  <!-- Scrollable body -->
+  <div class="card-body p-0 scrollable-table">
+    <table class="table align-middle mb-0">
+      <thead class="table-light sticky-top">
+        <tr>
+          <th>Report ID</th>
+          <th class="d-none d-md-table-cell">Reporter</th>
+          <th>Item</th>
+          <th class="d-none d-lg-table-cell">Type</th>
+          <th class="d-none d-lg-table-cell">Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reports %}
+        <tr>
+          <td class="fw-bold text-nowrap">{{ r.code or ('LF-' ~ r.id) }}</td>
+          <td class="d-none d-md-table-cell">{{ r.reporter_name }}</td>
+          <td>{{ r.name[:15] }}...</td>
+          <td class="d-none d-lg-table-cell">
+            {% if r.type == 'lost' %}
+              <span class="pill pill-lost">Lost</span>
+            {% else %}
+              <span class="pill pill-found">Found</span>
+            {% endif %}
+          </td>
+          <td class="text-muted d-none d-lg-table-cell">{{ r.reported_at.strftime('%d %b %Y') if r.reported_at else '' }}</td>
+          <td>
+            {% if r.status == 'resolved' %}
+              <span class="pill pill-resolved">Resolved</span>
+            {% elif r.status == 'match' %}
+              <span class="pill pill-match">Match</span>
+            {% else %}
+              <span class="pill pill-pending">Pending</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+  <!-- Charts: Plotly mini donuts -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script>
+    const lost = {{ kpis['lost_items']['value'] | tojson }};
+    const found = {{ kpis['found_items']['value'] | tojson }};
+    const total = (lost + found) || 0;
+
+    // Lost mini donut
+    Plotly.newPlot('lostMini', [{
+      values: [lost, Math.max(total - lost, 0)],
+      labels: ['Lost', 'Other'],
+      hole: 0.65,
+      type: 'pie',
+      marker: { colors: ['#8A2BE2', 'rgba(138,43,226,0.15)'] }
+    }], { displayModeBar: false, margin: { t: 0, b: 0, l: 0, r: 0 }, showlegend: false });
+
+    // Found mini donut
+    Plotly.newPlot('foundMini', [{
+      values: [found, Math.max(total - found, 0)],
+      labels: ['Found', 'Other'],
+      hole: 0.65,
+      type: 'pie',
+      marker: { colors: ['#0d6efd', 'rgba(13,110,253,0.15)'] }
+    }], { displayModeBar: false, margin: { t: 0, b: 0, l: 0, r: 0 }, showlegend: false });
+  </script>
+  <script>
+    const ctx = document.getElementById('foundSparkline').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [{
+          data: [1, 2, 1, 3, 2],
+          borderColor: '#69D2A7',
+          fill: false,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { display: false }, y: { display: false } }
+      }
+    });
+  </script>
+  
+</div>
+{% endblock %}
