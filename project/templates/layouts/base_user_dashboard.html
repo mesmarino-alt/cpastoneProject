@@ -330,7 +330,11 @@
  
       <a href="{{ url_for('user.my_found_items') }}"
       class="{% if request.endpoint == 'user.found_items' %}active{% endif %}">My Found Items</a>
- 
+
+      <a href="{{ url_for('user.matches') }}" 
+      class="{% if request.endpoint == 'user.matches' %}active{% endif %}">Matches</a>
+
+
       <a href="{{ url_for('user.profile') }}"
       class="{% if request.endpoint == 'user.profile' %}active{% endif %}">My Profile</a>
  

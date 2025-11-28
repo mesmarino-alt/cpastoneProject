@@ -554,3 +554,12 @@ def api_found_item(id):
         'photo': row.get('photo'),
         'reported_at': row.get('reported_at')
     })
+
+
+#ML Routes
+@user_bp.route('/matches')
+@login_required
+def matches():
+    # Placeholder: Replace with real matching logic later
+    matches = []  # or a list of dicts with matched items
+    return render_template('user/matches.html', matches=matches)
