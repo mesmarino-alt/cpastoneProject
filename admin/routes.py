@@ -6,6 +6,7 @@ from db import get_db
 from models.user import User
 from .init import admin_bp  
 
+
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
@@ -282,10 +283,7 @@ def items_page():
     
     return render_template('admin/items.html', items=items)
 
-@admin_bp.route('/claims')
-@login_required
-def claims_page():
-    return render_template('admin/claims.html')
+
 
 @admin_bp.route('/reports')
 @login_required

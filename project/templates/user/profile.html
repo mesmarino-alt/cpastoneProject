@@ -1,6 +1,129 @@
 {% extends 'layouts/base_user_dashboard.html' %}
 
 {% block content %}
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card-header {
+    background: linear-gradient(90deg, #ffa31a, #e68a00);
+    color: #1b1b1b;
+  }
+
+  .form-control, .form-select {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border: 1px solid #dee2e6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    border-color: #ffa31a;
+  }
+
+  .form-control:focus, .form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #ffa31a;
+    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+  }
+
+  .list-group-item {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #dee2e6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .list-group-item {
+    border-color: #404040;
+  }
+
+  .btn-outline-light {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+
+  body.dark-mode .btn-outline-light {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-light:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .profile-header {
+    background: linear-gradient(90deg, #8d8991, #d8b5d8);
+    transition: background 0.3s ease;
+  }
+
+  body.dark-mode .profile-header {
+    background: #292929;
+  }
+
+  .text-white {
+    transition: color 0.3s ease;
+  }
+
+  body.dark-mode .profile-header .text-white {
+    color: #ffffff !important;
+  }
+
+  .modal-header {
+    background: linear-gradient(90deg, #8A2BE2, #d8b5d8);
+    transition: background 0.3s ease;
+  }
+
+  body.dark-mode .modal-header {
+    background: linear-gradient(90deg, #ffa31a, #e68a00);
+  }
+
+  body.dark-mode .modal-header {
+    color: #1b1b1b;
+  }
+
+  body.dark-mode .modal-content {
+    background-color: #292929;
+  }
+
+  body.dark-mode .modal-body {
+    background-color: #292929;
+    color: #ffffff;
+  }
+
+  body.dark-mode .modal-footer {
+    background-color: #1b1b1b;
+  }
+</style>
+
 <div class="py-5" >
   <form method="post" action="{{ url_for('user.profile') }}" enctype="multipart/form-data">
     <div class="row justify-content-center">
@@ -9,7 +132,7 @@
           
           <!-- Profile Header Column -->
           <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 h-90" style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+            <div class="card border-0 shadow-sm rounded-4 h-90 profile-header">
               <div class="card-body text-center d-flex flex-column justify-content-center align-items-center py-4">
                 <!-- Avatar -->
                 <div class="rounded-circle overflow-hidden mb-3 profile-avatar" style="width:140px; height:140px;">
@@ -163,6 +286,11 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+
   const profilePhotoInput = document.getElementById('profilePhotoInput');
   const profilePhotoImg = document.getElementById('profilePhotoImg');
   const form = document.querySelector('form');

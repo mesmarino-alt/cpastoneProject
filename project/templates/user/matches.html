@@ -1,0 +1,271 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card-body {
+    color: var(--text);
+  }
+
+  .text-muted {
+    color: var(--muted) !important;
+  }
+
+  .small {
+    color: var(--muted);
+  }
+
+  .fw-semibold {
+    color: var(--text);
+  }
+
+  .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  body.dark-mode .btn-outline-primary {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-primary:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  body.dark-mode .btn-outline-secondary {
+    border-color: #808080;
+    color: #808080;
+  }
+
+  body.dark-mode .btn-outline-secondary:hover {
+    background-color: #808080;
+    color: #ffffff;
+  }
+
+  .form-control {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border: 1px solid #dee2e6;
+  }
+
+  body.dark-mode .form-control {
+    border-color: #ffa31a;
+  }
+
+  .form-control:focus {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #ffa31a;
+    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+  }
+
+  .alert {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  body.dark-mode .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: #ffc107;
+    color: #ffc107;
+  }
+
+  body.dark-mode .alert-success {
+    background-color: rgba(40, 167, 69, 0.15);
+    border-color: #28a745;
+    color: #28a745;
+  }
+
+  body.dark-mode .alert-danger {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+
+  body.dark-mode .alert-info {
+    background-color: rgba(23, 162, 184, 0.15);
+    border-color: #17a2b8;
+    color: #17a2b8;
+  }
+
+  body.dark-mode .alert-secondary {
+    background-color: rgba(108, 117, 125, 0.15);
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .badge {
+    transition: background-color 0.3s ease;
+  }
+
+  body.dark-mode .badge-success {
+    background-color: #28a745 !important;
+  }
+
+  .container-fluid {
+    background-color: var(--page-bg);
+  }
+</style>
+
+<div class="container-fluid py-4">
+
+  <!-- Toggle Buttons -->
+  <ul class="nav nav-tabs mb-3" id="matchesTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="lost-tab" data-bs-toggle="tab" data-bs-target="#lost" type="button" role="tab">
+        My Lost Item Matches
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="found-tab" data-bs-toggle="tab" data-bs-target="#found" type="button" role="tab">
+        My Found Items & Claim Status
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="matchesTabContent">
+
+    <!-- Lost Matches Section -->
+    <div class="tab-pane fade show active" id="lost" role="tabpanel" aria-labelledby="lost-tab">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          {% if lost_matches %}
+            <div class="row g-3">
+              {% for m in lost_matches %}
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                      <div class="small text-muted">Lost item</div>
+                      <div class="fw-semibold">{{ m.lost_item.name }}</div>
+                      <p class="text-muted small mb-2">{{ m.lost_item.description }}</p>
+                    </div>
+                    <div class="mb-2">
+                      <div class="small text-muted">Matched found item</div>
+                      <div class="fw-semibold">{{ m.found_item.name }}</div>
+                      <p class="text-muted small mb-2">{{ m.found_item.description }}</p>
+                    </div>
+                    <span class="badge bg-success mb-3">Similarity: {{ m.score|round(0) }}%</span>
+
+                    {% if m.claim.id %}
+                      {% if m.claim.status == 'Pending' %}
+                        <div class="alert alert-warning mt-auto">Your claim is pending review.</div>
+                      {% elif m.claim.status == 'Approved' %}
+                        <div class="alert alert-success mt-auto">Your claim was approved.</div>
+                      {% elif m.claim.status == 'Rejected' %}
+                        <div class="alert alert-danger mt-auto">Your claim was rejected.</div>
+                      {% else %}
+                        <div class="alert alert-secondary mt-auto">Claim status: {{ m.claim.status or 'Unknown' }}</div>
+                      {% endif %}
+                    {% else %}
+                      <form method="post" action="{{ url_for('user.submit_claim') }}" class="mt-auto">
+                        <input type="hidden" name="match_id" value="{{ m.match_id }}">
+                        <input type="hidden" name="lost_item_id" value="{{ m.lost_item.id }}">
+                        <input type="hidden" name="found_item_id" value="{{ m.found_item.id }}">
+                        <textarea name="justification" class="form-control form-control-sm mb-2"
+                                  placeholder="Explain why this is yours..." required></textarea>
+                        <div class="d-flex gap-2">
+                          <button type="submit" class="btn btn-sm btn-outline-primary">Claim</button>
+                          <a href="{{ url_for('user.matches') }}" class="btn btn-sm btn-outline-secondary">Dismiss</a>
+                        </div>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info text-center mb-0">No lost item matches yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Found Items Section -->
+    <div class="tab-pane fade" id="found" role="tabpanel" aria-labelledby="found-tab">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          {% if found_matches %}
+            <div class="row g-3">
+              {% for m in found_matches %}
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                  <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                      <div class="small text-muted">Found item</div>
+                      <div class="fw-semibold">{{ m.found_item.name }}</div>
+                      <p class="text-muted small mb-2">{{ m.found_item.description }}</p>
+                    </div>
+                    <span class="badge bg-info mb-3">Match Score: {{ m.score|round(0) }}%</span>
+
+                    {% if not m.claim.id %}
+                      <div class="alert alert-info mt-auto">Waiting for owner claim.</div>
+                    {% elif m.claim.status == 'Pending' %}
+                      <div class="alert alert-warning mt-auto">Claim pending review.</div>
+                    {% elif m.claim.status == 'Approved' %}
+                      <div class="alert alert-success mt-auto">Claim approved.</div>
+                    {% elif m.claim.status == 'Rejected' %}
+                      <div class="alert alert-danger mt-auto">Claim rejected.</div>
+                    {% else %}
+                      <div class="alert alert-secondary mt-auto">Claim status: {{ m.claim.status or 'Unknown' }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info text-center mb-0">No claims yet for your found items.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+});
+</script>
+{% endblock %}

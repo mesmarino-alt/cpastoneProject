@@ -117,3 +117,67 @@ class FoundItem:
             photo=row.get('photo'),
             reported_at=row.get('reported_at')
         )
+
+
+class Match:
+    def __init__(self, id, lost_item_id, found_item_id, score, created_at):
+        self.id = id
+        self.lost_item_id = lost_item_id
+        self.found_item_id = found_item_id
+        self.score = score
+        self.created_at = created_at
+
+    @staticmethod
+    def from_row(row: dict):
+        if not row:
+            return None
+        return Match(
+            id=row.get('id'),
+            lost_item_id=row.get('lost_item_id'),
+            found_item_id=row.get('found_item_id'),
+            score=row.get('score'),
+            created_at=row.get('created_at')
+        )
+
+    def __repr__(self):
+        return f"<Match id={self.id} lost={self.lost_item_id} found={self.found_item_id} score={self.score}>"
+
+
+class Claim:
+    def __init__(self, id, match_id, lost_item_id, found_item_id,
+                 user_id, status, justification, created_at):
+        self.id = id
+        self.match_id = match_id
+        self.lost_item_id = lost_item_id
+        self.found_item_id = found_item_id
+        self.user_id = user_id
+        self.status = status
+        self.justification = justification
+        self.created_at = created_at
+
+    @staticmethod
+    def from_row(row: dict):
+        if not row:
+            return None
+        return Claim(
+            id=row.get('id'),
+            match_id=row.get('match_id'),
+            lost_item_id=row.get('lost_item_id'),
+            found_item_id=row.get('found_item_id'),
+            user_id=row.get('user_id'),
+            status=row.get('status'),
+            justification=row.get('justification'),
+            created_at=row.get('created_at')
+        )
+
+    def is_pending(self):
+        return self.status == 'Pending'
+
+    def is_approved(self):
+        return self.status == 'Approved'
+
+    def is_rejected(self):
+        return self.status == 'Rejected'
+
+    def __repr__(self):
+        return f"<Claim id={self.id} match={self.match_id} status={self.status}>"

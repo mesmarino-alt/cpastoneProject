@@ -1,0 +1,96 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .border {
+    border-color: var(--border-color) !important;
+  }
+
+  body.dark-mode .border {
+    border-color: #404040 !important;
+  }
+
+  .bg-light {
+    background-color: var(--card-bg) !important;
+    transition: background-color 0.3s ease;
+  }
+
+  .rounded {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .text-muted {
+    color: var(--muted) !important;
+  }
+
+  .alert {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  body.dark-mode .alert-info {
+    background-color: rgba(23, 162, 184, 0.15);
+    border-color: #17a2b8;
+    color: #17a2b8;
+  }
+
+  .fw-bold {
+    color: var(--text);
+  }
+
+  h2 {
+    color: var(--text);
+    transition: color 0.3s ease;
+  }
+
+  footer {
+    color: var(--muted);
+    transition: color 0.3s ease;
+  }
+</style>
+
+<div class="border rounded p-4 bg-light">
+  <h2 class="fw-bold">Dashboard</h2>
+  <p class="text-muted">Welcome to your Find It Fast dashboard. Browse and manage lost & found items here.</p>
+
+  <div class="alert alert-info text-center mt-4">
+    No approved items found.
+  </div>
+
+  <footer class="mt-5 text-center text-muted">
+    © 2025 Find It Fast - User Dashboard
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+});
+</script>
+{% endblock %}

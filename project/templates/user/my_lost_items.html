@@ -4,13 +4,180 @@
 {% block title %}My Lost Items | Find It Fast{% endblock %}
 
 {% block content %}
-<div class="py-5" >
-  <div class="container-fluid" >
-    <div class="mx-auto p-4 bg-white rounded shadow" style="max-width: 1400px; background: linear-gradient(90deg, #8d8991, #d8b5d8);" >
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
 
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .form-control, .form-select {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border: 1px solid #dee2e6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    border-color: #ffa31a;
+  }
+
+  .form-control:focus, .form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #ffa31a;
+    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+  }
+
+  table {
+    color: var(--text);
+  }
+
+  table thead th {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #dee2e6;
+  }
+
+  body.dark-mode table thead th {
+    border-color: #404040;
+  }
+
+  table tbody td {
+    border-color: #dee2e6;
+  }
+
+  body.dark-mode table tbody td {
+    border-color: #404040;
+  }
+
+  .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  body.dark-mode .btn-outline-primary {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-primary:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+  }
+
+  body.dark-mode .btn-outline-warning {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-warning:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+
+  body.dark-mode .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+
+  body.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+  }
+
+  .modal-content {
+    background-color: var(--card-bg);
+    color: var(--text);
+  }
+
+  .modal-header {
+    background: linear-gradient(90deg, #c8a2c8, #8A2BE2);
+    color: #ffffff;
+  }
+
+  body.dark-mode .modal-header {
+    background: linear-gradient(90deg, #ffa31a, #e68a00);
+    color: #1b1b1b;
+  }
+
+  body.dark-mode .modal-body {
+    background-color: #292929;
+  }
+
+  body.dark-mode .modal-body.bg-white {
+    background-color: #292929 !important;
+  }
+
+  body.dark-mode .modal-footer {
+    background-color: #1b1b1b;
+  }
+
+  body.dark-mode .modal-footer.bg-light {
+    background-color: #1b1b1b !important;
+  }
+
+  body.dark-mode .btn-close {
+    background-color: #ffffff;
+  }
+
+  body.dark-mode .text-purple {
+    color: #ffa31a !important;
+  }
+
+  body.dark-mode .bg-light {
+    background-color: #404040 !important;
+  }
+
+  .container-section {
+    background: linear-gradient(90deg, #8d8991, #d8b5d8);
+    transition: background 0.3s ease;
+  }
+
+  body.dark-mode .container-section {
+    background: #1b1b1b;
+  }
+</style>
+
+<div class="border rounded p-4" style="background: linear-gradient(90deg, #8d8991, #d8b5d8); min-height: 600px;">
+  <div class="container-fluid">
+    <div class="soft-card shadow-sm rounded mb-4">
 
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="card-header soft-header d-flex justify-content-between align-items-center flex-wrap">
         <h3 class="fw-bold mb-0">
           <i class="bi bi-search me-2"></i> My Lost Items
         </h3>
@@ -18,6 +185,7 @@
           <i class="bi bi-plus-lg me-1"></i> Add lost item
         </button>
       </div>
+      <br>
 
       <!-- Filters -->
       <div class="card mb-4 rounded shadow-sm">
@@ -45,8 +213,10 @@
       </div>
 
       <!-- Items Table -->
-      <div class="table-responsive">
-        <table class="table">
+      <div class="table-panel card soft-card mb-4" >
+        <div class="card-header soft-header">Lost Items Overview</div>
+        <div class="card-body p-0 scrollable-table">
+        <table class="table align-middle mb-0 table-fixed">
           <thead>
             <tr>
               <th>ID</th><th>Name</th><th>Last Seen</th><th>Reported At</th><th>Status</th><th>Actions</th>
@@ -68,34 +238,30 @@
                 </span>
               </td>
               <td class="d-flex gap-2">
+                <!-- View button -->
+                <button class="btn btn-sm btn-outline-primary rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#viewLostItemModal"
+                        data-id="{{ it.id }}">
+                  <i class="bi bi-eye"></i>
+                </button>
 
-              <!-- View button -->
-              <button class="btn btn-sm btn-outline-primary rounded-pill"
-                      data-bs-toggle="modal"
-                      data-bs-target="#viewLostItemModal"
-                      data-id="{{ it.id }}">
-                <i class="bi bi-eye"></i>
-              </button>
+                <!-- Edit button -->
+                <button class="btn btn-sm btn-outline-warning rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editLostItemModal"
+                        data-id="{{ it.id }}"
+                        data-name="{{ it.name }}"
+                        data-category="{{ it.category }}"
+                        data-description="{{ it.description }}"
+                        data-lastseen="{{ it.last_seen }}"
+                        data-lastseenat="{{ it.last_seen_at }}"
+                        data-action="{{ url_for('user.update_lost_item', item_id=it.id) }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
 
-              <!-- Edit button -->
-              <button class="btn btn-sm btn-outline-warning rounded-pill"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editLostItemModal"
-                      data-id="{{ it.id }}"
-                      data-name="{{ it.name }}"
-                      data-category="{{ it.category }}"
-                      data-description="{{ it.description }}"
-                      data-lastseen="{{ it.last_seen }}"
-                      data-lastseenat="{{ it.last_seen_at }}"
-                      data-action="{{ url_for('user.update_lost_item', item_id=it.id) }}">
-                <i class="bi bi-pencil"></i>
-              </button>
-
-        
-              
                 <!-- Delete button -->
                 <form method="post" action="{{ url_for('user.delete_lost_item', item_id=it.id) }}" class="d-inline">
-
                   <button class="btn btn-sm btn-outline-danger rounded-pill"
                           onclick="return confirm('Are you sure you want to delete this item?');">
                     <i class="bi bi-trash"></i>
@@ -106,13 +272,13 @@
             {% endfor %}
           </tbody>
         </table>
-        
+      </div>
+      </div>
       </div>
 
       {% if items|length == 0 %}
       <div class="text-center text-muted py-5">
         <p class="mb-1">No lost items reported yet.</p>
-
       </div>
       {% endif %}
 
@@ -242,15 +408,12 @@
         </button>
       </div>
       
-      
     </div>
   </div>
 </div>
 
-
 <!-- Edit Lost Item Modal -->
 <div class="modal fade" id="editLostItemModal" tabindex="-1" aria-hidden="true">
-  <!-- Slimmer width -->
   <div class="modal-dialog modal-dialog-centered" style="max-width:600px;">
     <div class="modal-content shadow-lg border-0 rounded-4">
       
@@ -323,18 +486,19 @@
   </div>
 </div>
 
-
-
 {% endblock %}
-
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+
   console.log('=== my_lost_items.js loaded ===');
   
   const viewModal = document.getElementById('viewLostItemModal');
-  console.log('viewLostItemModal element:', viewModal);
   
   if (!viewModal) {
     console.error('Modal element not found!');
@@ -345,34 +509,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = event.relatedTarget;
     const itemId = button?.getAttribute('data-id');
     
-    console.log('=== View Modal Event Fired ===');
-    console.log('Button:', button);
-    console.log('Item ID:', itemId);
-    
     if (!itemId) {
       console.error('No item ID found in data-id attribute');
       return;
     }
     
     const url = `/user/api/lost_items/${itemId}`;
-    console.log('Fetching from URL:', url);
     
     fetch(url, {
       credentials: 'include',
       method: 'GET'
     })
       .then(response => {
-        console.log('Response received:', {
-          status: response.status,
-          statusText: response.statusText,
-          headers: {
-            contentType: response.headers.get('content-type')
-          }
-        });
-        
         if (!response.ok) {
           return response.text().then(text => {
-            console.error('Error response body:', text);
             throw new Error(`HTTP ${response.status}: ${text}`);
           });
         }
@@ -457,11 +607,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Edit modal
   const editModal = document.getElementById('editLostItemModal');
-  console.log('editLostItemModal element:', editModal);
   
   if (editModal) {
     editModal.addEventListener('show.bs.modal', event => {
-      console.log('=== Edit Modal Event Fired ===');
       const button = event.relatedTarget;
       
       const data = {
@@ -473,8 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
         action: button?.getAttribute('data-action')
       };
       
-      console.log('Button data:', data);
-      
       document.getElementById('editName').value = data.name || '';
       document.getElementById('editCategory').value = data.category || '';
       document.getElementById('editLastSeen').value = data.lastSeen || '';
@@ -484,7 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('editLostItemForm');
       if (form) {
         form.action = data.action || '';
-        console.log('Form action set to:', data.action);
       }
     });
   }

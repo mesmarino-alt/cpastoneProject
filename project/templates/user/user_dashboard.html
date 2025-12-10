@@ -1,0 +1,741 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  /* Page-specific variables */
+  :root {
+    --page-bg: #f7f8fc;
+    --blue: #0d6efd;
+    --purple: #8A2BE2;
+    --green: #28a745;
+    --red: #dc3545;
+    --yellow: #ffc107;
+    --bg: #f7f8fc;
+    --card: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+    --border-color: #dee2e6;
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --bg: #1b1b1b;
+    --card: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --border-color: #404040;
+  }
+
+  body, .container-fluid {
+    background: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* ====== SUMMARY CARDS ====== */
+  .summary-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .summary-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  body.dark-mode .summary-card:hover {
+    box-shadow: 0 12px 32px rgba(255, 163, 26, 0.2);
+  }
+
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), transparent);
+  }
+
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-icon.green {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+  }
+
+  body.dark-mode .card-icon.green {
+    background-color: rgba(40, 167, 69, 0.25);
+  }
+
+  .card-icon.red {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+  }
+
+  body.dark-mode .card-icon.red {
+    background-color: rgba(220, 53, 69, 0.25);
+  }
+
+  .card-icon.yellow {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+  }
+
+  body.dark-mode .card-icon.yellow {
+    background-color: rgba(255, 193, 7, 0.25);
+  }
+
+  .card-icon.blue {
+    background-color: rgba(13, 110, 253, 0.15);
+    color: #0d6efd;
+  }
+
+  body.dark-mode .card-icon.blue {
+    background-color: rgba(13, 110, 253, 0.25);
+  }
+
+  .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+
+  .card-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* ====== MAIN CONTENT AREA ====== */
+  .main-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .content-panel {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .panel-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .panel-title i {
+    color: #8a2be2;
+    font-size: 1.3rem;
+  }
+
+  body.dark-mode .panel-title i {
+    color: #ffa31a;
+  }
+
+  /* ====== TABLE SECTION ====== */
+  .table-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .table-controls input,
+  .table-controls select {
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  body.dark-mode .table-controls input,
+  body.dark-mode .table-controls select {
+    border-color: #ffa31a;
+  }
+
+  .table-controls input:focus,
+  .table-controls select:focus {
+    outline: none;
+    border-color: #ffa31a;
+    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+  }
+
+  .table-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card);
+  }
+
+  .data-table thead {
+    background-color: rgba(138, 43, 226, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  body.dark-mode .data-table thead {
+    background-color: rgba(255, 163, 26, 0.12);
+  }
+
+  .data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .data-table tbody tr:hover {
+    background-color: rgba(138, 43, 226, 0.06);
+  }
+
+  body.dark-mode .data-table tbody tr:hover {
+    background-color: rgba(255, 163, 26, 0.1);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .badge-status {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .badge-approved {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  body.dark-mode .badge-approved {
+    background-color: rgba(40, 167, 69, 0.3);
+  }
+
+  .badge-rejected {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  body.dark-mode .badge-rejected {
+    background-color: rgba(220, 53, 69, 0.3);
+  }
+
+  .badge-pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+  }
+
+  body.dark-mode .badge-pending {
+    background-color: rgba(255, 193, 7, 0.3);
+  }
+
+  .btn-view {
+    background-color: #8a2be2;
+    color: #ffffff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view:hover {
+    background-color: #7326c7;
+    transform: scale(1.05);
+  }
+
+  body.dark-mode .btn-view {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  body.dark-mode .btn-view:hover {
+    background-color: #e68a00;
+  }
+
+  /* ====== PIE CHART SECTION ====== */
+  .chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .chart-canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin-bottom: 1.5rem;
+  }
+
+  .chart-legend {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--muted);
+  }
+
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-state h5 {
+    color: var(--text);
+    margin: 1rem 0 0.5rem 0;
+  }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 1024px) {
+    .main-content-wrapper {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-cards-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .summary-cards-container {
+      grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+      max-height: 300px;
+    }
+
+    .data-table td,
+    .data-table th {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .chart-legend {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+
+  /* ====== FOOTER ====== */
+  .dashboard-footer {
+    text-align: center;
+    color: var(--muted);
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 2rem;
+  }
+
+  .dashboard-footer p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+</style>
+
+<div class="py-4" >
+  <div class="container-fluid">
+    
+    <!-- PAGE HEADER -->
+    <!-- <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 style="font-weight: 800; margin: 0; color: var(--text);">Dashboard</h2>
+        <p style="color: var(--muted); margin: 0.5rem 0 0 0;">Welcome back! Here's your activity overview.</p>
+      </div>
+      <button type="button" class="btn btn-light border" id="darkModeToggle" title="Toggle dark mode" onclick="toggleDarkMode()" style="border-radius: 8px;">
+        <i class="bi bi-moon"></i>
+      </button> -->
+      
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-cards-container">
+      <!-- Approved Reports -->
+      <div class="summary-card" style="--accent-color: #28a745;">
+        <div class="card-icon green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="card-value">{{ approved_count|default(0) }}</div>
+        <div class="card-label">Approved Reports</div>
+      </div>
+
+      <!-- Rejected Reports -->
+      <div class="summary-card" style="--accent-color: #dc3545;">
+        <div class="card-icon red">
+          <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="card-value">{{ rejected_count|default(0) }}</div>
+        <div class="card-label">Rejected Reports</div>
+      </div>
+
+      <!-- Pending Reports -->
+      <div class="summary-card" style="--accent-color: #ffc107;">
+        <div class="card-icon yellow">
+          <i class="bi bi-clock"></i>
+        </div>
+        <div class="card-value">{{ pending_count|default(0) }}</div>
+        <div class="card-label">Pending Reports</div>
+      </div>
+
+      <!-- Total Reports -->
+      <div class="summary-card" style="--accent-color: #0d6efd;">
+        <div class="card-icon blue">
+          <i class="bi bi-file-text"></i>
+        </div>
+        <div class="card-value">{{ total_count|default(0) }}</div>
+        <div class="card-label">Total Reports</div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content-wrapper">
+      
+      <!-- LEFT PANEL: Lost & Found Table -->
+      <div class="content-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">
+            <i class="bi bi-list-ul"></i> Lost & Found Items
+          </h3>
+        </div>
+
+        <!-- Table Controls -->
+        <div class="table-controls">
+          <input type="text" placeholder="Search items..." class="flex-grow-1" style="max-width: 200px;" id="tableSearch" onkeyup="filterTable()">
+          <select id="categoryFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+            <option value="">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Gadgets">Gadgets</option>
+            <option value="Bags">Bags</option>
+            <option value="Wallets">Wallets</option>
+            <option value="Documents">Documents</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+          <table class="data-table" id="itemsTable">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Date Reported</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if items %}
+                {% for item in items %}
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.category or 'General' }}</td>
+                  <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else 'N/A' }}</td>
+                  <td>
+                    {% if item.status == 'approved' %}
+                      <span class="badge-status badge-approved">Approved</span>
+                    {% elif item.status == 'rejected' %}
+                      <span class="badge-status badge-rejected">Rejected</span>
+                    {% else %}
+                      <span class="badge-status badge-pending">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <button class="btn-view" onclick="viewItem({{ item.id }})">View</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem;">
+                  <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p style="margin: 0;">No items found</p>
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Pie Chart -->
+      <div class="content-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">
+            <i class="bi bi-pie-chart"></i> Category Breakdown
+          </h3>
+        </div>
+
+        {% if category_data %}
+        <div class="chart-container">
+          <div class="chart-canvas-wrapper">
+            <canvas id="categoryChart"></canvas>
+          </div>
+          <div class="chart-legend">
+            {% for category, data in category_data.items() %}
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: {{ data.color }};"></div>
+              <span><strong>{{ category }}</strong> {{ data.count }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-pie-chart"></i>
+          <h5>No Data Available</h5>
+          <p>Start reporting items to see the breakdown.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="dashboard-footer">
+      <p>© 2025 Find It Fast - User Dashboard</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- View Item Modal -->
+<div class="modal fade" id="viewItemModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: var(--card); color: var(--text); border: 1px solid var(--border-color);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title">Item Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Content loaded dynamically -->
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let categoryChartInstance = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      updateMoonIcon(true);
+    }
+    initCategoryChart();
+  });
+
+  function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+    updateMoonIcon(isDarkMode);
+    updateChartColors();
+  }
+
+  function updateMoonIcon(isDarkMode) {
+    const icon = document.querySelector('#darkModeToggle i');
+    icon.classList.toggle('bi-sun', isDarkMode);
+    icon.classList.toggle('bi-moon', !isDarkMode);
+  }
+
+  function filterTable() {
+    const searchInput = document.getElementById('tableSearch').value.toLowerCase();
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const rows = document.querySelectorAll('#itemsTable tbody tr');
+
+    rows.forEach(row => {
+      const name = row.cells[0].textContent.toLowerCase();
+      const category = row.cells[1].textContent;
+      const searchMatch = name.includes(searchInput);
+      const categoryMatch = categoryFilter === '' || category === categoryFilter;
+      row.style.display = searchMatch && categoryMatch ? '' : 'none';
+    });
+  }
+
+  function viewItem(itemId) {
+    const modal = new bootstrap.Modal(document.getElementById('viewItemModal'));
+    document.getElementById('modalBody').innerHTML = `
+      <p><strong>Item ID:</strong> ${itemId}</p>
+      <p><strong>Name:</strong> Sample Item</p>
+      <p><strong>Description:</strong> Item description goes here.</p>
+      <p><strong>Category:</strong> Electronics</p>
+      <p><strong>Status:</strong> <span class="badge-status badge-approved">Approved</span></p>
+    `;
+    modal.show();
+  }
+
+  function initCategoryChart() {
+    const canvas = document.getElementById('categoryChart');
+    if (!canvas) return;
+
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    const borderColor = isDark ? '#292929' : '#ffffff';
+
+    const labels = [
+      {% for category, data in category_data.items() %}
+        "{{ category }}",
+      {% endfor %}
+    ];
+    const values = [
+      {% for category, data in category_data.items() %}
+        {{ data.count }},
+      {% endfor %}
+    ];
+    const colors = [
+      {% for category, data in category_data.items() %}
+        "{{ data.color }}",
+      {% endfor %}
+    ];
+
+    const ctx = canvas.getContext('2d');
+    categoryChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderColor: borderColor,
+          borderWidth: 2,
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.parsed;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function updateChartColors() {
+    if (categoryChartInstance) {
+      categoryChartInstance.destroy();
+      initCategoryChart();
+    }
+  }
+</script>
+
+
+<style>
+  .modal-content {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .modal-content {
+    background-color: #292929;
+    color: #ffffff;
+    border-color: #404040;
+  }
+
+  body.dark-mode .btn-close {
+    filter: brightness(1.5);
+  }
+</style>
+
+{% endblock %}

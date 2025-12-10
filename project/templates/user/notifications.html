@@ -1,0 +1,223 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card-header {
+    background-color: #ffffff;
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .card-header {
+    background-color: #404040;
+  }
+
+  .list-group-item {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #dee2e6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .list-group-item {
+    border-color: #404040;
+  }
+
+  .list-group-item.unread {
+    border-left: 4px solid #ffa31a;
+    background-color: rgba(255, 163, 26, 0.1);
+  }
+
+  body.dark-mode .list-group-item.unread {
+    background-color: rgba(255, 163, 26, 0.15);
+  }
+
+  .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  body.dark-mode .btn-outline-primary {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-primary:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-link {
+    color: #0d6efd;
+    transition: color 0.3s ease;
+  }
+
+  body.dark-mode .btn-link {
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-link:hover {
+    color: #e68a00;
+  }
+
+  .text-muted {
+    color: var(--muted) !important;
+  }
+
+  .badge {
+    transition: background-color 0.3s ease;
+  }
+
+  body.dark-mode .badge-success {
+    background-color: #28a745;
+  }
+
+  body.dark-mode .badge-danger {
+    background-color: #dc3545;
+  }
+
+  body.dark-mode .badge-info {
+    background-color: #17a2b8;
+  }
+
+  body.dark-mode .badge-warning {
+    background-color: #ffc107;
+    color: #1b1b1b;
+  }
+
+  body.dark-mode .badge-secondary {
+    background-color: #6c757d;
+  }
+</style>
+
+<div class="container-fluid py-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">
+          <i class="bi bi-bell"></i> My Notifications
+        </h5>
+        {% if notifications and notifications|length > 0 %}
+        <form method="post" action="{{ url_for('notifications.mark_all_notifications_read') }}" style="display: inline;">
+          <button type="submit" class="btn btn-sm btn-outline-primary">
+            Mark all as read
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card-body">
+      {% if notifications and notifications|length > 0 %}
+        <div class="list-group list-group-flush">
+          {% for notif in notifications %}
+          <div class="list-group-item p-4 {% if not notif.read_at %}bg-light border-start border-4 border-primary{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="flex-grow-1">
+                <h6 class="mb-2 fw-bold">
+                  {% if notif.type == 'claim_approved' %}
+                    <span class="badge bg-success me-2">
+                      <i class="bi bi-check-circle"></i> Approved
+                    </span>
+                  {% elif notif.type == 'claim_rejected' %}
+                    <span class="badge bg-danger me-2">
+                      <i class="bi bi-x-circle"></i> Rejected
+                    </span>
+                  {% elif notif.type == 'new_claim' %}
+                    <span class="badge bg-info me-2">
+                      <i class="bi bi-file-earmark-check"></i> New Claim
+                    </span>
+                  {% elif notif.type == 'item_match' %}
+                    <span class="badge bg-warning me-2">
+                      <i class="bi bi-link-45deg"></i> New Match
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary me-2">
+                      <i class="bi bi-info-circle"></i> Info
+                    </span>
+                  {% endif %}
+                  {{ notif.title }}
+                </h6>
+                <p class="text-muted mb-2">{{ notif.message }}</p>
+                <small class="text-muted">
+                  <i class="bi bi-calendar-event"></i>
+                  {{ notif.created_at.strftime('%B %d, %Y at %I:%M %p') if notif.created_at else 'N/A' }}
+                  {% if notif.read_at %}
+                  <span class="ms-3">
+                    <i class="bi bi-check2-all text-success"></i> Read on 
+                    {{ notif.read_at.strftime('%B %d, %Y at %I:%M %p') }}
+                  </span>
+                  {% endif %}
+                </small>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-top">
+              {% if not notif.read_at %}
+              <form method="post" action="{{ url_for('notifications.mark_notification_read', notification_id=notif.id) }}" 
+                    style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-link p-0 me-3" 
+                        style="color: #0d6efd;">
+                  <i class="bi bi-check2"></i> Mark as read
+                </button>
+              </form>
+              {% endif %}
+              <form method="post" action="{{ url_for('notifications.delete_user_notification', notification_id=notif.id) }}" 
+                    style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-link p-0" 
+                        style="color: #6c757d;">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+          <h5 class="mt-3 text-muted">No Notifications</h5>
+          <p class="text-muted">You're all caught up! Check back later for updates about your claims and items.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+});
+</script>
+{% endblock %}

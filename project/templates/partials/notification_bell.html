@@ -1,0 +1,94 @@
+<!-- Notification Bell Dropdown Component -->
+<div class="dropdown notification-dropdown">
+  <!-- Bell Icon -->
+  <button class="btn btn-link position-relative p-0"
+          type="button"
+          id="notificationBell"
+          data-bs-toggle="dropdown"
+          data-bs-display="static"
+          aria-expanded="false">
+    <i class="bi bi-bell fs-5"></i>
+    {% if unread_notifications_count > 0 %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+        {{ unread_notifications_count }}
+      </span>
+    {% endif %}
+  </button>
+
+  <!-- Dropdown Menu -->
+  <ul class="dropdown-menu dropdown-menu-end notification-menu"
+      aria-labelledby="notificationBell">
+    
+    <!-- Header -->
+    <li class="dropdown-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+      <span class="fw-semibold">Notifications</span>
+      {% if unread_notifications_count > 0 %}
+        <form method="post" action="{{ url_for('notifications.mark_all_notifications_read') }}">
+          <button type="submit" class="btn btn-sm btn-link text-primary p-0">Mark all read</button>
+        </form>
+      {% endif %}
+    </li>
+
+    <!-- Notifications List -->
+    {% if notifications and notifications|length > 0 %}
+      <div class="notification-scroll">
+        {% for notif in notifications %}
+        <li>
+          <div class="dropdown-item notification-item {% if not notif.read_at %}unread{% endif %}">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="fw-semibold">
+                  {% if notif.type == 'claim_approved' %}
+                    <i class="bi bi-check-circle text-success me-1"></i>
+                  {% elif notif.type == 'claim_rejected' %}
+                    <i class="bi bi-x-circle text-danger me-1"></i>
+                  {% elif notif.type == 'new_claim' %}
+                    <i class="bi bi-file-earmark-check text-info me-1"></i>
+                  {% else %}
+                    <i class="bi bi-info-circle text-muted me-1"></i>
+                  {% endif %}
+                  {{ notif.title }}
+                </div>
+                <div class="text-muted small">{{ notif.message }}</div>
+                <div class="text-muted small">
+                  <i class="bi bi-clock me-1"></i>
+                  {{ notif.created_at.strftime('%b %d, %Y %I:%M %p') if notif.created_at else 'N/A' }}
+                </div>
+              </div>
+              {% if not notif.read_at %}
+              <form method="post" action="{{ url_for('notifications.mark_notification_read', notification_id=notif.id) }}">
+                <button type="submit" class="btn btn-sm btn-link text-primary p-0 ms-2" title="Mark as read">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+            <form method="post" action="{{ url_for('notifications.delete_user_notification', notification_id=notif.id) }}">
+              <button type="submit" class="btn btn-sm btn-link text-secondary p-0 mt-2" title="Delete">
+                <i class="bi bi-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+        </li>
+        <li><hr class="dropdown-divider my-1"></li>
+        {% endfor %}
+      </div>
+
+      <!-- View All -->
+      <li>
+        <a class="dropdown-item text-center small text-primary py-2"
+           href="{{ url_for('notifications.notifications_page') }}">
+          View all notifications →
+        </a>
+      </li>
+    {% else %}
+      <!-- Empty State -->
+      <li>
+        <div class="text-center p-4 text-muted">
+          <i class="bi bi-inbox fs-2"></i>
+          <p class="mt-2 mb-0">No notifications yet</p>
+        </div>
+      </li>
+    {% endif %}
+  </ul>
+</div>

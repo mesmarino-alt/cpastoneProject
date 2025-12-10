@@ -1,15 +1,21 @@
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import current_user, login_required
 import os
+import json
+import pymysql
 from werkzeug.utils import secure_filename
 from auth.routes import UPLOAD_FOLDER
 from db import get_db
 from models.user import FoundItem, LostItem
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from services.embeddings import compute_embedding
+from services.matching import run_matching_pipeline
+
 
 # Create a Blueprint named "user" with updated template folder
-user_bp = Blueprint('user', __name__, template_folder='../project/user/templates')
+user_bp = Blueprint('user', __name__)
+
 
 UPLOADS_DIR = os.path.join('static', 'uploads')
 ALLOWED_EXTS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -18,8 +24,60 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTS
 
 @user_bp.route('/dashboard')
+@login_required
 def dashboard():
-    return render_template('user/user_dashboard.html')
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+
+    # KPI counts from claims
+    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Approved'")
+    approved_count = cur.fetchone()['c']
+    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Rejected'")
+    rejected_count = cur.fetchone()['c']
+    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Pending'")
+    pending_count = cur.fetchone()['c']
+    cur.execute("SELECT COUNT(*) AS c FROM claims")
+    total_count = cur.fetchone()['c']
+
+    # All items (lost + found) for table
+    cur.execute("""
+        SELECT li.id, li.name, li.category, c.created_at AS created_at, c.status
+        FROM lost_items li
+        LEFT JOIN claims c ON c.lost_item_id = li.id
+        UNION
+        SELECT fi.id, fi.name, fi.category, c.created_at AS created_at, c.status
+        FROM found_items fi
+        LEFT JOIN claims c ON c.found_item_id = fi.id
+        ORDER BY created_at DESC
+    """)
+    items = cur.fetchall()
+
+    # Category breakdown
+    cur.execute("""
+        SELECT category, COUNT(*) AS count
+        FROM (
+            SELECT category FROM lost_items
+            UNION ALL
+            SELECT category FROM found_items
+        ) all_items
+        GROUP BY category
+    """)
+    rows = cur.fetchall()
+    colors = ['#0d6efd', '#8A2BE2', '#FFC857', '#69D2A7', '#FFB487']
+    category_data = {row['category']: {'count': row['count'], 'color': colors[i % len(colors)]}
+                     for i, row in enumerate(rows)}
+
+    cur.close()
+    conn.close()
+
+    return render_template('user/user_dashboard.html',
+                           approved_count=approved_count,
+                           rejected_count=rejected_count,
+                           pending_count=pending_count,
+                           total_count=total_count,
+                           items=items,
+                           category_data=category_data)
+
 
 @user_bp.route('/lost-items')
 @login_required
@@ -107,7 +165,7 @@ def report_lost():
     category = request.form.get('category', '').strip()
     description = request.form.get('description', '').strip()
     last_seen = request.form.get('last_seen', '').strip()
-    last_seen_at = request.form.get('last_seen_at') or None  # datetime-local value
+    last_seen_at = request.form.get('last_seen_at') or None
     photo_file = request.files.get('photo')
 
     if not name:
@@ -130,8 +188,37 @@ def report_lost():
             VALUES (%s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
         """, (int(current_user.get_id()), name, category, description, last_seen, last_seen_at, photo_filename))
         conn.commit()
+
+        # Get new item id
+        cur.execute("SELECT LAST_INSERT_ID()")
+        result = cur.fetchone()
+        item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
+
+        # Compute and store embedding
+        print(f"\n[LOST] Computing embedding for item {item_id}...")
+        emb = compute_embedding(description)
+        
+        if emb:
+            emb_json = json.dumps(emb)
+            cur.execute("UPDATE lost_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
+            conn.commit()
+            print(f"[LOST] ✓ Embedding saved for item {item_id}")
+        else:
+            print(f"[LOST] ✗ Failed to compute embedding")
+    except Exception as e:
+        print(f"[LOST] ERROR: {str(e)}")
+        conn.rollback()
+        flash(f'Error reporting item: {str(e)}', 'danger')
+        return redirect(url_for('user.my_lost_items'))
     finally:
         cur.close(); conn.close()
+
+    # Run matching pipeline
+    print(f"[LOST] Triggering matching pipeline...")
+    try:
+        run_matching_pipeline(threshold=0.75)
+    except Exception as e:
+        print(f"[LOST] Matching pipeline error: {str(e)}")
 
     flash('Lost item reported successfully.', 'success')
     return redirect(url_for('user.my_lost_items'))
@@ -151,8 +238,8 @@ def report_found():
     if photo and allowed_file(photo.filename):
         filename = secure_filename(photo.filename)
         photo_filename = f"{current_user.id}_{filename}"
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        photo.save(os.path.join(UPLOAD_FOLDER, photo_filename))
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+        photo.save(os.path.join(UPLOADS_DIR, photo_filename))
 
     conn = get_db(); cur = conn.cursor()
     try:
@@ -162,8 +249,35 @@ def report_found():
             VALUES (%s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
         """, (int(current_user.get_id()), name, category, description, where_found, found_at, photo_filename))
         conn.commit()
+
+        cur.execute("SELECT LAST_INSERT_ID()")
+        result = cur.fetchone()
+        item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
+
+        print(f"\n[FOUND] Computing embedding for item {item_id}...")
+        emb = compute_embedding(description)
+        
+        if emb:
+            emb_json = json.dumps(emb)
+            cur.execute("UPDATE found_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
+            conn.commit()
+            print(f"[FOUND] ✓ Embedding saved for item {item_id}")
+        else:
+            print(f"[FOUND] ✗ Failed to compute embedding")
+    except Exception as e:
+        print(f"[FOUND] ERROR: {str(e)}")
+        conn.rollback()
+        flash(f'Error reporting item: {str(e)}', 'danger')
+        return redirect(url_for('user.my_found_items'))
     finally:
         cur.close(); conn.close()
+
+    # Run matching pipeline
+    print(f"[FOUND] Triggering matching pipeline...")
+    try:
+        run_matching_pipeline(threshold=0.75)
+    except Exception as e:
+        print(f"[FOUND] Matching pipeline error: {str(e)}")
 
     flash('Found item reported successfully!', 'success')
     return redirect(url_for('user.my_found_items'))
@@ -556,10 +670,5 @@ def api_found_item(id):
     })
 
 
-#ML Routes
-@user_bp.route('/matches')
-@login_required
-def matches():
-    # Placeholder: Replace with real matching logic later
-    matches = []  # or a list of dicts with matched items
-    return render_template('user/matches.html', matches=matches)
+#ML Routes Import
+import user.user_matches

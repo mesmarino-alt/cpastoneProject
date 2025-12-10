@@ -2,22 +2,173 @@
 {% block title %}My Found Items | Find It Fast{% endblock %}
 
 {% block content %}
-<div class="py-5" >
+<style>
+  :root {
+    --page-bg: #f7f8fc;
+    --card-bg: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+  }
+
+  body.dark-mode {
+    --page-bg: #1b1b1b;
+    --card-bg: #292929;
+    --text: #ffffff;
+    --muted: #808080;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .form-control, .form-select {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border: 1px solid #dee2e6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    border-color: #ffa31a;
+  }
+
+  .form-control:focus, .form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text);
+    border-color: #ffa31a;
+    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+  }
+
+  table {
+    color: var(--text);
+  }
+
+  table thead th {
+    background-color: var(--card-bg);
+    color: var (--text);
+    border-color: #dee2e6;
+  }
+
+  body.dark-mode table thead th {
+    border-color: #404040;
+  }
+
+  table tbody td {
+    border-color: #dee2e6;
+  }
+
+  body.dark-mode table tbody td {
+    border-color: #404040;
+  }
+
+  .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+
+  body.dark-mode .btn-outline-primary {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-primary:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+  }
+
+  body.dark-mode .btn-outline-warning {
+    border-color: #ffa31a;
+    color: #ffa31a;
+  }
+
+  body.dark-mode .btn-outline-warning:hover {
+    background-color: #ffa31a;
+    color: #1b1b1b;
+  }
+
+  .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+
+  body.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+  }
+
+  .modal-content {
+    background-color: var(--card-bg);
+    color: var(--text);
+  }
+
+  .modal-header {
+    background: linear-gradient(90deg, #c8a2c8, #8A2BE2);
+    color: #ffffff;
+  }
+
+  body.dark-mode .modal-header {
+    background: linear-gradient(90deg, #ffa31a, #e68a00);
+    color: #1b1b1b;
+  }
+
+  body.dark-mode .modal-body.bg-white {
+    background-color: #292929 !important;
+  }
+
+  body.dark-mode .modal-footer.bg-light {
+    background-color: #1b1b1b !important;
+  }
+
+  body.dark-mode .text-purple {
+    color: #ffa31a !important;
+  }
+
+  body.dark-mode .bg-light {
+    background-color: #404040 !important;
+  }
+
+  .container-section {
+    background: linear-gradient(90deg, #8d8991, #d8b5d8);
+    transition: background 0.3s ease;
+  }
+
+  body.dark-mode .container-section {
+    background: #1b1b1b;
+  }
+</style>
+
+<div class="py-5">
   <div class="container-fluid">
-    <div class="mx-auto p-4 bg-white rounded shadow" style="max-width: 1400px; background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+    <div class="mx-auto p-4 rounded shadow container-section" style="max-width: 1400px;">
       
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-3" >
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="fw-bold mb-0">
           <i class="bi bi-box-seam me-2"></i> My Found Items
         </h3>
-        <button class="btn btn-success btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal">
+        <button class="btn btn-success btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal" style="background-color:#8A2BE2; color:#fff;">
           <i class="bi bi-plus-lg me-1"></i> Add found item
         </button>
       </div>
 
       <!-- Filters -->
-      <div class="card mb-4 rounded shadow-sm" >
+      <div class="card mb-4 rounded shadow-sm">
         <div class="card-body py-3">
           <form class="row g-2" method="get">
             <div class="col-md-4">
@@ -94,21 +245,20 @@
                   <i class="bi bi-eye"></i>
                 </button>
               
-              <!-- Edit button -->
-              <button class="btn btn-sm btn-outline-warning rounded-pill"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editFoundItemModal"
-                      data-id="{{ it.id }}"
-                      data-name="{{ it.name }}"
-                      data-category="{{ it.category }}"
-                      data-description="{{ it.description }}"
-                      data-where_found="{{ it.where_found }}"
-                      data-found_at="{{ it.found_at }}"
-                      data-action="{{ url_for('user.update_found_item', id=it.id) }}">
-                <i class="bi bi-pencil"></i>
-              </button>
+                <!-- Edit button -->
+                <button class="btn btn-sm btn-outline-warning rounded-pill"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editFoundItemModal"
+                        data-id="{{ it.id }}"
+                        data-name="{{ it.name }}"
+                        data-category="{{ it.category }}"
+                        data-description="{{ it.description }}"
+                        data-where_found="{{ it.where_found }}"
+                        data-found_at="{{ it.found_at }}"
+                        data-action="{{ url_for('user.update_found_item', id=it.id) }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
 
-              
                 <!-- Delete button -->
                 <form method="post" action="{{ url_for('user.delete_found_item', id=it.id) }}" class="d-inline">
                   <button class="btn btn-sm btn-outline-danger rounded-pill"
@@ -117,7 +267,6 @@
                   </button>
                 </form>
               </td>
-              
             </tr>
             {% endfor %}
           </tbody>
@@ -304,6 +453,11 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const darkMode = localStorage.getItem('darkMode') === 'true';
+  if (darkMode) {
+    document.body.classList.add('dark-mode');
+  }
+
   console.log('=== my_found_items.js loaded ===');
 
   const viewModal = document.getElementById('viewFoundItemModal');
@@ -317,20 +471,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Fetch JSON instead of HTML
       fetch(`/user/api/found_items/${itemId}`, { credentials: 'include' })
         .then(r => r.json())
         .then(data => {
           console.log('✓ Found item data:', data);
 
-          // Populate modal fields
           document.getElementById('foundModalName').textContent = data.name || '—';
           document.getElementById('foundModalCategory').textContent = data.category || '—';
           document.getElementById('foundModalDescription').textContent = data.description || '—';
           document.getElementById('foundModalWhere').textContent = data.where_found || '—';
           document.getElementById('foundModalDate').textContent = data.found_at || '—';
 
-          // Status badge
           const statusEl = document.getElementById('foundModalStatus');
           if (statusEl) {
             const status = (data.status || '').toLowerCase();
@@ -342,7 +493,6 @@ document.addEventListener('DOMContentLoaded', () => {
             );
           }
 
-          // Photo
           const photoContainer = document.getElementById('foundModalPhotoContainer');
           if (photoContainer) {
             if (data.photo) {
@@ -353,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
 
-          // Update Edit button in View modal footer
           const editBtn = document.getElementById('editButtonInFoundViewModal');
           if (editBtn) {
             editBtn.setAttribute('data-name', data.name);
@@ -368,40 +517,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-    // Edit Found Item Modal
-    const editModal = document.getElementById('editFoundItemModal');
-    if (editModal) {
-      editModal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget;
-  
-        const data = {
-          name: button?.getAttribute('data-name'),
-          category: button?.getAttribute('data-category'),
-          description: button?.getAttribute('data-description'),
-          where_found: button?.getAttribute('data-where_found'),
-          found_at: button?.getAttribute('data-found_at'),
-          action: button?.getAttribute('data-action')
-        };
-  
-        console.log('=== Edit Found Modal Fired ===', data);
-  
-        // Populate form fields
-        document.getElementById('editFoundName').value = data.name || '';
-        document.getElementById('editFoundCategory').value = data.category || '';
-        document.getElementById('editFoundDescription').value = data.description || '';
-        document.getElementById('editFoundWhere').value = data.where_found || '';
-        document.getElementById('editFoundAt').value = data.found_at || '';
-  
-        // Set form action - IMPORTANT: Use the correct route with proper HTTP method
-        const form = document.getElementById('editFoundItemForm');
-        if (form) {
-          form.action = data.action || '';
-          form.method = 'POST';
-          console.log('Form action set to:', data.action);
-        }
-      });
-    }
-  });
-  </script>
-  
+  const editModal = document.getElementById('editFoundItemModal');
+  if (editModal) {
+    editModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const data = {
+        name: button?.getAttribute('data-name'),
+        category: button?.getAttribute('data-category'),
+        description: button?.getAttribute('data-description'),
+        where_found: button?.getAttribute('data-where_found'),
+        found_at: button?.getAttribute('data-found_at'),
+        action: button?.getAttribute('data-action')
+      };
+
+      document.getElementById('editFoundName').value = data.name || '';
+      document.getElementById('editFoundCategory').value = data.category || '';
+      document.getElementById('editFoundDescription').value = data.description || '';
+      document.getElementById('editFoundWhere').value = data.where_found || '';
+      document.getElementById('editFoundAt').value = data.found_at || '';
+      
+      const form = document.getElementById('editFoundItemForm');
+      if (form) {
+        form.action = data.action || '';
+        form.method = 'POST';
+      }
+    });
+  }
+});
+</script>
 {% endblock %}

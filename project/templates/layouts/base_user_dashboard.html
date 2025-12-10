@@ -7,49 +7,122 @@
   <title>Find It Fast - User Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
+  
   <style>
-    body { background-color: #b7b7b7; }
+    /* Light Mode Variables */
+    :root {
+      --dashboard-bg: #fbf7fc;
+      --sidebar-bg: #343a40;
+      --sidebar-text: #ffffff;
+      --sidebar-hover: #495057;
+      --sidebar-active: #8a2be2;
+      --sidebar-active-text: #ffffff;
+      --content-bg: #f7f8fc;
+      --text-primary: #2b2d42;
+      --text-muted: #6c757d;
+      --card-bg: #ffffff;
+      --border-color: #dee2e6;
+      --flash-bg: #ffffff;
+      --flash-icon: #269b24;
+      --flash-text: #269b24;
+      --flash-muted: #555;
+      --input-bg: #ffffff;
+      --input-border: #dee2e6;
+      --button-bg: #6f42c1;
+      --button-hover: #7326c7;
+    }
+
+    /* Dark Mode Variables */
+    body.dark-mode {
+      --dashboard-bg: #1b1b1b;
+      --sidebar-bg: #292929;
+      --sidebar-text: #ffffff;
+      --sidebar-hover: #3a3a3a;
+      --sidebar-active: #ffa31a;
+      --sidebar-active-text: #1b1b1b;
+      --content-bg: #1b1b1b;
+      --text-primary: #ffffff;
+      --text-muted: #808080;
+      --card-bg: #292929;
+      --border-color: #404040;
+      --flash-bg: #292929;
+      --flash-icon: #ffa31a;
+      --flash-text: #ffffff;
+      --flash-muted: #808080;
+      --input-bg: #292929;
+      --input-border: #ffa31a;
+      --button-bg: #ffa31a;
+      --button-hover: #e68a00;
+    }
+
+    body { 
+      background-color: var(--dashboard-bg);
+      color: var(--text-primary);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
     .sidebar {
       height: 100vh;
-      background-color: #343a40;
-      color: white;
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
       overflow-y: auto;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease;
     }
+
     .sidebar.mobile-hidden {
       transform: translateX(-100%);
     }
+
     .sidebar a {
-      color: white;
+      color: var(--sidebar-text);
       text-decoration: none;
       display: block;
       padding: 0.75rem 1rem;
       border-radius: 8px;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
+
     .sidebar a:hover {
-      background-color: #495057;
+      background-color: var(--sidebar-hover);
     }
+
     .sidebar a.active {
-      background-color: #8a2be2;
-      color: #ffffff;
+      background-color: var(--sidebar-active);
+      color: var(--sidebar-active-text);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       font-weight: 600;
     }
-    .content { 
-      padding: 2rem; 
-      transition: margin-left 0.3s ease;
+
+    body.dark-mode .sidebar a.active {
+      box-shadow: 0 2px 6px rgba(255,163,26,0.3);
     }
+
+    .content { 
+      padding: 2rem;
+      background-color: var(--content-bg);
+      transition: margin-left 0.3s ease, background-color 0.3s ease;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
     .bg-purple {
-      background-color: #6f42c1;
+      background-color: var(--button-bg);
+      color: var(--sidebar-active-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode .bg-purple {
+      background-color: #ffa31a;
+      color: #1b1b1b;
     }
 
     /* Navbar toggle button */
     .navbar-toggle {
       display: none;
-      background-color: #343a40;
-      border: 1px solid #495057;
-      color: white;
+      background-color: var(--sidebar-bg);
+      border: 1px solid var(--input-border);
+      color: var(--sidebar-text);
       font-size: 1.5rem;
       cursor: pointer;
       position: fixed;
@@ -61,9 +134,19 @@
       transition: all 0.3s ease;
     }
 
+    body.dark-mode .navbar-toggle {
+      border-color: #ffa31a;
+      color: #ffa31a;
+    }
+
     .navbar-toggle:hover {
-      background-color: #495057;
+      background-color: var(--sidebar-hover);
       transform: scale(1.1);
+    }
+
+    body.dark-mode .navbar-toggle:hover {
+      background-color: #ffa31a;
+      color: #1b1b1b;
     }
 
     .sidebar-overlay {
@@ -94,7 +177,7 @@
       border-radius: 8px;
       box-sizing: border-box;
       padding: 10px 15px;
-      background-color: #ffffff;
+      background-color: var(--flash-bg);
       box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
       position: relative;
       overflow: hidden;
@@ -103,11 +186,18 @@
       justify-content: space-around;
       gap: 15px;
       margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    body.dark-mode .flash-card {
+      box-shadow: rgba(255, 163, 26, 0.2) 0px 8px 24px;
+      border-left: 4px solid #ffa31a;
     }
 
     .icon {
       font-size: 17px;
-      color: #269b24;
+      color: var(--flash-icon);
+      transition: color 0.3s ease;
     }
 
     .message-text-container {
@@ -119,36 +209,43 @@
     }
 
     .message-text {
-      color: #269b24;
+      color: var(--flash-text);
       font-size: 17px;
       font-weight: 700;
       margin: 0;
+      transition: color 0.3s ease;
     }
 
     .sub-text {
       font-size: 14px;
-      color: #555;
+      color: var(--flash-muted);
       margin: 0;
+      transition: color 0.3s ease;
     }
 
     .cross-icon {
       font-size: 18px;
-      color: #555;
+      color: var(--flash-muted);
       cursor: pointer;
       transition: color 0.2s ease;
     }
+
     .cross-icon:hover {
-      color: #000;
+      color: var(--flash-icon);
     }
+
     .btn-purple {
-      background-color: #8A2BE2;
-      color: white;
+      background-color: var(--button-bg);
+      color: var(--sidebar-active-text);
       border: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
+
     .btn-purple:hover {
-      background-color: #7326c7;
-      color: white;
+      background-color: var(--button-hover);
+      color: var(--sidebar-active-text);
     }
+
     .welcome-banner {
       min-height: 160px;
     }
@@ -184,6 +281,7 @@
     .walking-track:hover .walker {
       animation-play-state: paused;
     }
+
     .walking-track::before {
       content: '';
       position: absolute;
@@ -193,6 +291,11 @@
       height: 2px;
       background: linear-gradient(90deg, rgba(138,43,226,0.25), rgba(105,210,167,0.25));
       border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+
+    body.dark-mode .walking-track::before {
+      background: linear-gradient(90deg, rgba(255,163,26,0.25), rgba(128,128,128,0.25));
     }
 
     @media (max-width: 768px) {
@@ -276,8 +379,6 @@
 </head>
 <body>
 
-  <!-- <button class="navbar-toggle" onclick="toggleSidebar()">☰</button>
-  <div class="sidebar-overlay" onclick="toggleSidebar()"></div> -->
 
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -307,17 +408,20 @@
         {% else %}
           <div style="
             width: 100px; height: 100px;
-            background-color: #8a2be2; color: white;
+            background-color: var(--button-bg); color: var(--sidebar-active-text);
             font-weight: bold; font-size: 1.5rem;
             border-radius: 12px; display: flex;
             align-items: center; justify-content: center;
-            margin: 0 auto;">
+            margin: 0 auto; transition: background-color 0.3s ease, color 0.3s ease;">
             UD
           </div>
         {% endif %}
         <p class="mt-2 mb-0"><strong>{{ current_user.name }}</strong></p>
         <p class="small">{{ current_user.email }}</p>
-        <p class="small">ID: {{ current_user.student_id }}</p>        
+        <p class="small">ID: {{ current_user.student_id }}</p>
+        <button type="button" class="btn btn-light border" id="darkModeToggle" title="Toggle dark mode" onclick="toggleDarkMode()" style="border-radius: 8px;">
+          <i class="bi bi-moon"></i>
+        </button> 
       </div>
       
       <hr />
@@ -334,12 +438,11 @@
       <a href="{{ url_for('user.matches') }}" 
       class="{% if request.endpoint == 'user.matches' %}active{% endif %}">Matches</a>
 
-
       <a href="{{ url_for('user.profile') }}"
       class="{% if request.endpoint == 'user.profile' %}active{% endif %}">My Profile</a>
  
-      <a href="{{ url_for('user.notifications') }}"
-      class="{% if request.endpoint == 'user.notifications' %}active{% endif %}">Notifications</a>
+      <a href="{{ url_for('notifications.notifications_page') }}"
+      class="{% if request.endpoint == 'notifications.notifications_page' %}active{% endif %}">Notifications</a>
       
       <a href="{{ url_for('auth.logout') }}"
       class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">Logout</a>
@@ -353,12 +456,38 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
   <script>
+    // Initialize dark mode from localStorage
     document.addEventListener('DOMContentLoaded', () => {
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      if (darkMode) {
+        document.body.classList.add('dark-mode');
+      }
+
       const walker = document.querySelector('.walker');
-      if (!walker) return;
-      const delay = Math.random() * 3;
-      walker.style.animationDelay = `${delay}s`;
+      if (walker) {
+        const delay = Math.random() * 3;
+        walker.style.animationDelay = `${delay}s`;
+      }
     });
+
+    function toggleDarkMode() {
+      const isDarkMode = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode);
+      updateMoonIcon(isDarkMode);
+    }
+
+    function updateMoonIcon(isDarkMode) {
+      const icon = document.querySelector('#darkModeToggle i');
+      if (icon) {
+        if (isDarkMode) {
+          icon.classList.remove('bi-moon');
+          icon.classList.add('bi-sun');
+        } else {
+          icon.classList.remove('bi-sun');
+          icon.classList.add('bi-moon');
+        }
+      }
+    }
 
     function toggleSidebar() {
       const sidebar = document.querySelector('.sidebar');

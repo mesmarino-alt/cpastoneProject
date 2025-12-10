@@ -4,7 +4,7 @@ from flask import Blueprint
 admin_bp = Blueprint(
     'admin',
     __name__,
-    template_folder='../project/admin/templates',
+    template_folder='../project/templates',
     static_folder='static'
 )
 
