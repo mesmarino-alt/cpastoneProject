@@ -63,10 +63,13 @@
 
     .sidebar {
       height: 100vh;
+      width: 260px;
       background-color: var(--sidebar-bg);
       color: var(--sidebar-text);
       overflow-y: auto;
+      overflow-x: hidden;
       transition: transform 0.3s ease, background-color 0.3s ease;
+      flex-shrink: 0;
     }
 
     .sidebar.mobile-hidden {
@@ -80,6 +83,11 @@
       padding: 0.75rem 1rem;
       border-radius: 8px;
       transition: background-color 0.3s ease, color 0.3s ease;
+      position: relative;
+      word-wrap: break-word;
+      white-space: normal;
+      overflow-wrap: break-word;
+      font-size: 0.95rem;
     }
 
     .sidebar a:hover {
@@ -104,6 +112,8 @@
       height: 100vh;
       overflow-y: auto;
       overflow-x: hidden;
+      flex: 1;
+      min-width: 0;
     }
 
     .bg-purple {
@@ -244,6 +254,34 @@
     .btn-purple:hover {
       background-color: var(--button-hover);
       color: var(--sidebar-active-text);
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #dc3545;
+      color: #ffffff;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 2px solid var(--sidebar-bg);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    body.dark-mode .notification-badge {
+      border-color: #292929;
     }
 
     .welcome-banner {
@@ -427,25 +465,48 @@
       <hr />
 
       <a href="{{ url_for('user.dashboard') }}"
-      class="{% if request.endpoint == 'user.dashboard' %}active{% endif %}">Dashboard</a>
- 
-      <a href="{{ url_for('user.lost_items') }}"
-      class="{% if request.endpoint == 'user.lost_items' %}active{% endif %}">My Lost Items</a>
- 
-      <a href="{{ url_for('user.my_found_items') }}"
-      class="{% if request.endpoint == 'user.found_items' %}active{% endif %}">My Found Items</a>
+      class="{% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2 me-2"></i> Dashboard
+   </a>
+   
+   <a href="{{ url_for('user.lost_items') }}"
+      class="{% if request.endpoint == 'user.lost_items' %}active{% endif %}">
+      <i class="bi bi-search me-2"></i> My Lost Items
+   </a>
+   
+   <a href="{{ url_for('user.my_found_items') }}"
+   class="{% if request.endpoint == 'user.my_found_items' %}active{% endif %}">
+   <i class="bi bi-box-seam me-2"></i> My Found Items
+  </a>
 
-      <a href="{{ url_for('user.matches') }}" 
-      class="{% if request.endpoint == 'user.matches' %}active{% endif %}">Matches</a>
+   
+  <a href="{{ url_for('user.matches') }}" 
+  class="{% if request.endpoint == 'user.matches' %}active{% endif %}">
+  <i class="bi bi-link-45deg me-2"></i> Matches
+  {% if matches_count is defined and matches_count > 0 and not session.get('matches_seen') %}
+    <span class="notification-badge">{{ matches_count }}</span>
+  {% endif %}
+</a>
 
-      <a href="{{ url_for('user.profile') }}"
-      class="{% if request.endpoint == 'user.profile' %}active{% endif %}">My Profile</a>
- 
-      <a href="{{ url_for('notifications.notifications_page') }}"
-      class="{% if request.endpoint == 'notifications.notifications_page' %}active{% endif %}">Notifications</a>
-      
-      <a href="{{ url_for('auth.logout') }}"
-      class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">Logout</a>
+
+
+   
+   <a href="{{ url_for('user.profile') }}"
+      class="{% if request.endpoint == 'user.profile' %}active{% endif %}">
+      <i class="bi bi-person-circle me-2"></i> My Profile
+   </a>
+   
+   <a href="{{ url_for('notifications.notifications_page') }}"
+      class="{% if request.endpoint == 'notifications.notifications_page' %}active{% endif %}">
+      <i class="bi bi-bell me-2"></i> Notifications
+      <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+   </a>
+   
+   <a href="{{ url_for('auth.logout') }}"
+      class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
+      <i class="bi bi-box-arrow-right me-2"></i> Logout
+   </a>
+   
     </nav>
     
     <main class="flex-grow-1 content">
@@ -496,8 +557,7 @@
       sidebar.classList.toggle('show');
       overlay.classList.toggle('active');
     }
-  </script>
-  <script>
+
     document.addEventListener('DOMContentLoaded', () => {
       const flashCards = document.querySelectorAll('.flash-card');
       flashCards.forEach(card => {
@@ -507,7 +567,51 @@
           setTimeout(() => card.remove(), 500);
         }, 3000);
       });
+
+      // Fetch and display unread notification count
+      fetchUnreadNotifications();
+      // Refresh every 30 seconds
+      setInterval(fetchUnreadNotifications, 30000);
+
+      // Fetch and display matches count
+      fetchMatchesCount();
+      // Refresh every 30 seconds
+      setInterval(fetchMatchesCount, 30000);
     });
+
+    function fetchUnreadNotifications() {
+      fetch('/notifications/api/recent?limit=1')
+        .then(response => response.json())
+        .then(data => {
+          const badge = document.getElementById('notificationBadge');
+          const unreadCount = data.unread_count || 0;
+          
+          if (unreadCount > 0) {
+            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        })
+        .catch(err => console.log('Notification fetch error:', err));
+    }
+
+    function fetchMatchesCount() {
+      fetch('/user/api/matches-count')
+        .then(response => response.json())
+        .then(data => {
+          const badge = document.getElementById('matchesBadge');
+          const matchesCount = data.matches_count || 0;
+          
+          if (matchesCount > 0) {
+            badge.textContent = matchesCount > 99 ? '99+' : matchesCount;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        })
+        .catch(err => console.log('Matches fetch error:', err));
+    }
   </script>
   {% block scripts %}{% endblock %}
 </body>

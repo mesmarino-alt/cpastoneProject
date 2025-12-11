@@ -1,5 +1,5 @@
 # routes/admin_claims.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
 from db import get_db
 import pymysql.cursors
@@ -18,18 +18,12 @@ def guard_admin():
 @admin_claims_bp.route('/', methods=['GET'])
 @login_required
 def claims_page():
-    """Display all claims with optional status filter"""
-    print("\n" + "="*60)
-    print("[CLAIMS PAGE] Route accessed")
-    print(f"[CLAIMS PAGE] User: {current_user.name} (ID: {current_user.id})")
-    print(f"[CLAIMS PAGE] Is Admin: {current_user.is_admin()}")
-    
     status_filter = request.args.get('status')
-    print(f"[CLAIMS PAGE] Status filter: {status_filter}")
-    
+
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
+        # Fetch claims
         sql = """
             SELECT 
                 c.id AS claim_id, c.status, c.justification, c.created_at,
@@ -49,30 +43,34 @@ def claims_page():
             params.append(status_filter)
         sql += " ORDER BY c.created_at DESC"
 
-        print(f"[CLAIMS PAGE] SQL: {sql[:100]}...")
-        print(f"[CLAIMS PAGE] Params: {params}")
-        
         if params:
             cur.execute(sql, tuple(params))
         else:
             cur.execute(sql)
-            
         claims = cur.fetchall()
-        print(f"[CLAIMS PAGE] Claims found: {len(claims)}")
-        if claims:
-            print(f"[CLAIMS PAGE] First claim: {claims[0]}")
+
+        # Count pending claims
+        cur.execute("SELECT COUNT(*) AS cnt FROM claims WHERE status = 'Pending'")
+        pending_count = cur.fetchone()["cnt"]
+
     except Exception as e:
         print(f"[CLAIMS PAGE] ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        import traceback; traceback.print_exc()
         claims = []
+        pending_count = 0
     finally:
         cur.close()
         conn.close()
 
-    print(f"[CLAIMS PAGE] Rendering template with {len(claims)} claims")
-    print("="*60 + "\n")
-    return render_template('admin/claims.html', claims=claims, status_filter=status_filter)
+    # 🔴 Mark claims as seen when visiting this page
+    session['claims_seen'] = True
+
+    return render_template(
+        'admin/claims.html',
+        claims=claims,
+        status_filter=status_filter,
+        pending_count=pending_count
+    )
 
 @admin_claims_bp.route('/<int:claim_id>/approve', methods=['POST'])
 @login_required

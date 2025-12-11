@@ -5,123 +5,237 @@
 
 {% block content %}
 <style>
+  /* Page-specific variables */
   :root {
     --page-bg: #f7f8fc;
-    --card-bg: #ffffff;
+    --card: #ffffff;
     --text: #2b2d42;
     --muted: #6c757d;
     --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+    --border-color: #dee2e6;
   }
 
   body.dark-mode {
     --page-bg: #1b1b1b;
-    --card-bg: #292929;
+    --card: #292929;
     --text: #ffffff;
     --muted: #808080;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --border-color: #404040;
   }
 
-  body {
+  body, .container-fluid {
     background-color: var(--page-bg);
     color: var(--text);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  .card {
-    background-color: var(--card-bg);
-    color: var(--text);
-    transition: background-color 0.3s ease, color 0.3s ease;
+  .content-panel {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s ease;
   }
 
-  .form-control, .form-select {
-    background-color: var(--card-bg);
-    color: var(--text);
-    border: 1px solid #dee2e6;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  body.dark-mode .content-panel {
+    background-color: #292929;
   }
 
-  body.dark-mode .form-control,
-  body.dark-mode .form-select {
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .panel-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .panel-title i {
+    color: #8a2be2;
+  }
+
+  body.dark-mode .panel-title i {
+    color: #ffa31a;
+  }
+
+  .table-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .table-controls input,
+  .table-controls select {
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--card);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  body.dark-mode .table-controls input,
+  body.dark-mode .table-controls select {
+    background-color: #343a40;
     border-color: #ffa31a;
+    color: #ffffff;
   }
 
-  .form-control:focus, .form-select:focus {
-    background-color: var(--card-bg);
-    color: var(--text);
+  .table-controls input:focus,
+  .table-controls select:focus {
+    outline: none;
     border-color: #ffa31a;
     box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
   }
 
-  table {
+  .table-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card);
+  }
+
+  .data-table thead {
+    background-color: rgba(138, 43, 226, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  body.dark-mode .data-table thead {
+    background-color: rgba(255, 163, 26, 0.12);
+  }
+
+  .data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
     color: var(--text);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 0.9rem;
   }
 
-  table thead th {
-    background-color: var(--card-bg);
+  .data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
     color: var(--text);
-    border-color: #dee2e6;
+    font-size: 0.9rem;
   }
 
-  body.dark-mode table thead th {
-    border-color: #404040;
+  .data-table tbody tr:hover {
+    background-color: rgba(138, 43, 226, 0.06);
   }
 
-  table tbody td {
-    border-color: #dee2e6;
+  body.dark-mode .data-table tbody tr:hover {
+    background-color: rgba(255, 163, 26, 0.1);
   }
 
-  body.dark-mode table tbody td {
-    border-color: #404040;
+  .badge-status {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
   }
 
-  .btn-outline-primary {
-    border-color: #0d6efd;
-    color: #0d6efd;
-  }
-
-  body.dark-mode .btn-outline-primary {
-    border-color: #ffa31a;
-    color: #ffa31a;
-  }
-
-  body.dark-mode .btn-outline-primary:hover {
-    background-color: #ffa31a;
-    color: #1b1b1b;
-  }
-
-  .btn-outline-warning {
-    border-color: #ffc107;
+  .badge-pending {
+    background-color: rgba(255, 193, 7, 0.2);
     color: #ffc107;
   }
 
-  body.dark-mode .btn-outline-warning {
-    border-color: #ffa31a;
-    color: #ffa31a;
+  body.dark-mode .badge-pending {
+    background-color: rgba(255, 193, 7, 0.3);
   }
 
-  body.dark-mode .btn-outline-warning:hover {
+  .badge-matched {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  body.dark-mode .badge-matched {
+    background-color: rgba(40, 167, 69, 0.3);
+  }
+
+  .badge-closed {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  body.dark-mode .badge-closed {
+    background-color: rgba(220, 53, 69, 0.3);
+  }
+
+  .btn-view {
+    background-color: #8a2be2;
+    color: #ffffff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view:hover {
+    background-color: #7326c7;
+    transform: scale(1.05);
+  }
+
+  body.dark-mode .btn-view {
     background-color: #ffa31a;
     color: #1b1b1b;
   }
 
-  .btn-outline-danger {
-    border-color: #dc3545;
-    color: #dc3545;
+  body.dark-mode .btn-view:hover {
+    background-color: #e68a00;
   }
 
-  body.dark-mode .btn-outline-danger {
-    border-color: #dc3545;
-    color: #dc3545;
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--muted);
   }
 
-  body.dark-mode .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #ffffff;
+  .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  .empty-state h5 {
+    color: var(--text);
+    margin: 1rem 0 0.5rem 0;
   }
 
   .modal-content {
-    background-color: var(--card-bg);
+    background-color: var(--card);
     color: var(--text);
+    border-color: var(--border-color);
+  }
+
+  body.dark-mode .modal-content {
+    background-color: #292929;
+    border-color: #404040;
   }
 
   .modal-header {
@@ -134,155 +248,160 @@
     color: #1b1b1b;
   }
 
+  .modal-body {
+    background-color: var(--card);
+  }
+
   body.dark-mode .modal-body {
     background-color: #292929;
   }
 
-  body.dark-mode .modal-body.bg-white {
-    background-color: #292929 !important;
+  body.dark-mode .modal-body strong {
+    color: #ffa31a;
+  }
+
+  .modal-footer {
+    background-color: #f8f9fa;
   }
 
   body.dark-mode .modal-footer {
     background-color: #1b1b1b;
   }
 
-  body.dark-mode .modal-footer.bg-light {
-    background-color: #1b1b1b !important;
-  }
-
-  body.dark-mode .btn-close {
-    background-color: #ffffff;
+  .text-purple {
+    color: #8a2be2;
   }
 
   body.dark-mode .text-purple {
-    color: #ffa31a !important;
+    color: #ffa31a;
+  }
+
+  .bg-light {
+    background-color: #f8f9fa;
   }
 
   body.dark-mode .bg-light {
-    background-color: #404040 !important;
+    background-color: #1b1b1b;
   }
 
-  .container-section {
-    background: linear-gradient(90deg, #8d8991, #d8b5d8);
-    transition: background 0.3s ease;
-  }
+  @media (max-width: 768px) {
+    .table-wrapper {
+      max-height: 300px;
+    }
 
-  body.dark-mode .container-section {
-    background: #1b1b1b;
+    .data-table td,
+    .data-table th {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .panel-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
   }
 </style>
 
-<div class="border rounded p-4" style="background: linear-gradient(90deg, #8d8991, #d8b5d8); min-height: 600px;">
+<div class="py-4">
   <div class="container-fluid">
-    <div class="soft-card shadow-sm rounded mb-4">
-
+    
+    <!-- Main Content Panel -->
+    <div class="content-panel">
       <!-- Header -->
-      <div class="card-header soft-header d-flex justify-content-between align-items-center flex-wrap">
-        <h3 class="fw-bold mb-0">
-          <i class="bi bi-search me-2"></i> My Lost Items
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <i class="bi bi-search"></i> My Lost Items
         </h3>
-        <button class="btn btn-success btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#reportLostModal" style="background-color:#8A2BE2; color:#fff;">
-          <i class="bi bi-plus-lg me-1"></i> Add lost item
+        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportLostModal" style="background-color: #d88e06; color: #fff;">
+          <i class="bi bi-plus-lg me-1"></i> Add Lost Item
         </button>
       </div>
-      <br>
 
-      <!-- Filters -->
-      <div class="card mb-4 rounded shadow-sm">
-        <div class="card-body py-3">
-          <form class="row g-2" method="get">
-            <div class="col-md-4">
-              <input type="text" name="q" value="{{ request.args.get('q','') }}" class="form-control" placeholder="Search item name">
-            </div>
-            <div class="col-md-3">
-              <select name="status" class="form-select">
-                <option value="">All statuses</option>
-                <option value="pending" {{ 'selected' if request.args.get('status')=='pending' }}>Pending</option>
-                <option value="matched" {{ 'selected' if request.args.get('status')=='matched' }}>Matched</option>
-                <option value="closed" {{ 'selected' if request.args.get('status')=='closed' }}>Closed</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <input type="date" name="from" value="{{ request.args.get('from','') }}" class="form-control">
-            </div>
-            <div class="col-md-2 d-grid">
-              <button class="btn btn-outline-primary">Filter</button>
-            </div>
-          </form>
-        </div>
+      <!-- Table Controls -->
+      <div class="table-controls">
+        <input type="text" placeholder="Search items..." class="flex-grow-1" style="max-width: 200px;" id="tableSearch" onkeyup="filterTable()">
+        <select id="categoryFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Gadgets">Gadgets</option>
+          <option value="Bags">Bags</option>
+          <option value="Wallets">Wallets</option>
+          <option value="Documents">Documents</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Accessory">Accessory</option>
+          <option value="ID/Card">ID/Card</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="statusFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="matched">Matched</option>
+          <option value="closed">Closed</option>
+        </select>
       </div>
 
-      <!-- Items Table -->
-      <div class="table-panel card soft-card mb-4" >
-        <div class="card-header soft-header">Lost Items Overview</div>
-        <div class="card-body p-0 scrollable-table">
-        <table class="table align-middle mb-0 table-fixed">
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="data-table" id="itemsTable">
           <thead>
             <tr>
-              <th>ID</th><th>Name</th><th>Last Seen</th><th>Reported At</th><th>Status</th><th>Actions</th>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Date Reported</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {% for it in items %}
-            <tr>
-              <td>{{ it.id }}</td>
-              <td>{{ it.name }}</td>
-              <td>{{ it.last_seen }}</td>
-              <td>{{ it.reported_at.strftime('%Y-%m-%d') if it.reported_at else '—' }}</td>
-              <td>
-                <span class="badge 
-                  {% if it.status == 'pending' %}bg-warning text-dark
-                  {% elif it.status == 'matched' %}bg-success
-                  {% else %}bg-secondary{% endif %}">
-                  {{ it.status|capitalize }}
-                </span>
-              </td>
-              <td class="d-flex gap-2">
-                <!-- View button -->
-                <button class="btn btn-sm btn-outline-primary rounded-pill"
-                        data-bs-toggle="modal"
-                        data-bs-target="#viewLostItemModal"
-                        data-id="{{ it.id }}">
-                  <i class="bi bi-eye"></i>
-                </button>
-
-                <!-- Edit button -->
-                <button class="btn btn-sm btn-outline-warning rounded-pill"
-                        data-bs-toggle="modal"
-                        data-bs-target="#editLostItemModal"
-                        data-id="{{ it.id }}"
-                        data-name="{{ it.name }}"
-                        data-category="{{ it.category }}"
-                        data-description="{{ it.description }}"
-                        data-lastseen="{{ it.last_seen }}"
-                        data-lastseenat="{{ it.last_seen_at }}"
-                        data-action="{{ url_for('user.update_lost_item', item_id=it.id) }}">
-                  <i class="bi bi-pencil"></i>
-                </button>
-
-                <!-- Delete button -->
-                <form method="post" action="{{ url_for('user.delete_lost_item', item_id=it.id) }}" class="d-inline">
-                  <button class="btn btn-sm btn-outline-danger rounded-pill"
-                          onclick="return confirm('Are you sure you want to delete this item?');">
-                    <i class="bi bi-trash"></i>
+            {% if items %}
+              {% for item in items %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.category or 'General' }}</td>
+                <td>
+                  {% if item.reported_at %}
+                    {% if item.reported_at.__class__.__name__ == 'datetime' %}
+                      {{ item.reported_at.strftime('%b %d, %Y') }}
+                    {% else %}
+                      {{ item.reported_at }}
+                    {% endif %}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
+                <td>
+                  {% if item.status == 'pending' %}
+                    <span class="badge-status badge-pending">Pending</span>
+                  {% elif item.status == 'matched' %}
+                    <span class="badge-status badge-matched">Matched</span>
+                  {% else %}
+                    <span class="badge-status badge-closed">Closed</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewLostItemModal" data-id="{{ item.id }}">
+                    <i class="bi bi-eye"></i> View
                   </button>
-                </form>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 2rem;">
+                <div class="empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <h5>No Items Found</h5>
+                  <p>Start reporting lost items to track them here.</p>
+                </div>
               </td>
             </tr>
-            {% endfor %}
+            {% endif %}
           </tbody>
         </table>
       </div>
-      </div>
-      </div>
-
-      {% if items|length == 0 %}
-      <div class="text-center text-muted py-5">
-        <p class="mb-1">No lost items reported yet.</p>
-      </div>
-      {% endif %}
-
     </div>
+
   </div>
 </div>
 
@@ -634,6 +753,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+function filterTable() {
+  const searchInput = document.getElementById('tableSearch').value.toLowerCase();
+  const categoryFilter = document.getElementById('categoryFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+  const rows = document.querySelectorAll('#itemsTable tbody tr');
+
+  rows.forEach(row => {
+    const name = row.cells[0].textContent.toLowerCase();
+    const category = row.cells[1].textContent;
+    const statusText = row.cells[3].textContent.toLowerCase().trim();
+    
+    const searchMatch = name.includes(searchInput);
+    const categoryMatch = categoryFilter === '' || category === categoryFilter;
+    const statusMatch = statusFilter === '' || statusText.includes(statusFilter);
+    
+    row.style.display = searchMatch && categoryMatch && statusMatch ? '' : 'none';
+  });
+}
 </script>
 
 {% endblock %}

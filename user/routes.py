@@ -669,6 +669,33 @@ def api_found_item(id):
         'reported_at': row.get('reported_at')
     })
 
+@user_bp.route('/api/matches-count')
+@login_required
+def api_matches_count():
+    """API endpoint to get count of matches with pending claims"""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        # Count matches where current user is involved and there's a pending claim or no claim yet
+        cur.execute("""
+            SELECT COUNT(DISTINCT m.id) as matches_count
+            FROM matches m
+            JOIN lost_items li ON li.id = m.lost_item_id
+            JOIN found_items fi ON fi.id = m.found_item_id
+            LEFT JOIN claims c ON c.match_id = m.id AND c.status = 'Pending'
+            WHERE (li.user_id = %s OR fi.user_id = %s)
+            AND (c.id IS NULL OR c.status = 'Pending')
+        """, (current_user.id, current_user.id))
+        result = cur.fetchone()
+        matches_count = result[0] if result else 0
+        return jsonify({'matches_count': matches_count})
+    except Exception as e:
+        print(f"Error fetching matches count: {e}")
+        return jsonify({'matches_count': 0, 'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 
 #ML Routes Import
 import user.user_matches

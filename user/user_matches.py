@@ -1,5 +1,5 @@
 # routes/user_matches.py
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, session, url_for, flash
 from flask_login import login_required, current_user
 from db import get_db
 from user.routes import user_bp
@@ -69,11 +69,19 @@ def matches():
         else:
             found_matches.append(match)
 
+    # 🔴 Compute badge count: lost matches + found matches with pending claims
+    pending_found = sum(1 for m in found_matches if m["claim"]["status"] == "Pending")
+    matches_count = len(lost_matches) + pending_found
+
+    session['matches_seen'] = True
+
     return render_template(
         'user/matches.html',
         lost_matches=lost_matches,
-        found_matches=found_matches
+        found_matches=found_matches,
+        matches_count=matches_count   # <-- pass to template
     )
+
 
 
 

@@ -52,6 +52,8 @@
       transition: transform 0.3s ease;
       z-index: 1045;
       overflow-y: auto;
+      overflow-x: hidden;
+      flex-shrink: 0;
     }
 
     .sidebar.show {
@@ -68,6 +70,11 @@
       display: block;
       padding: 0.75rem 1rem;
       border-radius: 8px;
+      position: relative;
+      word-wrap: break-word;
+      white-space: normal;
+      overflow-wrap: break-word;
+      font-size: 0.95rem;
     }
 
     .sidebar a:hover {
@@ -126,6 +133,7 @@
       padding: 2rem;
       background-color: #f7f8fc;
       overflow-y: auto;
+      overflow-x: hidden;
     }
   </style>
 </head>
@@ -161,9 +169,17 @@
     <a href="{{ url_for('admin.items_page') }}" class="{% if request.endpoint == 'admin.items_page' %}active{% endif %}">
       <i class="bi bi-box-seam me-2"></i> Items
     </a>
-    <a href="{{ url_for('admin_claims.claims_page') }}" class="{% if request.endpoint == 'admin_claims.claims_page' %}active{% endif %}">
-      <i class="bi bi-file-earmark-check me-2"></i> Claims
-    </a>
+
+    <a href="{{ url_for('admin_claims.claims_page') }}" 
+    class="{% if request.endpoint == 'admin_claims.claims_page' %}active{% endif %}">
+    <i class="bi bi-file-earmark-check me-2"></i> Claims
+    {% if pending_count is defined and pending_count > 0 and not session.get('claims_seen') %}
+      <span class="notification-badge">{{ pending_count }}</span>
+    {% endif %}
+ </a>
+ 
+ 
+ 
     <a href="{{ url_for('admin.reports_page') }}" class="{% if request.endpoint == 'admin.reports_page' %}active{% endif %}">
       <i class="bi bi-journal-text me-2"></i> Reports
     </a>
