@@ -29,46 +29,82 @@ def dashboard():
     conn = get_db()
     cur = conn.cursor(pymysql.cursors.DictCursor)
 
-    # KPI counts from claims
-    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Approved'")
-    approved_count = cur.fetchone()['c']
-    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Rejected'")
-    rejected_count = cur.fetchone()['c']
-    cur.execute("SELECT COUNT(*) AS c FROM claims WHERE status='Pending'")
-    pending_count = cur.fetchone()['c']
-    cur.execute("SELECT COUNT(*) AS c FROM claims")
-    total_count = cur.fetchone()['c']
+    try:
+        # KPI counts from claims related to current user's items
+        # Approved claims on user's lost items
+        cur.execute("""
+            SELECT COUNT(*) AS c FROM claims 
+            WHERE status='Approved' 
+            AND lost_item_id IN (SELECT id FROM lost_items WHERE user_id=%s)
+        """, (current_user.id,))
+        approved_count = cur.fetchone()['c']
+        
+        # Rejected claims on user's lost items
+        cur.execute("""
+            SELECT COUNT(*) AS c FROM claims 
+            WHERE status='Rejected' 
+            AND lost_item_id IN (SELECT id FROM lost_items WHERE user_id=%s)
+        """, (current_user.id,))
+        rejected_count = cur.fetchone()['c']
+        
+        # Pending claims on user's lost items
+        cur.execute("""
+            SELECT COUNT(*) AS c FROM claims 
+            WHERE status='Pending' 
+            AND lost_item_id IN (SELECT id FROM lost_items WHERE user_id=%s)
+        """, (current_user.id,))
+        pending_count = cur.fetchone()['c']
+        
+        # Total claims on user's lost items
+        cur.execute("""
+            SELECT COUNT(*) AS c FROM claims 
+            WHERE lost_item_id IN (SELECT id FROM lost_items WHERE user_id=%s)
+        """, (current_user.id,))
+        total_count = cur.fetchone()['c']
 
-    # All items (lost + found) for table
-    cur.execute("""
-        SELECT li.id, li.name, li.category, c.created_at AS created_at, c.status
-        FROM lost_items li
-        LEFT JOIN claims c ON c.lost_item_id = li.id
-        UNION
-        SELECT fi.id, fi.name, fi.category, c.created_at AS created_at, c.status
-        FROM found_items fi
-        LEFT JOIN claims c ON c.found_item_id = fi.id
-        ORDER BY created_at DESC
-    """)
-    items = cur.fetchall()
+        # All items (lost + found) for current user for table with type indicator
+        cur.execute("""
+            SELECT li.id, li.name, li.category, li.reported_at AS created_at, 
+                   COALESCE(c.status, 'pending') AS status, 'Lost' AS item_type
+            FROM lost_items li
+            LEFT JOIN claims c ON c.lost_item_id = li.id
+            WHERE li.user_id=%s
+            UNION
+            SELECT fi.id, fi.name, fi.category, fi.reported_at AS created_at, 
+                   COALESCE(c.status, 'pending') AS status, 'Found' AS item_type
+            FROM found_items fi
+            LEFT JOIN claims c ON c.found_item_id = fi.id
+            WHERE fi.user_id=%s
+            ORDER BY created_at DESC
+        """, (current_user.id, current_user.id))
+        items = cur.fetchall()
 
-    # Category breakdown
-    cur.execute("""
-        SELECT category, COUNT(*) AS count
-        FROM (
-            SELECT category FROM lost_items
-            UNION ALL
-            SELECT category FROM found_items
-        ) all_items
-        GROUP BY category
-    """)
-    rows = cur.fetchall()
-    colors = ['#0d6efd', '#8A2BE2', '#FFC857', '#69D2A7', '#FFB487']
-    category_data = {row['category']: {'count': row['count'], 'color': colors[i % len(colors)]}
-                     for i, row in enumerate(rows)}
+        # Category breakdown for current user's items
+        cur.execute("""
+            SELECT category, COUNT(*) AS count
+            FROM (
+                SELECT category FROM lost_items WHERE user_id=%s
+                UNION ALL
+                SELECT category FROM found_items WHERE user_id=%s
+            ) all_items
+            GROUP BY category
+        """, (current_user.id, current_user.id))
+        rows = cur.fetchall()
+        
+        # Calculate percentages for chart
+        total_items = sum(row['count'] for row in rows) if rows else 1
+        colors = ['#0d6efd', '#8A2BE2', '#FFC857', '#69D2A7', '#FFB487']
+        category_data = {}
+        for i, row in enumerate(rows):
+            percentage = round((row['count'] / total_items) * 100) if total_items > 0 else 0
+            category_data[row['category']] = {
+                'count': percentage,
+                'color': colors[i % len(colors)]
+            }
 
-    cur.close()
-    conn.close()
+    finally:
+        cur.close()
+        conn.close()
 
     return render_template('user/user_dashboard.html',
                            approved_count=approved_count,
@@ -497,7 +533,7 @@ def profile():
             cur.close()
             conn.close()
         
-        return redirect(url_for('user.profile'))
+        return redirect(url_for('user.dashboard'))
 
     # Fetch user activity
     conn = get_db()
@@ -542,11 +578,11 @@ def change_password():
 
     if not current_user.check_password(current_pw):
         flash('Incorrect current password.', 'danger')
-        return redirect(url_for('user.profile'))
+        return redirect(url_for('user.dashboard'))
 
     if new_pw != confirm_pw:
         flash('New passwords do not match.', 'warning')
-        return redirect(url_for('user.profile'))
+        return redirect(url_for('user.dashboard'))
 
     # Hash new password
     current_user.set_password(new_pw)
@@ -566,7 +602,7 @@ def change_password():
         cur.close()
         conn.close()
 
-    return redirect(url_for('user.profile'))
+    return redirect(url_for('user.dashboard'))
 
 
 

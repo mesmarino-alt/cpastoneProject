@@ -2,20 +2,16 @@
 
 {% block content %}
 <style>
+  /* Dark Mode Only Palette */
   :root {
-    --page-bg: #f7f8fc;
-    --card-bg: #ffffff;
-    --text: #2b2d42;
-    --muted: #6c757d;
-    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
-  }
-
-  body.dark-mode {
     --page-bg: #1b1b1b;
     --card-bg: #292929;
     --text: #ffffff;
     --muted: #808080;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    --border-color: #404040;
+    --accent-orange: #ffa31a;
+    --accent-orange-hover: #e68a00;
   }
 
   body {
@@ -36,91 +32,86 @@
   }
 
   .form-control, .form-select {
-    background-color: var(--card-bg);
+    background-color: #343a40;
     color: var(--text);
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--accent-orange);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  body.dark-mode .form-control,
-  body.dark-mode .form-select {
-    border-color: #ffa31a;
-  }
-
   .form-control:focus, .form-select:focus {
-    background-color: var(--card-bg);
+    background-color: #343a40;
     color: var(--text);
-    border-color: #ffa31a;
+    border-color: var(--accent-orange);
     box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
   }
 
   .list-group-item {
     background-color: var(--card-bg);
     color: var(--text);
-    border-color: #dee2e6;
+    border-color: var(--border-color);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  body.dark-mode .list-group-item {
-    border-color: #404040;
-  }
-
   .btn-outline-light {
-    border-color: #ffffff;
-    color: #ffffff;
+    border-color: var(--accent-orange);
+    color: var(--accent-orange);
   }
 
-  body.dark-mode .btn-outline-light {
-    border-color: #ffa31a;
-    color: #ffa31a;
-  }
-
-  body.dark-mode .btn-outline-light:hover {
-    background-color: #ffa31a;
+  .btn-outline-light:hover {
+    background-color: var(--accent-orange);
     color: #1b1b1b;
   }
 
   .profile-header {
-    background: linear-gradient(90deg, #8d8991, #d8b5d8);
-    transition: background 0.3s ease;
-  }
-
-  body.dark-mode .profile-header {
     background: #292929;
   }
 
   .text-white {
     transition: color 0.3s ease;
-  }
-
-  body.dark-mode .profile-header .text-white {
     color: #ffffff !important;
   }
 
   .modal-header {
-    background: linear-gradient(90deg, #8A2BE2, #d8b5d8);
-    transition: background 0.3s ease;
-  }
-
-  body.dark-mode .modal-header {
     background: linear-gradient(90deg, #ffa31a, #e68a00);
-  }
-
-  body.dark-mode .modal-header {
     color: #1b1b1b;
   }
 
-  body.dark-mode .modal-content {
-    background-color: #292929;
+  .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
   }
 
-  body.dark-mode .modal-body {
-    background-color: #292929;
-    color: #ffffff;
+  .modal-body {
+    background-color: var(--card-bg);
+    color: var(--text);
   }
 
-  body.dark-mode .modal-footer {
-    background-color: #1b1b1b;
+  .modal-footer {
+    background-color: var(--card-bg);
+    border-top-color: var(--border-color);
+  }
+
+  .btn-close {
+    filter: brightness(1.5);
+  }
+
+  .btn-purple {
+    background-color: var(--accent-orange);
+    color: #1b1b1b;
+    border: none;
+  }
+
+  .btn-purple:hover {
+    background-color: var(--accent-orange-hover);
+    color: #1b1b1b;
+  }
+
+  .py-5 {
+    background-color: var(--page-bg);
+  }
+
+  .shadow-sm {
+    box-shadow: var(--shadow) !important;
   }
 </style>
 
@@ -166,7 +157,7 @@
             <!-- Account Info -->
             <div class="card border-0 shadow-sm rounded-3">
               <div class="card-header fw-bold text-white rounded-top-3"
-                   style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+                   style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
                 <i class="bi bi-person-circle me-2"></i> Account Info
               </div>
               <div class="card-body py-3">
@@ -182,7 +173,7 @@
             <!-- Preferences -->
             <div class="card border-0 shadow-sm rounded-3">
               <div class="card-header fw-bold text-white rounded-top-3"
-              style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+              style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
                 <i class="bi bi-sliders me-2"></i> Preferences
               </div>
               <div class="card-body py-3 small">
@@ -203,7 +194,7 @@
             <!-- Recent Activity -->
             <div class="card border-0 shadow-sm rounded-3">
               <div class="card-header fw-bold text-white rounded-top-3"
-              style="background: linear-gradient(90deg, #8d8991, #d8b5d8);">
+              style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
                 <i class="bi bi-clock-history me-2"></i> Recent Activity
               </div>
               <div class="card-body py-3 small">
@@ -254,7 +245,7 @@
       <div class="modal-content rounded-3 shadow-sm">
         <form method="post" action="{{ url_for('user.change_password') }}">
           <div class="modal-header text-white rounded-top-3"
-               style="background: linear-gradient(90deg, #8A2BE2, #d8b5d8);">
+               style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
             <h5 class="modal-title"><i class="bi bi-key me-2"></i> Change Password</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
@@ -286,11 +277,6 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const darkMode = localStorage.getItem('darkMode') === 'true';
-  if (darkMode) {
-    document.body.classList.add('dark-mode');
-  }
-
   const profilePhotoInput = document.getElementById('profilePhotoInput');
   const profilePhotoImg = document.getElementById('profilePhotoImg');
   const form = document.querySelector('form');

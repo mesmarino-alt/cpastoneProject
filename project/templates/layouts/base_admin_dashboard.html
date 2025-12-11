@@ -186,9 +186,13 @@
     <a href="{{ url_for('admin.settings_page') }}" class="{% if request.endpoint == 'admin.settings_page' %}active{% endif %}">
       <i class="bi bi-gear me-2"></i> Settings
     </a>
-    <a href="{{ url_for('auth.logout') }}">
-      <i class="bi bi-box-arrow-right me-2"></i> Logout
-    </a>
+    <a href="#" 
+    data-bs-toggle="modal" 
+    data-bs-target="#logoutConfirmModal"
+    class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
+    <i class="bi bi-box-arrow-right me-2"></i> Logout
+ </a>
+ 
   </nav>
 
   <!-- Main Content -->
@@ -206,6 +210,37 @@
 
     {% block content %}{% endblock %}
   </main>
+  <!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0 rounded-3">
+      
+      <!-- Header -->
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-box-arrow-right me-2"></i> Confirm Logout
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <!-- Body -->
+      <div class="modal-body">
+        <p>Are you sure you want to log out?</p>
+      </div>
+      
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+          <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- Scripts -->

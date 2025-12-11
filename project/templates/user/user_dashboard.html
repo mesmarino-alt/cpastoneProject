@@ -2,30 +2,22 @@
 
 {% block content %}
 <style>
-  /* Page-specific variables */
+  /* Dark Mode Only Palette */
   :root {
-    --page-bg: #f7f8fc;
+    --page-bg: #1b1b1b;
     --blue: #0d6efd;
     --purple: #8A2BE2;
     --green: #28a745;
     --red: #dc3545;
     --yellow: #ffc107;
-    --bg: #f7f8fc;
-    --card: #ffffff;
-    --text: #2b2d42;
-    --muted: #6c757d;
-    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
-    --border-color: #dee2e6;
-  }
-
-  body.dark-mode {
-    --page-bg: #1b1b1b;
     --bg: #1b1b1b;
     --card: #292929;
     --text: #ffffff;
     --muted: #808080;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     --border-color: #404040;
+    --accent-orange: #ffa31a;
+    --accent-orange-hover: #e68a00;
   }
 
   body, .container-fluid {
@@ -54,10 +46,6 @@
 
   .summary-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  }
-
-  body.dark-mode .summary-card:hover {
     box-shadow: 0 12px 32px rgba(255, 163, 26, 0.2);
   }
 
@@ -83,39 +71,23 @@
   }
 
   .card-icon.green {
-    background-color: rgba(40, 167, 69, 0.15);
+    background-color: rgba(40, 167, 69, 0.25);
     color: #28a745;
   }
 
-  body.dark-mode .card-icon.green {
-    background-color: rgba(40, 167, 69, 0.25);
-  }
-
   .card-icon.red {
-    background-color: rgba(220, 53, 69, 0.15);
+    background-color: rgba(220, 53, 69, 0.25);
     color: #dc3545;
   }
 
-  body.dark-mode .card-icon.red {
-    background-color: rgba(220, 53, 69, 0.25);
-  }
-
   .card-icon.yellow {
-    background-color: rgba(255, 193, 7, 0.15);
+    background-color: rgba(255, 193, 7, 0.25);
     color: #ffc107;
   }
 
-  body.dark-mode .card-icon.yellow {
-    background-color: rgba(255, 193, 7, 0.25);
-  }
-
   .card-icon.blue {
-    background-color: rgba(13, 110, 253, 0.15);
-    color: #0d6efd;
-  }
-
-  body.dark-mode .card-icon.blue {
     background-color: rgba(13, 110, 253, 0.25);
+    color: #0d6efd;
   }
 
   .card-value {
@@ -134,7 +106,7 @@
   /* ====== MAIN CONTENT AREA ====== */
   .main-content-wrapper {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     gap: 1.5rem;
     margin-bottom: 2rem;
   }
@@ -166,12 +138,8 @@
   }
 
   .panel-title i {
-    color: #8a2be2;
+    color: var(--accent-orange);
     font-size: 1.3rem;
-  }
-
-  body.dark-mode .panel-title i {
-    color: #ffa31a;
   }
 
   /* ====== TABLE SECTION ====== */
@@ -186,22 +154,17 @@
   .table-controls select {
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--card);
+    border: 1px solid var(--accent-orange);
+    background-color: #343a40;
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
   }
 
-  body.dark-mode .table-controls input,
-  body.dark-mode .table-controls select {
-    border-color: #ffa31a;
-  }
-
   .table-controls input:focus,
   .table-controls select:focus {
     outline: none;
-    border-color: #ffa31a;
+    border-color: var(--accent-orange);
     box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
   }
 
@@ -219,14 +182,10 @@
   }
 
   .data-table thead {
-    background-color: rgba(138, 43, 226, 0.08);
+    background-color: rgba(255, 163, 26, 0.12);
     position: sticky;
     top: 0;
     z-index: 10;
-  }
-
-  body.dark-mode .data-table thead {
-    background-color: rgba(255, 163, 26, 0.12);
   }
 
   .data-table th {
@@ -248,10 +207,6 @@
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(138, 43, 226, 0.06);
-  }
-
-  body.dark-mode .data-table tbody tr:hover {
     background-color: rgba(255, 163, 26, 0.1);
   }
 
@@ -268,35 +223,41 @@
   }
 
   .badge-approved {
-    background-color: rgba(40, 167, 69, 0.2);
+    background-color: rgba(40, 167, 69, 0.3);
     color: #28a745;
   }
 
-  body.dark-mode .badge-approved {
-    background-color: rgba(40, 167, 69, 0.3);
-  }
-
   .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.2);
+    background-color: rgba(220, 53, 69, 0.3);
     color: #dc3545;
   }
 
-  body.dark-mode .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.3);
-  }
-
   .badge-pending {
-    background-color: rgba(255, 193, 7, 0.2);
+    background-color: rgba(255, 193, 7, 0.3);
     color: #ffc107;
   }
 
-  body.dark-mode .badge-pending {
-    background-color: rgba(255, 193, 7, 0.3);
+  .badge-type {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .badge-lost {
+    background-color: rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+  }
+
+  .badge-found {
+    background-color: rgba(40, 167, 69, 0.3);
+    color: #28a745;
   }
 
   .btn-view {
-    background-color: #8a2be2;
-    color: #ffffff;
+    background-color: var(--accent-orange);
+    color: #1b1b1b;
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
@@ -307,17 +268,8 @@
   }
 
   .btn-view:hover {
-    background-color: #7326c7;
+    background-color: var(--accent-orange-hover);
     transform: scale(1.05);
-  }
-
-  body.dark-mode .btn-view {
-    background-color: #ffa31a;
-    color: #1b1b1b;
-  }
-
-  body.dark-mode .btn-view:hover {
-    background-color: #e68a00;
   }
 
   /* ====== PIE CHART SECTION ====== */
@@ -327,35 +279,25 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    min-height: 400px;
   }
 
   .chart-canvas-wrapper {
     position: relative;
-    width: 100%;
-    height: 300px;
-    margin-bottom: 1.5rem;
+    width: 250px;
+    height: 250px;
+    margin: 0 auto 1.5rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .chart-legend {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     gap: 0.75rem;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text);
-  }
-
-  .legend-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    flex-shrink: 0;
+    text-align: center;
   }
 
   .empty-state {
@@ -418,6 +360,26 @@
   .dashboard-footer p {
     margin: 0;
     font-size: 0.9rem;
+  }
+
+  /* ====== MODAL ====== */
+  .modal-content {
+    background-color: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .modal-footer {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .btn-close {
+    filter: brightness(1.5);
   }
 </style>
 
@@ -508,6 +470,7 @@
               <tr>
                 <th>Item Name</th>
                 <th>Category</th>
+                <th>Type</th>
                 <th>Date Reported</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -519,6 +482,13 @@
                 <tr>
                   <td>{{ item.name }}</td>
                   <td>{{ item.category or 'General' }}</td>
+                  <td>
+                    {% if item.item_type == 'Lost' %}
+                      <span class="badge-type badge-lost"><i class="bi bi-search"></i> Lost</span>
+                    {% else %}
+                      <span class="badge-type badge-found"><i class="bi bi-box-seam"></i> Found</span>
+                    {% endif %}
+                  </td>
                   <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else 'N/A' }}</td>
                   <td>
                     {% if item.status == 'approved' %}
@@ -530,13 +500,13 @@
                     {% endif %}
                   </td>
                   <td>
-                    <button class="btn-view" onclick="viewItem({{ item.id }})">View</button>
+                    <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewItemModal" data-id="{{ item.id }}" data-type="{{ item.item_type }}">View</button>
                   </td>
                 </tr>
                 {% endfor %}
               {% else %}
               <tr>
-                <td colspan="5" style="text-align: center; padding: 2rem;">
+                <td colspan="6" style="text-align: center; padding: 2rem;">
                   <div class="empty-state">
                     <i class="bi bi-inbox"></i>
                     <p style="margin: 0;">No items found</p>
@@ -648,17 +618,68 @@
     });
   }
 
-  function viewItem(itemId) {
+  function viewItem(itemId, itemType) {
     const modal = new bootstrap.Modal(document.getElementById('viewItemModal'));
-    document.getElementById('modalBody').innerHTML = `
-      <p><strong>Item ID:</strong> ${itemId}</p>
-      <p><strong>Name:</strong> Sample Item</p>
-      <p><strong>Description:</strong> Item description goes here.</p>
-      <p><strong>Category:</strong> Electronics</p>
-      <p><strong>Status:</strong> <span class="badge-status badge-approved">Approved</span></p>
-    `;
-    modal.show();
+    const endpoint = itemType === 'Lost' ? `/user/api/lost_items/${itemId}` : `/user/api/found_items/${itemId}`;
+    
+    fetch(endpoint, { credentials: 'include' })
+      .then(response => response.json())
+      .then(data => {
+        // Truncate description to 150 characters
+        const shortDesc = data.description ? (data.description.length > 150 ? data.description.substring(0, 150) + '...' : data.description) : 'N/A';
+        
+        let locationInfo = '';
+        if (itemType === 'Lost') {
+          locationInfo = `<p><strong>Last Seen:</strong> ${data.last_seen || 'N/A'}</p>`;
+        } else {
+          locationInfo = `<p><strong>Where Found:</strong> ${data.where_found || 'N/A'}</p>`;
+        }
+        
+        let statusBadge = '';
+        const status = (data.status || '').toLowerCase();
+        if (status === 'approved') {
+          statusBadge = '<span class="badge-status badge-approved">Approved</span>';
+        } else if (status === 'rejected') {
+          statusBadge = '<span class="badge-status badge-rejected">Rejected</span>';
+        } else {
+          statusBadge = '<span class="badge-status badge-pending">Pending</span>';
+        }
+        
+        const typeIcon = itemType === 'Lost' ? '<i class="bi bi-search"></i>' : '<i class="bi bi-box-seam"></i>';
+        const typeBadge = itemType === 'Lost' ? 
+          `<span class="badge-type badge-lost">${typeIcon} Lost</span>` : 
+          `<span class="badge-type badge-found">${typeIcon} Found</span>`;
+        
+        document.getElementById('modalBody').innerHTML = `
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Category:</strong> ${data.category || 'General'}</p>
+          <p><strong>Type:</strong> ${typeBadge}</p>
+          <p><strong>Description:</strong> ${shortDesc}</p>
+          ${locationInfo}
+          <p><strong>Date Reported:</strong> ${data.reported_at || 'N/A'}</p>
+          <p><strong>Status:</strong> ${statusBadge}</p>
+        `;
+        modal.show();
+      })
+      .catch(error => {
+        console.error('Error fetching item:', error);
+        document.getElementById('modalBody').innerHTML = `<p class="text-danger">Error loading item details</p>`;
+        modal.show();
+      });
   }
+
+  // Update the button click handlers to pass the item type
+  document.addEventListener('DOMContentLoaded', () => {
+    const viewButtons = document.querySelectorAll('[data-bs-target="#viewItemModal"]');
+    viewButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const itemId = this.getAttribute('data-id');
+        const itemType = this.getAttribute('data-type');
+        viewItem(itemId, itemType);
+      });
+    });
+  });
 
   function initCategoryChart() {
     const canvas = document.getElementById('categoryChart');
@@ -721,21 +742,5 @@
   }
 </script>
 
-
-<style>
-  .modal-content {
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  body.dark-mode .modal-content {
-    background-color: #292929;
-    color: #ffffff;
-    border-color: #404040;
-  }
-
-  body.dark-mode .btn-close {
-    filter: brightness(1.5);
-  }
-</style>
-
 {% endblock %}
+```

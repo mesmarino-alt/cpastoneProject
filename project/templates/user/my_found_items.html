@@ -3,23 +3,16 @@
 
 {% block content %}
 <style>
-  /* Page-specific variables */
+  /* Dark Mode Only Palette */
   :root {
-    --page-bg: #f7f8fc;
-    --card: #ffffff;
-    --text: #2b2d42;
-    --muted: #6c757d;
-    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
-    --border-color: #dee2e6;
-  }
-
-  body.dark-mode {
     --page-bg: #1b1b1b;
     --card: #292929;
     --text: #ffffff;
     --muted: #808080;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     --border-color: #404040;
+    --primary-accent: #ffa31a;
+    --primary-accent-hover: #e68a00;
   }
 
   body, .container-fluid {
@@ -34,10 +27,6 @@
     padding: 1.5rem;
     box-shadow: var(--shadow);
     transition: background-color 0.3s ease;
-  }
-
-  body.dark-mode .content-panel {
-    background-color: #292929;
   }
 
   .panel-header {
@@ -60,11 +49,7 @@
   }
 
   .panel-title i {
-    color: #8a2be2;
-  }
-
-  body.dark-mode .panel-title i {
-    color: #ffa31a;
+    color: var(--primary-accent);
   }
 
   .table-controls {
@@ -78,24 +63,17 @@
   .table-controls select {
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--card);
+    border: 1px solid var(--primary-accent);
+    background-color: #343a40;
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
   }
 
-  body.dark-mode .table-controls input,
-  body.dark-mode .table-controls select {
-    background-color: #343a40;
-    border-color: #ffa31a;
-    color: #ffffff;
-  }
-
   .table-controls input:focus,
   .table-controls select:focus {
     outline: none;
-    border-color: #ffa31a;
+    border-color: var(--primary-accent);
     box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
   }
 
@@ -113,14 +91,10 @@
   }
 
   .data-table thead {
-    background-color: rgba(138, 43, 226, 0.08);
+    background-color: rgba(255, 163, 26, 0.12);
     position: sticky;
     top: 0;
     z-index: 10;
-  }
-
-  body.dark-mode .data-table thead {
-    background-color: rgba(255, 163, 26, 0.12);
   }
 
   .data-table th {
@@ -140,10 +114,6 @@
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(138, 43, 226, 0.06);
-  }
-
-  body.dark-mode .data-table tbody tr:hover {
     background-color: rgba(255, 163, 26, 0.1);
   }
 
@@ -156,35 +126,23 @@
   }
 
   .badge-pending {
-    background-color: rgba(255, 193, 7, 0.2);
+    background-color: rgba(255, 193, 7, 0.3);
     color: #ffc107;
   }
 
-  body.dark-mode .badge-pending {
-    background-color: rgba(255, 193, 7, 0.3);
-  }
-
   .badge-matched {
-    background-color: rgba(40, 167, 69, 0.2);
+    background-color: rgba(40, 167, 69, 0.3);
     color: #28a745;
   }
 
-  body.dark-mode .badge-matched {
-    background-color: rgba(40, 167, 69, 0.3);
-  }
-
   .badge-closed {
-    background-color: rgba(220, 53, 69, 0.2);
+    background-color: rgba(220, 53, 69, 0.3);
     color: #dc3545;
   }
 
-  body.dark-mode .badge-closed {
-    background-color: rgba(220, 53, 69, 0.3);
-  }
-
   .btn-view {
-    background-color: #8a2be2;
-    color: #ffffff;
+    background-color: var(--primary-accent);
+    color: #1b1b1b;
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
@@ -195,17 +153,8 @@
   }
 
   .btn-view:hover {
-    background-color: #7326c7;
+    background-color: var(--primary-accent-hover);
     transform: scale(1.05);
-  }
-
-  body.dark-mode .btn-view {
-    background-color: #ffa31a;
-    color: #1b1b1b;
-  }
-
-  body.dark-mode .btn-view:hover {
-    background-color: #e68a00;
   }
 
   .empty-state {
@@ -232,21 +181,10 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  body.dark-mode .modal-content {
-    background-color: #292929;
-    border-color: #404040;
-  }
-
   .modal-header {
-    background: linear-gradient(90deg, #c8a2c8, #8A2BE2);
-    color: #ffffff;
-    border-bottom-color: var(--border-color);
-  }
-
-  body.dark-mode .modal-header {
     background: linear-gradient(90deg, #ffa31a, #e68a00);
     color: #1b1b1b;
-    border-bottom-color: #404040;
+    border-bottom-color: var(--border-color);
   }
 
   .modal-body {
@@ -254,95 +192,96 @@
     color: var(--text);
   }
 
-  body.dark-mode .modal-body {
-    background-color: #292929;
-  }
-
-  body.dark-mode .modal-body strong {
-    color: #ffa31a;
+  .modal-body strong {
+    color: var(--primary-accent);
   }
 
   .modal-footer {
-    background-color: #f8f9fa;
+    background-color: var(--card);
     border-top-color: var(--border-color);
   }
 
-  body.dark-mode .modal-footer {
-    background-color: #1b1b1b;
-    border-top-color: #404040;
-  }
-
-  body.dark-mode .btn-close {
+  .btn-close {
     background-color: #ffffff;
   }
 
   .text-purple {
-    color: #8a2be2;
-  }
-
-  body.dark-mode .text-purple {
-    color: #ffa31a;
+    color: var(--primary-accent);
   }
 
   .bg-light {
-    background-color: #f8f9fa;
+    background-color: #343a40;
   }
 
-  body.dark-mode .bg-light {
-    background-color: #1b1b1b;
+  /* Modal body dark mode support */
+  .modal-body.p-4 {
+    background-color: var(--card);
+    color: var(--text);
+  }
+
+  /* Modal photo container dark mode */
+  .bg-light.rounded-4 {
+    background-color: #343a40;
+  }
+
+  /* Modal footer dark mode */
+  .modal-footer.bg-light {
+    background-color: var(--card);
+    border-top-color: var(--border-color);
+  }
+
+  /* Edit modal body dark mode */
+  .modal-body.p-3.bg-white {
+    background-color: var(--card);
+    color: var(--text);
+  }
+
+  /* Form controls in modals */
+  .modal-body .form-label {
+    color: var(--text);
   }
 
   .form-control,
   .form-select {
-    background-color: var(--card);
-    border-color: var(--border-color);
+    background-color: #343a40;
+    border-color: var(--primary-accent);
     color: var(--text);
     transition: all 0.3s ease;
   }
 
-  body.dark-mode .form-control,
-  body.dark-mode .form-select {
+  .form-control:focus,
+  .form-select:focus {
     background-color: #343a40;
-    border-color: #ffa31a;
-    color: #ffffff;
-  }
-
-  body.dark-mode .form-control:focus,
-  body.dark-mode .form-select:focus {
-    background-color: #343a40;
-    border-color: #ffa31a;
-    color: #ffffff;
+    border-color: var(--primary-accent);
+    color: var(--text);
     box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
   }
 
   .btn-outline-secondary {
-    border-color: var(--border-color);
+    border-color: var(--primary-accent);
     color: var(--text);
   }
 
-  body.dark-mode .btn-outline-secondary {
-    border-color: #ffa31a;
-    color: #ffffff;
-  }
-
-  body.dark-mode .btn-outline-secondary:hover {
-    background-color: #ffa31a;
-    border-color: #ffa31a;
+  .btn-outline-secondary:hover {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
     color: #1b1b1b;
   }
 
   .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
     transition: all 0.3s ease;
   }
 
-  body.dark-mode .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-  }
-
-  body.dark-mode .btn-success:hover {
+  .btn-success:hover {
     background-color: #218838;
     border-color: #218838;
+  }
+
+  /* Text utilities for dark mode */
+  .text-muted {
+    color: var(--muted);
   }
 
   @media (max-width: 768px) {
@@ -521,7 +460,7 @@
       
       <!-- Header -->
       <div class="modal-header text-white rounded-top-4"
-           style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
+           style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
         <h5 class="modal-title fw-bold">
           <i class="bi bi-eye me-2"></i> View Found Item
         </h5>
@@ -529,7 +468,7 @@
       </div>
       
       <!-- Body -->
-      <div class="modal-body p-4 bg-white">
+      <div class="modal-body p-4">
         <div class="row g-4 align-items-start">
           
           <!-- Left column: item details -->
@@ -574,13 +513,13 @@
       </div>
       
       <!-- Footer -->
-      <div class="modal-footer bg-light rounded-bottom-4">
+      <div class="modal-footer rounded-bottom-4">
         <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Close
         </button>
-        <button class="btn btn-purple rounded-pill"
+        <button class="btn btn-primary rounded-pill"
                 id="editButtonInFoundViewModal"
-                style="background-color:#8A2BE2; color:#fff;"
+                style="background-color: #ffa31a; color: #1b1b1b; border: none; font-weight: 600;"
                 data-bs-toggle="modal"
                 data-bs-target="#editFoundItemModal"
                 data-action="">
