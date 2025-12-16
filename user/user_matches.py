@@ -110,6 +110,16 @@ def submit_claim():
             flash("You already have a pending claim for this match.", "warning")
             return redirect(url_for('user.matches'))
 
+        # Secondary dedup: same user, same item pair, pending
+        cur.execute("""
+            SELECT id FROM claims
+            WHERE user_id=%s AND lost_item_id=%s AND found_item_id=%s AND status='Pending'
+            LIMIT 1
+        """, (current_user.id, lost_item_id, found_item_id))
+        if cur.fetchone():
+            flash("You already have a pending claim for these items.", "warning")
+            return redirect(url_for('user.matches'))
+
         # Get item names for notification
         cur.execute("SELECT name FROM lost_items WHERE id=%s", (lost_item_id,))
         lost_item = cur.fetchone()

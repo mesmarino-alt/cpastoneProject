@@ -2,6 +2,7 @@ from flask import Flask, redirect, url_for
 from extensions import bcrypt, login_manager
 from auth.routes import auth_bp
 from user.routes import user_bp
+from user.user_items import user_items_bp
 from admin.init import admin_bp 
 from admin.admin_claims import admin_claims_bp
 from services.notifications_routes import notifications_bp
@@ -18,6 +19,7 @@ login_manager.init_app(app)
 # --- Register blueprints ---
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(user_bp, url_prefix='/user')
+app.register_blueprint(user_items_bp, url_prefix='/user')
 app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(admin_claims_bp)
 app.register_blueprint(notifications_bp)

@@ -1,9 +1,109 @@
 {% extends 'layouts/base_admin_dashboard.html' %}
 
 {% block content %}
+<style>
+  .claim-type-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-match-claim {
+    background-color: rgba(13, 110, 253, 0.2);
+    color: #0d6efd;
+  }
+
+  .badge-direct-claim {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+  }
+
+  .item-placeholder {
+    color: #999;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .modal-claim-type {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 1rem;
+  }
+
+  .modal-claim-type.match {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.15) 0%, rgba(13, 110, 253, 0.05) 100%);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.3);
+  }
+
+  .modal-claim-type.direct {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 100%);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+
+  .item-section {
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+  }
+
+  .item-section h6 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .item-section .item-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-section .item-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .not-linked {
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border-left: 4px solid #ccc;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .link-later-info {
+    padding: 0.75rem;
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 3px solid #ffc107;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #856404;
+    margin-top: 1rem;
+  }
+</style>
+
 <div class="container-fluid py-4">
-  <div class="card shadow-sm border-0">
-    <div class="card-header bg-white border-bottom">
+  <div class="card soft-card shadow-sm border-0">
+    <div class="card-header soft-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0 fw-bold">
         {% if status_filter %}
           {{ status_filter }} Claims
@@ -30,11 +130,13 @@
       </form>
 
       {% if claims and claims|length > 0 %}
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
+      <!-- Scrollable table body -->
+      <div class="card-body p-0 scrollable-table">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light sticky-top">
             <tr>
               <th>ID</th>
+              <th>Type</th>
               <th>Lost Item</th>
               <th>Found Item</th>
               <th>Claimant</th>
@@ -43,87 +145,179 @@
           </thead>
           <tbody>
             {% for claim in claims %}
+            <!-- Determine claim type -->
+            {% set claim_type = 'match' if (claim.lost_name and claim.found_name) else 'direct' %}
+            
+            <!-- Entire row is clickable -->
             <tr style="cursor: pointer;"
                 data-bs-toggle="modal"
                 data-bs-target="#viewClaimModal{{ claim.claim_id }}">
-              <td>{{ claim.claim_id }}</td>
-              <td>{{ claim.lost_name }}</td>
-              <td>{{ claim.found_name }}</td>
+              <td class="fw-bold">{{ claim.claim_id }}</td>
+              <td>
+                <span class="claim-type-badge {% if claim_type == 'match' %}badge-match-claim{% else %}badge-direct-claim{% endif %}">
+                  {% if claim_type == 'match' %}
+                    <i class="bi bi-link-45deg"></i> Match Claim
+                  {% else %}
+                    <i class="bi bi-file-earmark"></i> Direct Claim
+                  {% endif %}
+                </span>
+              </td>
+              <td>
+                {% if claim.lost_name %}
+                  {{ claim.lost_name }}
+                {% else %}
+                  <span class="item-placeholder">
+                    <i class="bi bi-dash-circle"></i> Not linked yet
+                  </span>
+                {% endif %}
+              </td>
+              <td>
+                {% if claim.found_name %}
+                  {{ claim.found_name }}
+                {% else %}
+                  <span class="item-placeholder">
+                    <i class="bi bi-dash-circle"></i> Not linked yet
+                  </span>
+                {% endif %}
+              </td>
               <td>
                 <strong>{{ claim.claimant_name }}</strong><br>
                 <small class="text-muted">{{ claim.claimant_email }}</small>
               </td>
               <td>
-                <span class="badge 
-                  {% if claim.status == 'Pending' %}bg-warning text-dark
-                  {% elif claim.status == 'Approved' %}bg-success
-                  {% elif claim.status == 'Rejected' %}bg-danger
-                  {% else %}bg-secondary{% endif %}">
-                  {{ claim.status }}
-                </span>
+                {% if claim.status == 'Pending' %}
+                  <span class="pill pill-pending">Pending</span>
+                {% elif claim.status == 'Approved' %}
+                  <span class="pill pill-active">Approved</span>
+                {% elif claim.status == 'Rejected' %}
+                  <span class="pill pill-disabled">Rejected</span>
+                {% else %}
+                  <span class="pill">{{ claim.status }}</span>
+                {% endif %}
               </td>
             </tr>
 
-            <!-- Modal for each claim -->
+            <!-- Claim Modal -->
             <div class="modal fade" id="viewClaimModal{{ claim.claim_id }}" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:600px;">
+              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:700px;">
                 <div class="modal-content shadow-lg border-0 rounded-4">
-                  
-                  <!-- Header -->
                   <div class="modal-header text-white rounded-top-4"
                        style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
                     <h5 class="modal-title fw-bold">
-                      <i class="bi bi-eye me-2"></i> Claim Details
+                      <i class="bi bi-eye me-2"></i> Claim Details #{{ claim.claim_id }}
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                   </div>
-                  
-                  <!-- Body -->
                   <div class="modal-body p-4 bg-white">
-                    <div class="row g-3">
-                      <div class="col-12 col-md-7">
-                        <p><strong>ID:</strong> {{ claim.claim_id }}</p>
-                        <p><strong>Lost Item:</strong> {{ claim.lost_name }}</p>
-                        <p class="small text-muted">{{ claim.lost_desc }}</p>
-                        <p><strong>Found Item:</strong> {{ claim.found_name }}</p>
-                        <p class="small text-muted">{{ claim.found_desc }}</p>
-                        <p><strong>Claimant:</strong> {{ claim.claimant_name }} ({{ claim.claimant_email }})</p>
-                        <p><strong>Status:</strong> {{ claim.status }}</p>
-                        <p><strong>Date:</strong> {{ claim.created_at.strftime('%d %b %Y') if claim.created_at else '—' }}</p>
-                        <p><strong>Justification:</strong> {{ claim.justification }}</p>
-                      </div>
-                      <div class="col-12 col-md-5">
+                    <!-- Claim Type Badge -->
+                    <div class="modal-claim-type {% if claim_type == 'match' %}match{% else %}direct{% endif %}">
+                      {% if claim_type == 'match' %}
+                        <i class="bi bi-link-45deg"></i> Match Claim
+                      {% else %}
+                        <i class="bi bi-file-earmark"></i> Direct Claim
+                      {% endif %}
+                    </div>
+
+                    <!-- Claimant Info -->
+                    <div style="margin-bottom: 1.5rem;">
+                      <p style="margin-bottom: 0.5rem;"><strong>Claimant:</strong></p>
+                      <p style="margin: 0;">
+                        <strong>{{ claim.claimant_name }}</strong> ({{ claim.claimant_email }})
+                      </p>
+                    </div>
+
+                    <!-- Lost Item Section -->
+                    {% if claim.lost_name %}
+                      <div class="item-section">
+                        <h6><i class="bi bi-exclamation-circle me-2"></i> Lost Item</h6>
+                        <p class="item-name">{{ claim.lost_name }}</p>
+                        <p class="item-description">{{ claim.lost_desc or 'No description provided' }}</p>
                         {% if claim.lost_photo %}
                           <img src="{{ url_for('static', filename='uploads/' ~ claim.lost_photo) }}" 
-                               class="img-fluid rounded border mb-2" alt="Lost item photo">
-                        {% endif %}
-                        {% if claim.found_photo %}
-                          <img src="{{ url_for('static', filename='uploads/' ~ claim.found_photo) }}" 
-                               class="img-fluid rounded border" alt="Found item photo">
-                        {% endif %}
-                        {% if not claim.lost_photo and not claim.found_photo %}
-                          <div class="text-muted border rounded p-4 text-center">
-                            <i class="bi bi-image" style="font-size: 3rem;"></i>
-                            <p class="mt-2">No photos</p>
-                          </div>
+                               class="img-fluid rounded border" alt="Lost item photo" style="max-height: 200px;">
                         {% endif %}
                       </div>
+                    {% else %}
+                      <div class="not-linked">
+                        <i class="bi bi-dash-circle" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <strong>No Lost Item Linked</strong><br>
+                          <small>This claim was submitted directly from a found item.</small>
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Found Item Section -->
+                    {% if claim.found_name %}
+                      <div class="item-section">
+                        <h6><i class="bi bi-search me-2"></i> Found Item</h6>
+                        <p class="item-name">{{ claim.found_name }}</p>
+                        <p class="item-description">{{ claim.found_desc or 'No description provided' }}</p>
+                        {% if claim.found_photo %}
+                          <img src="{{ url_for('static', filename='uploads/' ~ claim.found_photo) }}" 
+                               class="img-fluid rounded border" alt="Found item photo" style="max-height: 200px;">
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <div class="not-linked">
+                        <i class="bi bi-dash-circle" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <strong>No Found Item Linked</strong><br>
+                          <small>This claim was submitted directly from a lost item.</small>
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Justification -->
+                    {% if claim.justification %}
+                      <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <p style="margin-bottom: 0.5rem;"><strong>Justification:</strong></p>
+                        <p style="margin: 0; color: #666;">{{ claim.justification }}</p>
+                      </div>
+                    {% endif %}
+
+                    <!-- Claim Metadata -->
+                    <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #999;">
+                      <p style="margin: 0;">
+                        <strong>Status:</strong> {{ claim.status }}<br>
+                        <strong>Submitted:</strong> {{ claim.created_at.strftime('%d %b %Y at %H:%M') if claim.created_at else '—' }}
+                      </p>
                     </div>
+
+                    <!-- Info for Direct Claims -->
+                    {% if claim_type == 'direct' %}
+                      <div class="link-later-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Tip:</strong> This claim can be linked to a matching item later when one is found through the matching system.
+                      </div>
+                    {% endif %}
                   </div>
-                  
-                  <!-- Footer -->
+
                   <div class="modal-footer bg-light rounded-bottom-4">
+                    <!-- Action buttons for pending claims -->
                     {% if claim.status == 'Pending' %}
-                      <form method="post" action="{{ url_for('admin_claims.claim_approve', claim_id=claim.claim_id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-success rounded-pill">
-                          <i class="bi bi-check-circle me-1"></i> Approve
-                        </button>
-                      </form>
-                      <form method="post" action="{{ url_for('admin_claims.claim_reject', claim_id=claim.claim_id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-outline-danger rounded-pill">
-                          <i class="bi bi-x-circle me-1"></i> Reject
-                        </button>
-                      </form>
+                      <div style="width: 100%; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <!-- Link item button (only for direct claims) -->
+                        {% if claim_type == 'direct' %}
+                          <button type="button" class="btn btn-info rounded-pill" data-bs-toggle="modal" 
+                                  data-bs-target="#linkItemModal{{ claim.claim_id }}"
+                                  style="margin-right: auto;">
+                            <i class="bi bi-link-45deg me-1"></i> Link Item
+                          </button>
+                        {% endif %}
+                        
+                        <!-- Approve/Reject buttons -->
+                        <form method="post" action="{{ url_for('admin_claims.claim_approve', claim_id=claim.claim_id) }}" class="d-inline">
+                          <button type="submit" class="btn btn-success rounded-pill">
+                            <i class="bi bi-check-circle me-1"></i> Approve
+                          </button>
+                        </form>
+                        <form method="post" action="{{ url_for('admin_claims.claim_reject', claim_id=claim.claim_id) }}" class="d-inline">
+                          <button type="submit" class="btn btn-outline-danger rounded-pill">
+                            <i class="bi bi-x-circle me-1"></i> Reject
+                          </button>
+                        </form>
+                      </div>
                     {% else %}
                       <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle me-1"></i> Close
@@ -133,6 +327,62 @@
                 </div>
               </div>
             </div>
+
+            <!-- Link Item Modal (for direct claims) -->
+            {% if claim_type == 'direct' %}
+            <div class="modal fade" id="linkItemModal{{ claim.claim_id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+                <div class="modal-content shadow-lg border-0 rounded-4">
+                  <div class="modal-header text-white rounded-top-4"
+                       style="background: linear-gradient(90deg,#17a2b8,#0c5460);">
+                    <h5 class="modal-title fw-bold">
+                      <i class="bi bi-link-45deg me-2"></i> Link Item to Claim
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body p-4 bg-white">
+                    <p class="text-muted mb-3">
+                      Link this direct claim to a matching {{ 'lost' if claim.found_name else 'found' }} item.
+                    </p>
+                    
+                    <form method="post" action="{{ url_for('admin_claims.link_claim_to_item', claim_id=claim.claim_id) }}">
+                      <input type="hidden" name="item_type" value="{{ 'lost' if claim.found_name else 'found' }}">
+                      
+                      <div class="mb-3">
+                        <label class="form-label fw-bold">Select Item</label>
+                        <select name="item_id" class="form-select" required>
+                          <option value="">-- Choose an item --</option>
+                          {% if claim.found_name %}
+                            <!-- This claim has a found item, so link a lost item -->
+                            {% for item in available_lost_items %}
+                              <option value="{{ item.id }}">{{ item.name }} (ID: {{ item.id }})</option>
+                            {% endfor %}
+                          {% else %}
+                            <!-- This claim has a lost item, so link a found item -->
+                            {% for item in available_found_items %}
+                              <option value="{{ item.id }}">{{ item.name }} (ID: {{ item.id }})</option>
+                            {% endfor %}
+                          {% endif %}
+                        </select>
+                        <small class="text-muted d-block mt-2">
+                          Select the matching item to link to this claim.
+                        </small>
+                      </div>
+                      
+                      <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-info rounded-pill ms-auto">
+                          <i class="bi bi-link-45deg me-1"></i> Link Item
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
             {% endfor %}
           </tbody>
         </table>

@@ -65,18 +65,16 @@ def dashboard():
         # All items (lost + found) for current user for table with type indicator
         cur.execute("""
             SELECT li.id, li.name, li.category, li.reported_at AS created_at, 
-                   COALESCE(c.status, 'pending') AS status, 'Lost' AS item_type
+                   COALESCE(c.status, 'pending') AS status, 'Lost' AS type, li.user_id
             FROM lost_items li
             LEFT JOIN claims c ON c.lost_item_id = li.id
-            WHERE li.user_id=%s
             UNION
             SELECT fi.id, fi.name, fi.category, fi.reported_at AS created_at, 
-                   COALESCE(c.status, 'pending') AS status, 'Found' AS item_type
+                   COALESCE(c.status, 'pending') AS status, 'Found' AS type, fi.user_id
             FROM found_items fi
             LEFT JOIN claims c ON c.found_item_id = fi.id
-            WHERE fi.user_id=%s
             ORDER BY created_at DESC
-        """, (current_user.id, current_user.id))
+        """)
         items = cur.fetchall()
 
         # Category breakdown for current user's items
@@ -151,25 +149,29 @@ def create_lost_item():
 @user_bp.route('/my-lost-items')
 @login_required
 def my_lost_items():
-        # 🔍 Debug prints
-    print("DEBUG current_user:", current_user)
-    print("DEBUG current_user.id:", current_user.id)
-    print("DEBUG current_user.get_id():", current_user.get_id())
-    print("DEBUG current_user.is_authenticated:", current_user.is_authenticated)
-    print("DEBUG current_user.is_active:", current_user.is_active())
-    conn = get_db(); cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
+        # Fetch lost items with their claim status
         cur.execute("""
-            SELECT id, user_id, name, category, description,
-                   last_seen, last_seen_at, status, photo, reported_at
-            FROM lost_items
-            WHERE user_id=%s
-            ORDER BY reported_at DESC
+            SELECT li.id, li.user_id, li.name, li.category, li.description,
+                   li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
+                   COALESCE(c.status, 'pending') as claim_status
+            FROM lost_items li
+            LEFT JOIN claims c ON c.lost_item_id = li.id
+            WHERE li.user_id=%s
+            ORDER BY li.reported_at DESC
         """, (int(current_user.get_id()),))
         rows = cur.fetchall()
     finally:
         cur.close(); conn.close()
-    items = [LostItem.from_row(r) for r in rows]
+    
+    items = []
+    for r in rows:
+        item = LostItem.from_row(r)
+        # Override status with claim status if available
+        item.status = r.get('claim_status', 'pending')
+        items.append(item)
+    
     return render_template('user/my_lost_items.html', items=items)
 
 @user_bp.route('/my-found-items')
@@ -634,10 +636,12 @@ def api_lost_item(item_id):
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, user_id, name, category, description,
-                   last_seen, last_seen_at, status, photo, reported_at
-            FROM lost_items
-            WHERE id=%s AND user_id=%s
+            SELECT li.id, li.user_id, li.name, li.category, li.description,
+                   li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
+                   COALESCE(c.status, 'pending') as claim_status
+            FROM lost_items li
+            LEFT JOIN claims c ON c.lost_item_id = li.id
+            WHERE li.id=%s AND li.user_id=%s
         """, (item_id, int(current_user.get_id())))
         row = cur.fetchone()
     finally:
@@ -661,7 +665,7 @@ def api_lost_item(item_id):
         'description': row.get('description'),
         'last_seen': row.get('last_seen'),
         'last_seen_at': row.get('last_seen_at'),
-        'status': row.get('status'),
+        'status': row.get('claim_status'),
         'photo': row.get('photo'),
         'reported_at': reported_at_str
     })
@@ -728,6 +732,72 @@ def api_matches_count():
     except Exception as e:
         print(f"Error fetching matches count: {e}")
         return jsonify({'matches_count': 0, 'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+
+@user_bp.route('/api/item-claim/<int:item_id>/<item_type>')
+@login_required
+def api_item_claim(item_id, item_type):
+    """Get claim information for an item"""
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        # Normalize item_type to lowercase
+        item_type = item_type.lower()
+        
+        # First, get the item owner
+        if item_type == 'found':
+            cur.execute("SELECT user_id FROM found_items WHERE id=%s", (item_id,))
+        else:  # lost
+            cur.execute("SELECT user_id FROM lost_items WHERE id=%s", (item_id,))
+        
+        item_owner = cur.fetchone()
+        item_owner_id = item_owner.get('user_id') if item_owner else None
+        is_owner = item_owner_id == current_user.id
+        
+        # Query based on item type to check for existing claims
+        if item_type == 'found':
+            cur.execute("""
+                SELECT c.id, c.user_id, c.status, c.created_at, u.name as claimant_name
+                FROM claims c
+                JOIN users u ON u.id = c.user_id
+                WHERE c.found_item_id=%s
+                ORDER BY c.created_at DESC
+                LIMIT 1
+            """, (item_id,))
+        else:  # lost
+            cur.execute("""
+                SELECT c.id, c.user_id, c.status, c.created_at, u.name as claimant_name
+                FROM claims c
+                JOIN users u ON u.id = c.user_id
+                WHERE c.lost_item_id=%s
+                ORDER BY c.created_at DESC
+                LIMIT 1
+            """, (item_id,))
+        
+        claim = cur.fetchone()
+        
+        if claim:
+            return jsonify({
+                'has_claim': True,
+                'claim_id': claim.get('id'),
+                'status': claim.get('status'),
+                'is_current_user': claim.get('user_id') == current_user.id,
+                'is_owner': is_owner,
+                'claimant_name': claim.get('claimant_name'),
+                'created_at': claim.get('created_at').strftime('%b %d, %Y') if claim.get('created_at') else None
+            })
+        else:
+            return jsonify({
+                'has_claim': False,
+                'is_owner': is_owner
+            })
+    
+    except Exception as e:
+        print(f"[API CLAIM] ERROR: {str(e)}")
+        return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
         conn.close()

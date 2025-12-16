@@ -374,10 +374,12 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if item.status == 'pending' %}
+                  {% if item.status|lower == 'pending' %}
                     <span class="badge-status badge-pending">Pending</span>
-                  {% elif item.status == 'matched' %}
-                    <span class="badge-status badge-matched">Matched</span>
+                  {% elif item.status|lower == 'approved' %}
+                    <span class="badge-status badge-approved">Approved</span>
+                  {% elif item.status|lower == 'rejected' %}
+                    <span class="badge-status badge-rejected">Rejected</span>
                   {% else %}
                     <span class="badge-status badge-closed">Closed</span>
                   {% endif %}
