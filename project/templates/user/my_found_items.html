@@ -140,6 +140,16 @@
     color: #dc3545;
   }
 
+  .badge-approved {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .badge-rejected {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
   .btn-view {
     background-color: var(--primary-accent);
     color: #1b1b1b;
@@ -371,12 +381,14 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if item.status == 'pending' %}
-                    <span class="badge-status badge-pending">Pending</span>
-                  {% elif item.status == 'matched' %}
-                    <span class="badge-status badge-matched">Matched</span>
+                  {% if item.claim_status == 'Approved' %}
+                    <span class="badge-status badge-approved">✓ Resolved - Claimed</span>
+                  {% elif item.claim_status == 'Rejected' %}
+                    <span class="badge-status badge-rejected">✕ Claim Rejected</span>
+                  {% elif item.claim_status == 'Pending' %}
+                    <span class="badge-status badge-pending">⏳ Claim Pending</span>
                   {% else %}
-                    <span class="badge-status badge-closed">Closed</span>
+                    <span class="badge-status badge-pending">Awaiting Claim</span>
                   {% endif %}
                 </td>
                 <td>
@@ -579,6 +591,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (darkMode) {
     document.body.classList.add('dark-mode');
   }
+
+  // Auto-dismiss alert notifications after 3 seconds
+  // Only show alerts if they haven't been shown before in this session
+  const alerts = document.querySelectorAll('.alert');
+  alerts.forEach(alert => {
+    // Check if this alert has already been shown (store in sessionStorage)
+    const alertText = alert.textContent.trim();
+    const alertKey = `alert_shown_${alertText.substring(0, 50)}`;
+    
+    if (sessionStorage.getItem(alertKey)) {
+      // Alert was already shown in this session, remove it
+      alert.remove();
+    } else {
+      // Mark this alert as shown
+      sessionStorage.setItem(alertKey, 'true');
+      
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => {
+        const bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      }, 3000);
+    }
+  });
 
   console.log('=== my_found_items.js loaded ===');
 

@@ -9,7 +9,7 @@ from db import get_db
 from models.user import FoundItem, LostItem
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from services.embeddings import compute_embedding
+from services.embeddings import compute_embedding, compute_item_embedding
 from services.matching import run_matching_pipeline
 
 
@@ -177,20 +177,29 @@ def my_lost_items():
 @user_bp.route('/my-found-items')
 @login_required
 def my_found_items():
-    conn = get_db(); cur = conn.cursor()
+    conn = get_db(); cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
+        # Fetch found items with their claim status
         cur.execute("""
-            SELECT id, user_id, name, category, description,
-                   where_found, found_at, status, photo, reported_at
-            FROM found_items
-            WHERE user_id=%s
-            ORDER BY reported_at DESC
+            SELECT fi.id, fi.user_id, fi.name, fi.category, fi.description,
+                   fi.where_found, fi.found_at, fi.status, fi.photo, fi.reported_at,
+                   COALESCE(c.status, NULL) as claim_status
+            FROM found_items fi
+            LEFT JOIN claims c ON c.found_item_id = fi.id
+            WHERE fi.user_id=%s
+            ORDER BY fi.reported_at DESC
         """, (int(current_user.get_id()),))
         rows = cur.fetchall()
     finally:
         cur.close(); conn.close()
-
-    items = [FoundItem.from_row(r) for r in rows]
+    
+    items = []
+    for r in rows:
+        item = FoundItem.from_row(r)
+        # Add claim status to item
+        item.claim_status = r.get('claim_status')
+        items.append(item)
+    
     return render_template('user/my_found_items.html', items=items)
 
 
@@ -232,15 +241,20 @@ def report_lost():
         result = cur.fetchone()
         item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
 
-        # Compute and store embedding
-        print(f"\n[LOST] Computing embedding for item {item_id}...")
-        emb = compute_embedding(description)
+        # Compute unified embedding for all fields (name, description, location, date)
+        print(f"\n[LOST] Computing unified embedding for item {item_id}...")
+        print(f"[LOST]   - Name: {name}")
+        print(f"[LOST]   - Description: {description}")
+        print(f"[LOST]   - Location: {last_seen}")
+        print(f"[LOST]   - Date: {last_seen_at}")
+        
+        emb = compute_item_embedding(name, description, last_seen, last_seen_at)
         
         if emb:
             emb_json = json.dumps(emb)
             cur.execute("UPDATE lost_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
             conn.commit()
-            print(f"[LOST] ✓ Embedding saved for item {item_id}")
+            print(f"[LOST] ✓ Unified embedding saved for item {item_id}")
         else:
             print(f"[LOST] ✗ Failed to compute embedding")
     except Exception as e:
@@ -292,14 +306,20 @@ def report_found():
         result = cur.fetchone()
         item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
 
-        print(f"\n[FOUND] Computing embedding for item {item_id}...")
-        emb = compute_embedding(description)
+        # Compute unified embedding for all fields (name, description, location, date)
+        print(f"\n[FOUND] Computing unified embedding for item {item_id}...")
+        print(f"[FOUND]   - Name: {name}")
+        print(f"[FOUND]   - Description: {description}")
+        print(f"[FOUND]   - Location: {where_found}")
+        print(f"[FOUND]   - Date: {found_at}")
+        
+        emb = compute_item_embedding(name, description, where_found, found_at)
         
         if emb:
             emb_json = json.dumps(emb)
             cur.execute("UPDATE found_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
             conn.commit()
-            print(f"[FOUND] ✓ Embedding saved for item {item_id}")
+            print(f"[FOUND] ✓ Unified embedding saved for item {item_id}")
         else:
             print(f"[FOUND] ✗ Failed to compute embedding")
     except Exception as e:
@@ -452,7 +472,22 @@ def update_found_item(id):
                 where_found=%s, found_at=%s
             WHERE id=%s AND user_id=%s
         """, (name, category, description, where_found, found_at, id, current_user.id))
+        
+        # Recompute unified embedding with updated fields
+        print(f"\n[FOUND UPDATE] Computing unified embedding for item {id}...")
+        emb = compute_item_embedding(name, description, where_found, found_at)
+        
+        if emb:
+            emb_json = json.dumps(emb)
+            cur.execute("UPDATE found_items SET embedding=%s WHERE id=%s", (emb_json, id))
+            print(f"[FOUND UPDATE] ✓ Unified embedding updated for item {id}")
+        
         conn.commit()
+    except Exception as e:
+        print(f"[FOUND UPDATE] ERROR: {str(e)}")
+        conn.rollback()
+        flash(f'Error updating item: {str(e)}', 'danger')
+        return redirect(url_for('user.my_found_items'))
     finally:
         cur.close(); conn.close()
 
@@ -471,17 +506,34 @@ def update_lost_item(item_id):
 
         conn = get_db()
         cur = conn.cursor()
-        cur.execute("""
-            UPDATE lost_items
-            SET name=%s, category=%s, last_seen=%s, last_seen_at=%s, description=%s
-            WHERE id=%s AND user_id=%s
-        """, (name, category, last_seen, last_seen_at, description, item_id, current_user.id))
-        conn.commit()
-        cur.close()
-        conn.close()
+        try:
+            cur.execute("""
+                UPDATE lost_items
+                SET name=%s, category=%s, last_seen=%s, last_seen_at=%s, description=%s
+                WHERE id=%s AND user_id=%s
+            """, (name, category, last_seen, last_seen_at, description, item_id, current_user.id))
+            
+            # Recompute unified embedding with updated fields
+            print(f"\n[LOST UPDATE] Computing unified embedding for item {item_id}...")
+            emb = compute_item_embedding(name, description, last_seen, last_seen_at)
+            
+            if emb:
+                emb_json = json.dumps(emb)
+                cur.execute("UPDATE lost_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
+                print(f"[LOST UPDATE] ✓ Unified embedding updated for item {item_id}")
+            
+            conn.commit()
+        except Exception as e:
+            print(f"[LOST UPDATE] ERROR: {str(e)}")
+            conn.rollback()
+            flash(f'Error updating item: {str(e)}', 'danger')
+            return redirect(url_for('user.my_lost_items'))
+        finally:
+            cur.close()
+            conn.close()
 
         flash('Lost item updated successfully!', 'success')
-        return redirect(url_for('user.lost_items'))
+        return redirect(url_for('user.my_lost_items'))
 
 
 @user_bp.route('/found/<int:id>/delete', methods=['POST'])

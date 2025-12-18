@@ -406,13 +406,110 @@
         {% endif %}
         <p class="mt-2 mb-0"><strong>{{ current_user.name }}</strong></p>
         <p class="small">{{ current_user.email }}</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-          <p class="small mb-0">ID: {{ current_user.student_id }}</p>
+        <p class="small mb-3">ID: {{ current_user.student_id }}</p>
+        
+        <!-- Icons underneath ID -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
           <button type="button" class="btn btn-sm p-0" data-bs-toggle="modal" data-bs-target="#profileModal" 
-                  style="background: none; border: none; color: var(--button-bg); font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease;"
+                  style="background: none; border: none; color: var(--button-bg); font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;"
                   onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
             <i class="bi bi-pencil-fill"></i>
           </button>
+          <div class="dropdown" style="position: relative; display: inline-block;">
+            <button type="button" class="btn btn-sm p-0" id="notificationBellBtn" 
+                    style="background: none; border: none; color: var(--button-bg); font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease; position: relative;"
+                    onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+              <i class="bi bi-bell-fill"></i>
+              <span id="bellNotificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
+            
+            <!-- Notification Dropdown Panel -->
+            <div id="notificationDropdown" style="
+              width: 360px;
+              max-height: 500px;
+              background-color: var(--card-bg);
+              border: 1px solid var(--border-color);
+              border-radius: 12px;
+              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+              overflow: hidden;
+              display: none;
+              position: fixed;
+              z-index: 10000;
+              margin-top: 0.5rem;
+            ">
+              <!-- Header -->
+              <div style="
+                padding: 1rem;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: rgba(255, 163, 26, 0.05);
+              ">
+                <h6 style="margin: 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
+                  <i class="bi bi-bell me-2" style="color: var(--button-bg);"></i> Notifications
+                </h6>
+                <button type="button" class="btn btn-sm p-0" id="markAllReadBtn" style="
+                  background: none;
+                  border: none;
+                  color: var(--button-bg);
+                  font-size: 0.75rem;
+                  cursor: pointer;
+                  text-decoration: none;
+                  transition: all 0.3s ease;
+                " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                  Mark all as read
+                </button>
+              </div>
+              
+              <!-- Notifications List -->
+              <div id="notificationsList" style="
+                max-height: 350px;
+                overflow-y: auto;
+              ">
+                <!-- Loading state -->
+                <div id="notificationsLoading" style="
+                  padding: 2rem 1rem;
+                  text-align: center;
+                  color: var(--text-muted);
+                ">
+                  <div class="spinner-border spinner-border-sm" role="status" style="color: var(--button-bg);">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p style="margin-top: 0.5rem; font-size: 0.85rem;">Loading notifications...</p>
+                </div>
+                
+                <!-- Empty state (hidden by default) -->
+                <div id="notificationsEmpty" style="
+                  padding: 2rem 1rem;
+                  text-align: center;
+                  color: var(--text-muted);
+                  display: none;
+                ">
+                  <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;"></i>
+                  <p style="margin: 0; font-size: 0.9rem;">No notifications yet</p>
+                </div>
+              </div>
+              
+              <!-- Footer -->
+              <div style="
+                padding: 0.75rem;
+                border-top: 1px solid var(--border-color);
+                text-align: center;
+                background-color: rgba(255, 163, 26, 0.02);
+              ">
+                <a href="{{ url_for('notifications.notifications_page') }}" style="
+                  color: var(--button-bg);
+                  text-decoration: none;
+                  font-size: 0.85rem;
+                  font-weight: 500;
+                  transition: all 0.3s ease;
+                " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                  <i class="bi bi-arrow-right me-1"></i> View All Notifications
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -680,6 +777,9 @@
       fetchMatchesCount();
       // Refresh every 30 seconds
       setInterval(fetchMatchesCount, 30000);
+
+      // Initialize notification bell dropdown
+      initializeNotificationBell();
     });
 
     function fetchUnreadNotifications() {
@@ -687,13 +787,17 @@
         .then(response => response.json())
         .then(data => {
           const badge = document.getElementById('notificationBadge');
+          const bellBadge = document.getElementById('bellNotificationBadge');
           const unreadCount = data.unread_count || 0;
           
           if (unreadCount > 0) {
             badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
             badge.style.display = 'flex';
+            bellBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+            bellBadge.style.display = 'flex';
           } else {
             badge.style.display = 'none';
+            bellBadge.style.display = 'none';
           }
         })
         .catch(err => console.log('Notification fetch error:', err));
@@ -714,6 +818,235 @@
           }
         })
         .catch(err => console.log('Matches fetch error:', err));
+    }
+
+    function initializeNotificationBell() {
+      const bellBtn = document.getElementById('notificationBellBtn');
+      const dropdown = document.getElementById('notificationDropdown');
+      const notificationsList = document.getElementById('notificationsList');
+      const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+      if (!bellBtn || !dropdown) return;
+
+      // Toggle dropdown visibility
+      bellBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isVisible = dropdown.style.display === 'block';
+        
+        if (isVisible) {
+          dropdown.style.display = 'none';
+        } else {
+          // Position dropdown below the bell button
+          const rect = bellBtn.getBoundingClientRect();
+          const dropdownWidth = 360;
+          const margin = 10;
+          
+          // Calculate positions
+          let leftPos = rect.right - dropdownWidth + margin;
+          let topPos = rect.bottom + 10;
+          
+          // Ensure dropdown doesn't go off screen to the left
+          if (leftPos < margin) {
+            leftPos = margin;
+          }
+          
+          // Ensure dropdown doesn't go off screen to the right
+          if (leftPos + dropdownWidth > window.innerWidth - margin) {
+            leftPos = window.innerWidth - dropdownWidth - margin;
+          }
+          
+          dropdown.style.top = topPos + 'px';
+          dropdown.style.left = leftPos + 'px';
+          dropdown.style.right = 'auto';
+          dropdown.style.display = 'block';
+          loadNotificationsDropdown();
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== bellBtn && !bellBtn.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+
+      // Mark all as read
+      if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', () => {
+          markAllNotificationsRead();
+        });
+      }
+    }
+
+    function loadNotificationsDropdown() {
+      const notificationsList = document.getElementById('notificationsList');
+      const notificationsLoading = document.getElementById('notificationsLoading');
+      const notificationsEmpty = document.getElementById('notificationsEmpty');
+
+      if (!notificationsList) return;
+
+      // Show loading state
+      notificationsLoading.style.display = 'block';
+      notificationsEmpty.style.display = 'none';
+      notificationsList.innerHTML = '';
+      notificationsList.appendChild(notificationsLoading);
+
+      fetch('/notifications/api/recent?limit=50')
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          notificationsLoading.style.display = 'none';
+          notificationsList.innerHTML = '';
+
+          const allNotifications = data.notifications || [];
+          // Filter to show only unread notifications
+          const unreadNotifications = allNotifications.filter(notif => !notif.is_read);
+
+          if (unreadNotifications.length === 0) {
+            notificationsEmpty.style.display = 'block';
+            notificationsList.appendChild(notificationsEmpty);
+          } else {
+            unreadNotifications.forEach(notif => {
+              const notifElement = createNotificationElement(notif);
+              notificationsList.appendChild(notifElement);
+            });
+          }
+        })
+        .catch(err => {
+          console.error('Error loading notifications:', err);
+          notificationsLoading.style.display = 'none';
+          notificationsEmpty.style.display = 'block';
+          notificationsList.innerHTML = '';
+          notificationsEmpty.innerHTML = `
+            <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;"></i>
+            <p style="margin: 0; font-size: 0.9rem;">Error loading notifications</p>
+          `;
+          notificationsList.appendChild(notificationsEmpty);
+        });
+    }
+
+    function createNotificationElement(notif) {
+      const div = document.createElement('div');
+      const isRead = notif.is_read;
+      
+      div.style.cssText = `
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: ${isRead ? 'transparent' : 'rgba(255, 163, 26, 0.08)'};
+      `;
+
+      div.onmouseover = () => {
+        div.style.backgroundColor = 'rgba(255, 163, 26, 0.12)';
+      };
+
+      div.onmouseout = () => {
+        div.style.backgroundColor = isRead ? 'transparent' : 'rgba(255, 163, 26, 0.08)';
+      };
+
+      const timeAgo = getTimeAgo(new Date(notif.created_at));
+      const icon = getNotificationIcon(notif.type);
+      const description = notif.message || notif.description || '';
+
+      div.innerHTML = `
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+          <div style="color: var(--button-bg); font-size: 1rem; flex-shrink: 0; margin-top: 0.2rem;">
+            ${icon}
+          </div>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <p style="
+                margin: 0;
+                color: var(--text-primary);
+                font-weight: ${isRead ? '500' : '700'};
+                font-size: 0.9rem;
+                word-break: break-word;
+              ">${notif.title || 'Notification'}</p>
+              ${!isRead ? '<span style="width: 6px; height: 6px; background-color: var(--button-bg); border-radius: 50%; flex-shrink: 0;"></span>' : ''}
+            </div>
+            ${description ? `<p style="margin: 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.3;">${escapeHtml(description)}</p>` : ''}
+            <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.75rem;">${timeAgo}</p>
+          </div>
+        </div>
+      `;
+
+      div.addEventListener('click', () => {
+        // Mark as read on click
+        if (!isRead) {
+          fetch(`/notifications/${notif.id}/read`, { method: 'POST' });
+        }
+        
+        // Navigate to related item if applicable
+        if (notif.related_id) {
+          if (notif.type === 'claim_approved' || notif.type === 'claim_rejected') {
+            window.location.href = '/user/my-found-items';
+          } else if (notif.type === 'item_matched' || notif.type === 'match_found') {
+            window.location.href = '/user/matches';
+          }
+        }
+      });
+
+      return div;
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function getNotificationIcon(type) {
+      const icons = {
+        'claim_approved': '✓',
+        'claim_rejected': '✕',
+        'new_claim': '⏳',
+        'claim_pending': '⏳',
+        'match_found': '🔗',
+        'item_matched': '🎯',
+        'default': '📢'
+      };
+      return icons[type] || icons['default'];
+    }
+
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (seconds < 60) return 'just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      
+      return date.toLocaleDateString();
+    }
+
+    function markAllNotificationsRead() {
+      fetch('/notifications/api/mark-all-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('All notifications marked as read');
+            fetchUnreadNotifications();
+            loadNotificationsDropdown();
+          }
+        })
+        .catch(err => console.error('Error marking notifications as read:', err));
     }
   </script>
   {% block scripts %}{% endblock %}

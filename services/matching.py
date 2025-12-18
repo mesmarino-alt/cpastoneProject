@@ -11,7 +11,7 @@ def get_unmatched_lost_items():
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, description, embedding
+            SELECT id, name, description, last_seen, last_seen_at, embedding
             FROM lost_items
             WHERE embedding IS NOT NULL
             AND id NOT IN (
@@ -30,7 +30,7 @@ def get_all_found_items():
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, description, embedding
+            SELECT id, name, description, where_found, found_at, embedding
             FROM found_items
             WHERE embedding IS NOT NULL
         """)
@@ -54,7 +54,19 @@ def compute_cosine_similarity(emb1, emb2):
         return 0.0
 
 def generate_matches(threshold=0.75):
-    """Generate matches between lost and found items"""
+    """
+    Generate matches between lost and found items using unified embeddings.
+    
+    Each item's embedding encodes all fields (name, description, location, date)
+    in one unified vector space, allowing ML to capture semantic relationships
+    across all dimensions without hand-tuned field weights.
+    
+    Args:
+        threshold (float): Similarity score threshold (0.0 to 1.0)
+    
+    Returns:
+        list: List of match dictionaries with lost_item_id, found_item_id, and score
+    """
     lost_items = get_unmatched_lost_items()
     found_items = get_all_found_items()
     
@@ -62,7 +74,7 @@ def generate_matches(threshold=0.75):
     
     for lost in lost_items:
         # Handle both dict and tuple returns
-        lost_embedding = lost.get('embedding') if isinstance(lost, dict) else (lost[2] if lost and len(lost) > 2 else None)
+        lost_embedding = lost.get('embedding') if isinstance(lost, dict) else (lost[5] if lost and len(lost) > 5 else None)
         if not lost_embedding:
             continue
         
@@ -74,7 +86,7 @@ def generate_matches(threshold=0.75):
             continue
         
         for found in found_items:
-            found_embedding = found.get('embedding') if isinstance(found, dict) else (found[2] if found and len(found) > 2 else None)
+            found_embedding = found.get('embedding') if isinstance(found, dict) else (found[5] if found and len(found) > 5 else None)
             if not found_embedding:
                 continue
             
@@ -85,6 +97,7 @@ def generate_matches(threshold=0.75):
                 print(f"ERROR: Could not deserialize embedding for found item {found_id}")
                 continue
             
+            # Compare unified embeddings
             similarity = compute_cosine_similarity(lost_emb, found_emb)
             
             if similarity >= threshold:
