@@ -16,7 +16,7 @@ COPY requirements.txt .
 # Using --no-cache-dir to reduce image size and --no-build-isolation for faster builds
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
-    --index-url https://download.pytorch.org/whl/cpu \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
     -r requirements.txt
 
 # Copy application code
