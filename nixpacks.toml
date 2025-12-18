@@ -1,4 +1,13 @@
 # nixpacks.toml
 
+[build]
+# Increase build timeout to handle PyTorch compilation
+# Default is 15 minutes, we need more time
+buildTimeout = 3600
+
+[buildConfig]
+# Install pip dependencies with optimizations for large packages
+pip = "pip install --no-cache-dir -r requirements.txt"
+
 [start]
 cmd = "gunicorn app:app"
