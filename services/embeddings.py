@@ -2,19 +2,29 @@
 from sentence_transformers import SentenceTransformer
 import json
 
-# Load model once at import
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Global model variable - lazy loaded
+_model = None
+
+def get_model():
+    """Lazy load the model only when first needed."""
+    global _model
+    if _model is None:
+        print("Loading sentence transformer model...")
+        _model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _model
 
 def compute_embedding(text: str):
     """Return embedding as a Python list for DB storage (JSON)."""
     if not text:
         return None
+    model = get_model()
     return model.encode(text).tolist()
 
 def embed_tensor(text: str):
     """Return embedding as a tensor for similarity calculations."""
     if not text:
         return None
+    model = get_model()
     return model.encode(text, convert_to_tensor=True)
 
 def serialize_embedding(embedding_list):
