@@ -5,16 +5,32 @@
 
 {% block content %}
 <style>
-  /* Dark Mode Only Palette */
+  /* Match palette used by dashboard.html */
   :root {
+    --page-bg: #f7f8fc;
+    --card: #ffffff;
+    --text: #2b2d42;
+    --muted: #6c757d;
+    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+    --border-color: #e9ecef;
+
+    /* Accent used across user dashboard */
+    --primary-accent: #8A2BE2;
+    --primary-accent-hover: #6f22b5;
+    --primary-accent-2: #20c997; /* match my_found_items view modal secondary accent */
+  }
+
+  body.dark-mode {
     --page-bg: #1b1b1b;
     --card: #292929;
     --text: #ffffff;
     --muted: #808080;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     --border-color: #404040;
-    --primary-accent: #ffa31a;
-    --primary-accent-hover: #e68a00;
+
+    --primary-accent: #8A2BE2;
+    --primary-accent-hover: #6f22b5;
+    --primary-accent-2: #20c997;
   }
 
   body, .container-fluid {
@@ -65,18 +81,25 @@
   .table-controls select {
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--primary-accent);
-    background-color: #343a40;
+    border: 1px solid var(--border-color);
+    background-color: var(--card);
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
+  }
+
+  body.dark-mode .table-controls input,
+  body.dark-mode .table-controls select {
+    background-color: #343a40;
+    border-color: var(--border-color);
+    color: var(--text);
   }
 
   .table-controls input:focus,
   .table-controls select:focus {
     outline: none;
     border-color: var(--primary-accent);
-    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(138, 43, 226, 0.25);
   }
 
   .table-wrapper {
@@ -93,7 +116,7 @@
   }
 
   .data-table thead {
-    background-color: rgba(255, 163, 26, 0.12);
+    background-color: rgba(138, 43, 226, 0.10);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -116,7 +139,7 @@
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(255, 163, 26, 0.1);
+    background-color: rgba(138, 43, 226, 0.06);
   }
 
   .badge-status {
@@ -128,28 +151,28 @@
   }
 
   .badge-pending {
-    background-color: rgba(255, 193, 7, 0.3);
-    color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.18);
+    color: #b8860b;
   }
 
   .badge-approved {
-    background-color: rgba(40, 167, 69, 0.3);
+    background-color: rgba(40, 167, 69, 0.18);
     color: #28a745;
   }
 
   .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.3);
+    background-color: rgba(220, 53, 69, 0.18);
     color: #dc3545;
   }
 
   .badge-closed {
-    background-color: rgba(220, 53, 69, 0.3);
-    color: #dc3545;
+    background-color: rgba(108, 117, 125, 0.18);
+    color: #6c757d;
   }
 
   .btn-view {
     background-color: var(--primary-accent);
-    color: #1b1b1b;
+    color: #ffffff;
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
@@ -188,8 +211,8 @@
   }
 
   .modal-header {
-    background: linear-gradient(90deg, #ffa31a, #e68a00);
-    color: #1b1b1b;
+    background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-hover));
+    color: #fff;
   }
 
   .modal-body {
@@ -209,6 +232,10 @@
   }
 
   .bg-light {
+    background-color: #f8f9fa;
+  }
+
+  body.dark-mode .bg-light {
     background-color: #343a40;
   }
 
@@ -218,18 +245,22 @@
     color: var(--text);
   }
 
-  /* Modal photo container dark mode */
+  /* Modal photo container */
   .bg-light.rounded-4 {
+    background-color: #f8f9fa;
+  }
+
+  body.dark-mode .bg-light.rounded-4 {
     background-color: #343a40;
   }
 
-  /* Modal footer dark mode */
+  /* Modal footer */
   .modal-footer.bg-light {
     background-color: var(--card);
     border-top-color: var(--border-color);
   }
 
-  /* Edit modal body dark mode */
+  /* Edit modal body */
   .modal-body.p-3.bg-white {
     background-color: var(--card);
     color: var(--text);
@@ -242,29 +273,34 @@
 
   .form-control,
   .form-select {
-    background-color: #343a40;
-    border-color: var(--primary-accent);
+    background-color: var(--card);
+    border-color: var(--border-color);
     color: var(--text);
     transition: all 0.3s ease;
   }
 
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    background-color: #343a40;
+    border-color: var(--border-color);
+    color: var(--text);
+  }
+
   .form-control:focus,
   .form-select:focus {
-    background-color: #343a40;
     border-color: var(--primary-accent);
-    color: var(--text);
-    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(138, 43, 226, 0.25);
   }
 
   .btn-outline-secondary {
-    border-color: var(--primary-accent);
+    border-color: var(--border-color);
     color: var(--text);
   }
 
   .btn-outline-secondary:hover {
     background-color: var(--primary-accent);
-    border-color: var (--primary-accent);
-    color: #1b1b1b;
+    border-color: var(--primary-accent);
+    color: #fff;
   }
 
   .btn-success {
@@ -278,13 +314,22 @@
     border-color: #218838;
   }
 
-  /* Text utilities for dark mode */
+  /* Text utilities */
   .text-muted {
-    color: var(--muted);
+    color: var(--muted) !important;
   }
 
   .btn-close {
-    background-color: #ffffff;
+    filter: none;
+  }
+
+  body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%);
+  }
+
+  /* Confirmation modal data text */
+  .form-control-plaintext {
+    color: var(--text);
   }
 
   @media (max-width: 768px) {
@@ -316,7 +361,7 @@
         <h3 class="panel-title">
           <i class="bi bi-search"></i> My Lost Items
         </h3>
-        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportLostModal" style="background-color: #d88e06; color: #fff;">
+        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportLostModal" style="background-color: var(--primary-accent); color: #fff;">
           <i class="bi bi-plus-lg me-1"></i> Add Lost Item
         </button>
       </div>
@@ -339,7 +384,8 @@
         <select id="statusFilter" onchange="filterTable()" style="flex: 0 0 150px;">
           <option value="">All Status</option>
           <option value="pending">Pending</option>
-          <option value="matched">Matched</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
           <option value="closed">Closed</option>
         </select>
       </div>
@@ -412,47 +458,96 @@
 
 <!-- Report Lost Item Modal -->
 <div class="modal fade" id="reportLostModal" tabindex="-1" aria-labelledby="reportLostModalLabel">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" action="{{ url_for('user.report_lost') }}" enctype="multipart/form-data">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width: 700px;">
+    <form class="modal-content" id="reportLostForm" method="post" action="{{ url_for('user.report_lost') }}" enctype="multipart/form-data">
       <div class="modal-header">
         <h5 class="modal-title" id="reportLostModalLabel">Report lost item</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Item name</label>
-          <input type="text" name="name" class="form-control" required>
+        <!-- Option B (NO JS): confirmation step without previewing unsent inputs -->
+        <input type="checkbox" class="d-none" id="lost_review_toggle">
+
+        <style>
+          #lost_review_panel { display: none; }
+          #lost_review_toggle:checked ~ #lost_form_fields { display: none; }
+          #lost_review_toggle:checked ~ #lost_review_panel { display: block; }
+
+          /* footer buttons */
+          .lost-footer-review { display: none; }
+          .lost-footer-edit { display: inline-block; }
+          #lost_review_toggle:checked ~ .modal-footer .lost-footer-edit { display: none; }
+          #lost_review_toggle:checked ~ .modal-footer .lost-footer-review { display: inline-block; }
+        </style>
+
+        <!-- Form fields -->
+        <div id="lost_form_fields">
+          <div class="mb-3">
+            <label class="form-label" for="lost_name">Item name</label>
+            <input type="text" id="lost_name" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lost_category">Category</label>
+            <select id="lost_category" name="category" class="form-select">
+              <option value="Accessory">Accessory</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bag">Bag</option>
+              <option value="Electronics">Electronics</option>
+              <option value="ID/Card">ID/Card</option>
+              <option value="Documents">Documents</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lost_last_seen">Last seen location</label>
+            <input type="text" id="lost_last_seen" name="last_seen" class="form-control" placeholder="Building, room, area">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lost_last_seen_at">Date/time last seen</label>
+            <input type="datetime-local" id="lost_last_seen_at" name="last_seen_at" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lost_description">Description</label>
+            <textarea id="lost_description" name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="lost_photo">Photo (optional)</label>
+            <input type="file" id="lost_photo" name="photo" class="form-control" accept="image/*">
+          </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Category</label>
-          <select name="category" class="form-select">
-            <option>Accessory</option>
-            <option>Bag</option>
-            <option>Electronics</option>
-            <option>ID/Card</option>
-            <option>Others</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Last seen location</label>
-          <input type="text" name="last_seen" class="form-control" placeholder="Building, room, area">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Date/time last seen</label>
-          <input type="datetime-local" name="last_seen_at" class="form-control">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Photo (optional)</label>
-          <input type="file" name="photo" class="form-control" accept="image/*">
+
+        <!-- Review panel (no preview, just confirmation) -->
+        <div id="lost_review_panel">
+          <div class="alert alert-warning mb-3" style="background-color: rgba(255, 193, 7, 0.2); border-color: #ffc107; color: #b8860b;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Confirm submission:</strong> Once you submit this report, you cannot edit or delete it.
+          </div>
+
+          <div class="border rounded-3 p-3 bg-light">
+            <p class="mb-2"><strong>Note:</strong> This step does not preview your typed description or selected photo (JavaScript is required for that).</p>
+            <p class="mb-0">If you're ready, click <strong>Confirm &amp; Submit</strong>.</p>
+          </div>
         </div>
       </div>
+
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-success">Submit report</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+
+        <!-- Always-visible submit button -->
+        <button type="submit" class="btn btn-success" id="alwaysSubmitLostButton">
+          <i class="bi bi-check-circle me-1"></i> Confirm &amp; Submit
+        </button>
+
+        <!-- Edit footer buttons -->
+        <label for="lost_review_toggle" class="btn btn-success lost-footer-edit" id="previewLostButton">
+          <i class="bi bi-check-lg me-1"></i> Review
+        </label>
+
+        <!-- Review footer buttons -->
+        <label for="lost_review_toggle" class="btn btn-outline-secondary lost-footer-review">
+          <i class="bi bi-pencil me-1"></i> Back
+        </label>
       </div>
     </form>
   </div>
@@ -460,78 +555,47 @@
 
 <!-- View Lost Item Modal -->
 <div class="modal fade" id="viewLostItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 760px;">
     <div class="modal-content shadow-lg border-0 rounded-4">
-      
-      <!-- Header -->
       <div class="modal-header text-white rounded-top-4"
-           style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
+           style="background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));">
         <h5 class="modal-title fw-bold" id="viewLostItemModalLabel">
           <i class="bi bi-eye me-2"></i> View Lost Item
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      
-      <!-- Body -->
+
       <div class="modal-body p-4">
-        <div class="row g-4 align-items-start">
-          
-          <!-- Left column: item details -->
+        <div class="row g-4">
           <div class="col-md-7">
+            <div class="mb-3"><strong>Name:</strong> <span id="lostView_name">—</span></div>
+            <div class="mb-3"><strong>Category:</strong> <span id="lostView_category">—</span></div>
+            <div class="mb-3"><strong>Last Seen:</strong> <span id="lostView_lastSeen">—</span></div>
+            <div class="mb-3"><strong>Date:</strong> <span id="lostView_date">—</span></div>
             <div class="mb-3">
-              <i class="bi bi-tag text-purple me-2"></i>
-              <strong>Name:</strong> <span id="modalName"></span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-list-ul text-purple me-2"></i>
-              <strong>Category:</strong> <span id="modalCategory"></span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-card-text text-purple me-2"></i>
-              <strong>Description:</strong> <span id="modalDescription"></span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-geo-alt text-purple me-2"></i>
-              <strong>Last Seen:</strong> <span id="modalLastSeen"></span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-calendar-event text-purple me-2"></i>
-              <strong>Date:</strong> <span id="modalDate"></span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-info-circle text-purple me-2"></i>
               <strong>Status:</strong>
-              <span id="modalStatus" class="badge rounded-pill px-3 py-2"></span>
+              <span id="lostView_status" class="badge rounded-pill px-3 py-2 bg-secondary">—</span>
             </div>
+
+            <div class="mb-2"><strong>Description:</strong></div>
+            <div id="lostView_description" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
           </div>
-          
-          <!-- Right column: item photo -->
+
           <div class="col-md-5">
-            <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height:220px;">
-              <div id="modalPhotoContainer" class="w-100 text-center">
-                <!-- JS will inject <img> or placeholder here -->
+            <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+              <div id="lostView_photo" class="w-100 text-center">
+                <div class="text-muted border rounded p-3 text-center">No photo</div>
               </div>
             </div>
           </div>
-          
         </div>
       </div>
-      
-      <!-- Footer -->
+
       <div class="modal-footer rounded-bottom-4">
         <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Close
         </button>
-        <button class="btn btn-primary rounded-pill"
-                id="editButtonInViewModal"
-                style="background-color: #ffa31a; color: #1b1b1b; border: none; font-weight: 600;"
-                data-bs-toggle="modal"
-                data-bs-target="#editLostItemModal"
-                data-action="">
-          <i class="bi bi-pencil-square me-1"></i> Edit / Manage
-        </button>
       </div>
-      
     </div>
   </div>
 </div>
@@ -616,176 +680,140 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const darkMode = localStorage.getItem('darkMode') === 'true';
-  if (darkMode) {
-    document.body.classList.add('dark-mode');
+  if (darkMode) document.body.classList.add('dark-mode');
+
+  const el = {
+    modal: document.getElementById('viewLostItemModal'),
+    name: document.getElementById('lostView_name'),
+    category: document.getElementById('lostView_category'),
+    lastSeen: document.getElementById('lostView_lastSeen'),
+    date: document.getElementById('lostView_date'),
+    status: document.getElementById('lostView_status'),
+    description: document.getElementById('lostView_description'),
+    photo: document.getElementById('lostView_photo'),
+  };
+
+  function setStatusBadge(statusRaw) {
+    const status = (statusRaw || '').toString().toLowerCase().trim();
+    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+
+    el.status.textContent = label;
+    el.status.className = 'badge rounded-pill px-3 py-2 ' + (
+      status === 'pending' ? 'bg-warning text-dark' :
+      status === 'approved' ? 'bg-success' :
+      status === 'rejected' ? 'bg-danger' :
+      status === 'closed' ? 'bg-secondary' :
+      'bg-secondary'
+    );
   }
 
-  console.log('=== my_lost_items.js loaded ===');
-  
-  const viewModal = document.getElementById('viewLostItemModal');
-  
-  if (!viewModal) {
-    console.error('Modal element not found!');
-    return;
-  }
-  
-  viewModal.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;
-    const itemId = button?.getAttribute('data-id');
-    
-    if (!itemId) {
-      console.error('No item ID found in data-id attribute');
+  function renderPhoto(photoValue) {
+    const raw = (photoValue || '').toString().trim();
+    if (!raw) {
+      el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
       return;
     }
-    
-    const url = `/user/api/lost_items/${itemId}`;
-    
-    fetch(url, {
-      credentials: 'include',
-      method: 'GET'
-    })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            throw new Error(`HTTP ${response.status}: ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('✓ Successfully received data:', data);
-        
-        // Populate modal fields
-        const fields = {
-          'modalName': data.name,
-          'modalCategory': data.category,
-          'modalDescription': data.description,
-          'modalLastSeen': data.last_seen,
-          'modalDate': data.reported_at
-        };
-        
-        for (const [fieldId, value] of Object.entries(fields)) {
-          const element = document.getElementById(fieldId);
-          if (element) {
-            element.textContent = value || '—';
-            console.log(`Updated ${fieldId}: ${value}`);
-          } else {
-            console.warn(`Field #${fieldId} not found in DOM`);
-          }
-        }
-        
-        // Update status badge
-        const statusEl = document.getElementById('modalStatus');
-        if (statusEl) {
-          const status = (data.status || '').toLowerCase();
-          const displayStatus = status.charAt(0).toUpperCase() + status.slice(1);
-          statusEl.textContent = displayStatus || '—';
-          
-          // Apply appropriate badge styling based on claim status
-          let badgeClass = 'badge rounded-pill px-3 py-2 ';
-          if (status === 'approved') {
-            badgeClass += 'badge-approved';
-          } else if (status === 'rejected') {
-            badgeClass += 'badge-rejected';
-          } else if (status === 'pending') {
-            badgeClass += 'badge-pending';
-          } else {
-            badgeClass += 'badge-closed';
-          }
-          statusEl.className = badgeClass;
-          console.log('Updated status badge:', status, 'with class:', badgeClass);
-        } else {
-          console.warn('Status element #modalStatus not found');
-        }
-        
-        // Update photo
-        const photoContainer = document.getElementById('modalPhotoContainer');
-        if (photoContainer) {
-          if (data.photo) {
-            const photoUrl = `/static/uploads/${data.photo}`;
-            photoContainer.innerHTML = `<img src="${photoUrl}" class="img-fluid rounded border" alt="Item photo" onerror="console.error('Photo failed to load from: ${photoUrl}')">`;
-            console.log('Photo set:', photoUrl);
-          } else {
-            photoContainer.innerHTML = `<div class="text-muted border rounded p-3 text-center">No photo</div>`;
-            console.log('No photo available');
-          }
-        } else {
-          console.warn('Photo container #modalPhotoContainer not found');
-        }
 
-        // Update edit button in view modal
-        const editButton = document.getElementById('editButtonInViewModal');
-        if (editButton) {
-          editButton.setAttribute('data-name', data.name);
-          editButton.setAttribute('data-category', data.category);
-          editButton.setAttribute('data-lastseen', data.last_seen);
-          editButton.setAttribute('data-lastseenat', data.last_seen_at);
-          editButton.setAttribute('data-description', data.description);
-          // FIX: match Flask route
-          editButton.setAttribute('data-action', `/user/lost/${data.id}/update`);
-          console.log('Updated edit button in view modal with item data');
-        } else {
-          console.warn('Edit button in view modal not found');
-        }
+    // Accept: "filename.jpg", "uploads/filename.jpg", "/static/uploads/filename.jpg", "/uploads/filename.jpg"
+    let normalized = raw.replace(/^\/+/, '');
+    if (normalized.startsWith('static/uploads/')) normalized = normalized.slice('static/uploads/'.length);
+    if (normalized.startsWith('uploads/')) normalized = normalized.slice('uploads/'.length);
 
-      })
-      .catch(error => {
-        console.error('✗ Fetch failed:', error);
-        const photoContainer = document.getElementById('modalPhotoContainer');
-        if (photoContainer) {
-          photoContainer.innerHTML = `<div class="alert alert-danger" role="alert"><strong>Error:</strong> ${error.message}</div>`;
-        }
-      });
-  });
+    const url = `/static/uploads/${normalized}`;
 
-  // Edit modal
-  const editModal = document.getElementById('editLostItemModal');
-  
-  if (editModal) {
-    editModal.addEventListener('show.bs.modal', event => {
+    el.photo.innerHTML = `
+      <img
+        src="${url}"
+        alt="Lost item photo"
+        class="img-fluid rounded border"
+        onerror="this.outerHTML='<div class=\\"text-muted border rounded p-3 
+      />
+    `;
+  }
+
+  function resetView() {
+    el.name.textContent = '—';
+    el.category.textContent = '—';
+    el.lastSeen.textContent = '—';
+    el.date.textContent = '—';
+    el.description.textContent = '—';
+    setStatusBadge('');
+    el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+  }
+
+  if (el.modal) {
+    el.modal.addEventListener('show.bs.modal', async (event) => {
+      resetView();
+
       const button = event.relatedTarget;
-      
-      const data = {
-        name: button?.getAttribute('data-name'),
-        category: button?.getAttribute('data-category'),
-        lastSeen: button?.getAttribute('data-lastseen'),
-        lastSeenAt: button?.getAttribute('data-lastseenat'),
-        description: button?.getAttribute('data-description'),
-        action: button?.getAttribute('data-action')
-      };
-      
-      document.getElementById('editName').value = data.name || '';
-      document.getElementById('editCategory').value = data.category || '';
-      document.getElementById('editLastSeen').value = data.lastSeen || '';
-      document.getElementById('editLastSeenAt').value = data.lastSeenAt || '';
-      document.getElementById('editDescription').value = data.description || '';
-      
-      const form = document.getElementById('editLostItemForm');
-      if (form) {
-        form.action = data.action || '';
+      const itemId = button?.getAttribute('data-id');
+      if (!itemId) return;
+
+      try {
+        const url = `/user/api/lost_items/${itemId}`;
+        const resp = await fetch(url, {
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        const contentType = resp.headers.get('content-type') || '';
+        console.log('[Lost view] GET', url, 'status=', resp.status, 'content-type=', contentType);
+
+        if (!contentType.includes('application/json')) {
+          const text = await resp.text();
+          console.error('[Lost view] Expected JSON but got:', text.slice(0, 300));
+          el.description.textContent = 'Unable to load item (non-JSON response).';
+          return;
+        }
+
+        const data = await resp.json();
+        console.log('[Lost view] payload keys:', Object.keys(data || {}));
+        console.log('[Lost view] payload:', data);
+
+        if (!resp.ok) {
+          el.description.textContent = data?.error || 'Unable to load item.';
+          return;
+        }
+
+        el.name.textContent = data?.name || '—';
+        el.category.textContent = data?.category || '—';
+        el.lastSeen.textContent = data?.last_seen || '—';
+        el.date.textContent = data?.reported_at || data?.last_seen_at || '—';
+
+        // Use innerText to preserve newlines and avoid HTML rendering/injection
+        el.description.innerText = (data?.description && data.description.toString().trim()) ? data.description : '—';
+
+        setStatusBadge(data?.status);
+
+        // support multiple keys just in case
+        renderPhoto(data?.photo ?? data?.image ?? data?.photo_url);
+      } catch (e) {
+        console.error('Lost item fetch failed:', e);
+        el.description.textContent = 'Unable to load item.';
       }
     });
   }
 });
 
 function filterTable() {
-  const searchInput = document.getElementById('tableSearch').value.toLowerCase();
-  const categoryFilter = document.getElementById('categoryFilter').value;
-  const statusFilter = document.getElementById('statusFilter').value;
+  const searchInput = document.getElementById('tableSearch')?.value.toLowerCase() || '';
+  const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+  const statusFilter = document.getElementById('statusFilter')?.value || '';
   const rows = document.querySelectorAll('#itemsTable tbody tr');
 
   rows.forEach(row => {
-    const name = row.cells[0].textContent.toLowerCase();
-    const category = row.cells[1].textContent;
-    const statusText = row.cells[3].textContent.toLowerCase().trim();
-    
+    if (!row.cells || row.cells.length < 4) return;
+
+    const name = (row.cells[0].textContent || '').toLowerCase();
+    const category = (row.cells[1].textContent || '').trim();
+    const statusText = (row.cells[3].textContent || '').toLowerCase().trim();
+
     const searchMatch = name.includes(searchInput);
     const categoryMatch = categoryFilter === '' || category === categoryFilter;
     const statusMatch = statusFilter === '' || statusText.includes(statusFilter);
-    
+
     row.style.display = searchMatch && categoryMatch && statusMatch ? '' : 'none';
   });
 }
 </script>
-
 {% endblock %}

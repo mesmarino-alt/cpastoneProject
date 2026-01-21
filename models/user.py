@@ -51,6 +51,23 @@ class User(UserMixin):
     
     def is_admin(self):
         return self.role == 'admin'
+    
+    def is_faculty(self):
+        """Check if user is a faculty member"""
+        return self.role == 'faculty'
+    
+    def is_student(self):
+        """Check if user is a student"""
+        return self.role == 'user'
+    
+    def get_role_label(self):
+        """Return a human-readable role label"""
+        role_map = {
+            'admin': 'Administrator',
+            'faculty': 'Faculty Member',
+            'user': 'Student'
+        }
+        return role_map.get(self.role, 'User')
 
     def get_id(self):
         return str(self.id)

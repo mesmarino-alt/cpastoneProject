@@ -12,7 +12,7 @@ user_items_bp = Blueprint('user_items', __name__)
 def claim_item_from_modal():
     """
     Unified endpoint to claim lost or found items.
-    Handles deduplication to prevent duplicate claims.
+    Handles comprehensive deduplication to prevent duplicate claims.
     
     Required form parameters:
     - item_id: ID of the item being claimed
@@ -44,74 +44,89 @@ def claim_item_from_modal():
     conn = get_db()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
-        # Deduplication Rule 1: If match_id is provided, check for existing pending claims on this match
-        if match_id:
-            print(f"[CLAIM] Checking for existing claims on match {match_id}...")
-            cur.execute("""
-                SELECT id FROM claims
-                WHERE match_id=%s AND user_id=%s AND status='Pending'
-                LIMIT 1
-            """, (match_id, current_user.id))
-            if cur.fetchone():
-                print(f"[CLAIM] ERROR: User already has pending claim for match {match_id}")
-                flash('You already have a pending claim for this match.', 'info')
-                return redirect(url_for('user.dashboard'))
-        
-        # Deduplication Rule 2: Prevent duplicate pending claims for the same item(s)
-        # This checks if user already has a pending claim involving this specific item
-        print(f"[CLAIM] Checking for duplicate claims on item {item_id}...")
-        cur.execute("""
-            SELECT id FROM claims
-            WHERE user_id=%s
-              AND COALESCE(lost_item_id, 0) = COALESCE(%s, 0)
-              AND COALESCE(found_item_id, 0) = COALESCE(%s, 0)
-              AND status='Pending'
-            LIMIT 1
-        """, (current_user.id, lost_item_id, found_item_id))
-        if cur.fetchone():
-            print(f"[CLAIM] ERROR: User already has pending claim for this item")
-            flash('You already have a pending claim for this item.', 'info')
-            return redirect(url_for('user.dashboard'))
-
-        # Get item details for notification
+        # Get item details for notification and validation
         if item_type == 'lost':
-            cur.execute("SELECT name, user_id FROM lost_items WHERE id=%s", (item_id,))
+            cur.execute("SELECT name, user_id, status FROM lost_items WHERE id=%s", (item_id,))
         else:
-            cur.execute("SELECT name, user_id FROM found_items WHERE id=%s", (item_id,))
+            cur.execute("SELECT name, user_id, status FROM found_items WHERE id=%s", (item_id,))
         
         item_result = cur.fetchone()
-        item_name = item_result.get('name') if item_result else 'Item'
-        item_owner_id = item_result.get('user_id') if item_result else None
-        print(f"[CLAIM] Item name: {item_name}, Item owner ID: {item_owner_id}")
+        if not item_result:
+            print(f"[CLAIM] ERROR: Item {item_id} not found")
+            flash('Item not found.', 'danger')
+            return redirect(url_for('user.dashboard'))
+        
+        item_name = item_result.get('name')
+        item_owner_id = item_result.get('user_id')
+        item_status = item_result.get('status')
+        print(f"[CLAIM] Item: {item_name}, Owner: {item_owner_id}, Status: {item_status}")
 
-        # Prevent users from claiming their own items
+        # 🔒 DEDUPLICATION CHECK 1: Prevent users from claiming their own items
         if item_owner_id == current_user.id:
             print(f"[CLAIM] ERROR: User {current_user.id} tried to claim their own item {item_id}")
             flash('You cannot claim your own item!', 'warning')
             return redirect(url_for('user.dashboard'))
-
-        # Insert the claim
-        print(f"[CLAIM] Inserting claim into database...")
-        print(f"[CLAIM] Values: match_id={match_id}, lost_item_id={lost_item_id}, found_item_id={found_item_id}, user_id={current_user.id}, justification={justification}")
         
-        # If match_id is None, we need to handle it differently since the column doesn't allow NULL
-        # Use 0 as a sentinel value for "no match" or create a logic to handle this
+        # 🔒 DEDUPLICATION CHECK 2: Check for existing ACTIVE (Pending/Approved) claim by this user on this item
+        print(f"[CLAIM] Checking for existing active claims on item {item_id}...")
+        cur.execute("""
+            SELECT c.id, c.status FROM claims
+            WHERE user_id=%s
+              AND COALESCE(lost_item_id, 0) = COALESCE(%s, 0)
+              AND COALESCE(found_item_id, 0) = COALESCE(%s, 0)
+              AND status IN ('Pending', 'Approved')
+            LIMIT 1
+        """, (current_user.id, lost_item_id, found_item_id))
+        
+        existing_claim = cur.fetchone()
+        if existing_claim:
+            existing_status = existing_claim.get('status')
+            print(f"[CLAIM] ERROR: User already has {existing_status} claim for this item")
+            if existing_status == 'Pending':
+                flash('You already have a pending claim for this item. Please wait for admin review.', 'info')
+            else:
+                flash('You already have an approved claim for this item.', 'info')
+            return redirect(url_for('user.dashboard'))
+        
+        # 🔒 DEDUPLICATION CHECK 3: If match_id provided, check for duplicate on same match
+        if match_id:
+            print(f"[CLAIM] Checking for existing claims on match {match_id}...")
+            cur.execute("""
+                SELECT id, status FROM claims
+                WHERE match_id=%s AND user_id=%s AND status IN ('Pending', 'Approved')
+                LIMIT 1
+            """, (match_id, current_user.id))
+            
+            match_claim = cur.fetchone()
+            if match_claim:
+                match_status = match_claim.get('status')
+                print(f"[CLAIM] ERROR: User already has {match_status} claim for match {match_id}")
+                flash(f'You already have a {match_status.lower()} claim for this match.', 'info')
+                return redirect(url_for('user.dashboard'))
+
+        # 🔒 DEDUPLICATION CHECK 4: Prevent claims on items with "Recovered"/"Returned" status
+        if item_status in ('Recovered', 'Returned', 'Closed'):
+            print(f"[CLAIM] ERROR: Cannot claim item with status '{item_status}'")
+            flash(f'This item is no longer available (status: {item_status}).', 'warning')
+            return redirect(url_for('user.dashboard'))
+
+        # All validations passed - Insert the claim
+        print(f"[CLAIM] Inserting claim into database...")
+        print(f"[CLAIM] Values: match_id={match_id}, lost_item_id={lost_item_id}, found_item_id={found_item_id}, user_id={current_user.id}")
+        
         if match_id is None:
-            # Insert without match_id reference - just lost/found item claim
             cur.execute("""
                 INSERT INTO claims (lost_item_id, found_item_id, user_id, status, justification, created_at)
                 VALUES (%s, %s, %s, %s, %s, NOW())
             """, (lost_item_id, found_item_id, current_user.id, 'Pending', justification))
         else:
-            # Insert with match_id reference
             cur.execute("""
                 INSERT INTO claims (match_id, lost_item_id, found_item_id, user_id, status, justification, created_at)
                 VALUES (%s, %s, %s, %s, %s, %s, NOW())
             """, (match_id, lost_item_id, found_item_id, current_user.id, 'Pending', justification))
         
-        print(f"[CLAIM] Execute completed, committing...")
         conn.commit()
-        print(f"[CLAIM] ✓ Claim inserted successfully")
+        print(f"[CLAIM] Execute completed, committing...")
 
         # Get the inserted claim ID
         cur.execute("SELECT LAST_INSERT_ID() as claim_id")

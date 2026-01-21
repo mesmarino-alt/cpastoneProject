@@ -130,11 +130,11 @@ def claim_approve(claim_id):
         # Update claim status
         cur.execute("UPDATE claims SET status='Approved' WHERE id=%s", (claim_id,))
 
-        # Update items status only if they exist
+        # Update items status to 'claimed' so they still appear in dashboard
         if lost_id:
-            cur.execute("UPDATE lost_items SET status='Recovered' WHERE id=%s", (lost_id,))
+            cur.execute("UPDATE lost_items SET status='claimed' WHERE id=%s", (lost_id,))
         if found_id:
-            cur.execute("UPDATE found_items SET status='Returned' WHERE id=%s", (found_id,))
+            cur.execute("UPDATE found_items SET status='claimed' WHERE id=%s", (found_id,))
 
         # Reject other pending claims for this match (if match_id exists)
         if match_id:

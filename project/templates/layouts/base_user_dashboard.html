@@ -1,623 +1,345 @@
-<!-- templates/layouts/base_user_dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Find It Fast - User Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+
   <style>
-    /* Dark Mode Only Palette */
+    /* ===================== THEME VARIABLES ===================== */
     :root {
-      --dashboard-bg: #1b1b1b;
-      --sidebar-bg: #292929;
-      --sidebar-text: #ffffff;
-      --sidebar-hover: #3a3a3a;
-      --sidebar-active: #ffa31a;
-      --sidebar-active-text: #1b1b1b;
-      --content-bg: #1b1b1b;
-      --text-primary: #ffffff;
-      --text-muted: #808080;
-      --card-bg: #292929;
-      --border-color: #404040;
-      --flash-bg: #292929;
-      --flash-icon: #ffa31a;
-      --flash-text: #ffffff;
-      --flash-muted: #808080;
-      --input-bg: #292929;
-      --input-border: #ffa31a;
-      --button-bg: #ffa31a;
-      --button-hover: #e68a00;
+      --primary-purple: #4A249D;
+      --primary-teal: #009FBD;
+      --accent-gold: #F9E2AF;
+
+      --neutral-bg: #F6F5F5;
+      --neutral-white: #ffffff;
+      --neutral-50: #f9fafb;
+      --neutral-100: #f3f4f6;
+      --neutral-200: #e5e7eb;
+      --neutral-300: #d1d5db;
+      --neutral-400: #9ca3af;
+      --neutral-600: #4b5563;
+      --neutral-700: #374151;
+      --neutral-900: #111827;
+
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.1);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,.15);
     }
 
-    body { 
-      background-color: var(--dashboard-bg);
-      color: var(--text-primary);
-      transition: background-color 0.3s ease, color 0.3s ease;
+    body {
+      background: var(--neutral-bg);
+      color: var(--neutral-900);
     }
 
+    /* ===================== SIDEBAR ===================== */
     .sidebar {
-      height: 100vh;
       width: 260px;
-      background-color: var(--sidebar-bg);
-      color: var(--sidebar-text);
+      height: 100vh;
+      background: var(--neutral-white);
+      border-right: 2px solid var(--primary-purple);
+      box-shadow: var(--shadow-sm);
       overflow-y: auto;
-      overflow-x: hidden;
-      transition: transform 0.3s ease, background-color 0.3s ease;
-      flex-shrink: 0;
-    }
-
-    .sidebar.mobile-hidden {
-      transform: translateX(-100%);
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar a {
-      color: var(--sidebar-text);
-      text-decoration: none;
       display: block;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      position: relative;
-      word-wrap: break-word;
-      white-space: normal;
-      overflow-wrap: break-word;
-      font-size: 0.95rem;
+      padding: .8rem 1rem;
+      margin: .25rem .5rem;
+      border-radius: 10px;
+      color: var(--neutral-700);
+      font-weight: 500;
+      text-decoration: none;
+      transition: .25s;
     }
 
     .sidebar a:hover {
-      background-color: var(--sidebar-hover);
+      background: rgba(249,226,175,.35);
+      color: var(--primary-purple);
+      transform: translateX(4px);
     }
 
     .sidebar a.active {
-      background-color: var(--sidebar-active);
-      color: var(--sidebar-active-text);
-      box-shadow: 0 2px 6px rgba(255,163,26,0.3);
+      background: linear-gradient(135deg, rgba(0,159,189,.15), rgba(74,36,157,.1));
+      color: var(--primary-purple);
+      font-weight: 700;
+      border-left: 4px solid var(--primary-teal);
+    }
+
+    .sidebar .sidebar-links {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+    }
+
+    .sidebar .sidebar-logout {
+      margin-top: auto;
+      padding-top: .75rem;
+    }
+
+    .sidebar a.logout-link:hover {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--accent-red);
+      transform: none;
+    }
+
+    /* ===================== PROFILE ===================== */
+    .profile-box {
+      text-align: center;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--accent-gold);
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 12px;
+      border: 3px solid var(--primary-teal);
+      object-fit: cover;
+    }
+
+    /* ===================== ICON BUTTONS ===================== */
+    .icon-buttons-container {
+      display: flex;
+      justify-content: center;
+      gap: .75rem;
+      margin-top: 1rem;
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal));
+      color: #fff;
+      font-size: 1.25rem;
+      position: relative;
+      transition: .3s;
+      box-shadow: var(--shadow-md);
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    /* ===================== BADGE ===================== */
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--accent-red);
+      color: #fff;
+      font-size: .7rem;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    /* ===================== NOTIFICATION DROPDOWN ===================== */
+    .notification-dropdown {
+      position: fixed;
+      width: 360px;
+      max-height: 500px;
+      background: var(--neutral-white);
+      border-radius: 14px;
+      border: 2px solid var(--primary-teal);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 9999;
+      overflow: visible;
+      flex-direction: column;
+    }
+
+    .notification-header {
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal));
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .notification-list {
+      max-height: 340px;
+      overflow-y: auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notification-item {
+      padding: .85rem 1rem;
+      border-bottom: 1px solid var(--neutral-200);
+      cursor: pointer;
+      transition: .2s;
+      flex-shrink: 0;
+    }
+
+    .notification-item.unread {
+      background: rgba(0,159,189,.08);
       font-weight: 600;
     }
 
-    .content { 
+    .notification-item:hover {
+      background: rgba(0,159,189,.15);
+    }
+
+    .notification-footer {
+      padding: .75rem;
+      text-align: center;
+      background: var(--neutral-50);
+      border-top: 1px solid var(--neutral-200);
+      flex-shrink: 0;
+    }
+
+    /* ===================== CONTENT ===================== */
+    .content {
       padding: 2rem;
-      background-color: var(--content-bg);
-      transition: margin-left 0.3s ease, background-color 0.3s ease;
       height: 100vh;
       overflow-y: auto;
-      overflow-x: hidden;
-      flex: 1;
-      min-width: 0;
     }
 
-    .bg-purple {
-      background-color: var(--button-bg);
-      color: var(--sidebar-active-text);
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .bg-purple:hover {
-      background-color: var(--button-hover);
-    }
-
-    /* Navbar toggle button */
-    .navbar-toggle {
-      display: none;
-      background-color: var(--sidebar-bg);
-      border: 1px solid var(--input-border);
-      color: var(--sidebar-text);
-      font-size: 1.5rem;
-      cursor: pointer;
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 1051;
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-    }
-
-    .navbar-toggle:hover {
-      background-color: var(--sidebar-hover);
-      transform: scale(1.1);
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1040;
-    }
-
-    .sidebar-overlay.active {
-      display: block;
-    }
-
-    .flash-popup-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 2000;
-    }
-
-    .flash-card {
-      width: 330px;
-      height: 80px;
-      border-radius: 8px;
-      box-sizing: border-box;
-      padding: 10px 15px;
-      background-color: var(--flash-bg);
-      box-shadow: rgba(255, 163, 26, 0.2) 0px 8px 24px;
-      border-left: 4px solid #ffa31a;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      gap: 15px;
-      margin-bottom: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    .icon {
-      font-size: 17px;
-      color: var(--flash-icon);
-      transition: color 0.3s ease;
-    }
-
-    .message-text-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      flex-grow: 1;
-    }
-
-    .message-text {
-      color: var(--flash-text);
-      font-size: 17px;
-      font-weight: 700;
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    .sub-text {
-      font-size: 14px;
-      color: var(--flash-muted);
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    .cross-icon {
-      font-size: 18px;
-      color: var(--flash-muted);
-      cursor: pointer;
-      transition: color 0.2s ease;
-    }
-
-    .cross-icon:hover {
-      color: var(--flash-icon);
-    }
-
-    .btn-purple {
-      background-color: var(--button-bg);
-      color: var(--sidebar-active-text);
-      border: none;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .btn-purple:hover {
-      background-color: var(--button-hover);
-      color: var(--sidebar-active-text);
-    }
-
-    /* Notification Badge */
-    .notification-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background-color: #dc3545;
-      color: #ffffff;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border: 2px solid var(--sidebar-bg);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-
-    .welcome-banner {
-      min-height: 160px;
-    }
-
-    .walking-track {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 8px;
-      height: 150px;
-      pointer-events: none;
-    }
-
-    .walker {
-      position: absolute;
-      left: -160px;
-      bottom: 0;
-      animation: walker-move 12s linear infinite;
-      will-change: transform;
-    }
-
-    @keyframes walker-move {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(120vw); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .walker {
-        animation: none;
-      }
-    }
-
-    .walking-track:hover .walker {
-      animation-play-state: paused;
-    }
-
-    .walking-track::before {
-      content: '';
-      position: absolute;
-      left: 4%;
-      right: 4%;
-      bottom: 16px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(255,163,26,0.25), rgba(128,128,128,0.25));
-      border-radius: 2px;
-      transition: background 0.3s ease;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        position: fixed;
-        width: 280px;
-        height: 100vh;
-        z-index: 1045;
-        left: 0;
-        top: 0;
-        transform: translateX(-100%);
-        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-      }
-
-      .sidebar:not(.mobile-hidden) {
-        transform: translateX(0);
-      }
-
-      .sidebar.show {
-        transform: translateX(0);
-      }
-
-      .content {
-        padding: 1rem;
-        padding-top: 4rem;
-        margin-left: 0;
-      }
-
-      .navbar-toggle {
-        display: block;
-      }
-
-      .d-flex {
-        flex-direction: column !important;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .sidebar {
-        width: 100%;
-      }
-
-      .sidebar .text-center {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .sidebar .text-center img,
-      .sidebar .text-center div:first-child {
-        width: 50px;
-        height: 50px;
-        flex-shrink: 0;
-      }
-
-      .sidebar .text-center p {
-        margin: 0;
-        font-size: 0.8rem;
-      }
-
-      .content {
-        padding: 0.5rem;
-        padding-top: 3.5rem;
-      }
-
-      .navbar-toggle {
-        top: 0.5rem;
-        left: 0.5rem;
-      }
-
-      .input-group {
-        width: 100% !important;
-        margin-bottom: 0.5rem;
-      }
-
-      .btn-group {
-        flex-wrap: wrap;
-      }
+    /* ===================== MOBILE ===================== */
+    @media(max-width:768px){
+      .sidebar { position: fixed; transform: translateX(-100%); z-index: 1050; }
+      .sidebar.show { transform: translateX(0); }
     }
   </style>
 </head>
+
 <body>
 
+<div class="d-flex">
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div class="flash-popup-container">
-      {% for category, msg in messages %}
-        <div class="card flash-card">
-          <div class="icon-container">
-            <i class="bi bi-check-circle-fill icon"></i>
-          </div>
-          <div class="message-text-container">
-            <p class="message-text">{{ msg }}</p>
-            <p class="sub-text">Everything seems great</p>
-          </div>
-          <i class="bi bi-x-lg cross-icon" onclick="this.closest('.flash-card').remove()"></i>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-  {% endwith %}
+  <!-- SIDEBAR -->
+  <nav class="sidebar p-3">
+    <!-- Brand -->
+    <a href="{{ url_for('user.dashboard') }}"
+       class="d-flex align-items-center gap-3 mb-3 text-decoration-none"
+       style="color: inherit; padding: 0.85rem 0.6rem; margin: 0;">
+      <img
+        src="{{ url_for('static', filename='images/logo_new.png') }}"
+        alt="FindITFast logo"
+        style="width: 80px; height: 80px; object-fit: cover; flex: 0 0 auto; border-radius: 50%; border: 3px solid var(--primary-purple); background: rgba(255,255,255,0.9);"
+      >
+      <span style="font-weight: 900; letter-spacing: .4px; font-size: 1.35rem; color: var(--primary-purple); line-height: 1.1;">FindITFast</span>
+    </a>
+<br>
+    <div class="profile-box">
+      {% if current_user.profile_photo %}
+        <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}" class="profile-avatar">
+      {% else %}
+        <div class="profile-avatar d-flex align-items-center justify-content-center bg-secondary text-white">UD</div>
+      {% endif %}
+      <p class="mt-2 fw-bold">{{ current_user.name }}</p>
+      <p class="small">{{ current_user.email }}</p>
 
-  <div class="d-flex">
-    <nav class="sidebar p-3">
-      <div class="text-center mb-4">
-        {% if current_user.is_authenticated and current_user.profile_photo %}
-          <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
-               class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;">
-        {% else %}
-          <div style="
-            width: 100px; height: 100px;
-            background-color: var(--button-bg); color: var(--sidebar-active-text);
-            font-weight: bold; font-size: 1.5rem;
-            border-radius: 12px; display: flex;
-            align-items: center; justify-content: center;
-            margin: 0 auto; transition: background-color 0.3s ease, color 0.3s ease;">
-            UD
-          </div>
-        {% endif %}
-        <p class="mt-2 mb-0"><strong>{{ current_user.name }}</strong></p>
-        <p class="small">{{ current_user.email }}</p>
-        <p class="small mb-3">ID: {{ current_user.student_id }}</p>
-        
-        <!-- Icons underneath ID -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-          <button type="button" class="btn btn-sm p-0" data-bs-toggle="modal" data-bs-target="#profileModal" 
-                  style="background: none; border: none; color: var(--button-bg); font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;"
-                  onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-            <i class="bi bi-pencil-fill"></i>
-          </button>
-          <div class="dropdown" style="position: relative; display: inline-block;">
-            <button type="button" class="btn btn-sm p-0" id="notificationBellBtn" 
-                    style="background: none; border: none; color: var(--button-bg); font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease; position: relative;"
-                    onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-              <i class="bi bi-bell-fill"></i>
-              <span id="bellNotificationBadge" class="notification-badge" style="display: none;">0</span>
-            </button>
-            
-            <!-- Notification Dropdown Panel -->
-            <div id="notificationDropdown" style="
-              width: 360px;
-              max-height: 500px;
-              background-color: var(--card-bg);
-              border: 1px solid var(--border-color);
-              border-radius: 12px;
-              box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-              overflow: hidden;
-              display: none;
-              position: fixed;
-              z-index: 10000;
-              margin-top: 0.5rem;
-            ">
-              <!-- Header -->
-              <div style="
-                padding: 1rem;
-                border-bottom: 1px solid var(--border-color);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background-color: rgba(255, 163, 26, 0.05);
-              ">
-                <h6 style="margin: 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
-                  <i class="bi bi-bell me-2" style="color: var(--button-bg);"></i> Notifications
-                </h6>
-                <button type="button" class="btn btn-sm p-0" id="markAllReadBtn" style="
-                  background: none;
-                  border: none;
-                  color: var(--button-bg);
-                  font-size: 0.75rem;
-                  cursor: pointer;
-                  text-decoration: none;
-                  transition: all 0.3s ease;
-                " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-                  Mark all as read
-                </button>
-              </div>
-              
-              <!-- Notifications List -->
-              <div id="notificationsList" style="
-                max-height: 350px;
-                overflow-y: auto;
-              ">
-                <!-- Loading state -->
-                <div id="notificationsLoading" style="
-                  padding: 2rem 1rem;
-                  text-align: center;
-                  color: var(--text-muted);
-                ">
-                  <div class="spinner-border spinner-border-sm" role="status" style="color: var(--button-bg);">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                  <p style="margin-top: 0.5rem; font-size: 0.85rem;">Loading notifications...</p>
-                </div>
-                
-                <!-- Empty state (hidden by default) -->
-                <div id="notificationsEmpty" style="
-                  padding: 2rem 1rem;
-                  text-align: center;
-                  color: var(--text-muted);
-                  display: none;
-                ">
-                  <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;"></i>
-                  <p style="margin: 0; font-size: 0.9rem;">No notifications yet</p>
-                </div>
-              </div>
-              
-              <!-- Footer -->
-              <div style="
-                padding: 0.75rem;
-                border-top: 1px solid var(--border-color);
-                text-align: center;
-                background-color: rgba(255, 163, 26, 0.02);
-              ">
-                <a href="{{ url_for('notifications.notifications_page') }}" style="
-                  color: var(--button-bg);
-                  text-decoration: none;
-                  font-size: 0.85rem;
-                  font-weight: 500;
-                  transition: all 0.3s ease;
-                " onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-                  <i class="bi bi-arrow-right me-1"></i> View All Notifications
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <hr />
-
-      <a href="{{ url_for('user.dashboard') }}"
-      class="{% if request.endpoint == 'user.dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2 me-2"></i> Dashboard
-   </a>
-   
-   <a href="{{ url_for('user.lost_items') }}"
-      class="{% if request.endpoint == 'user.lost_items' %}active{% endif %}">
-      <i class="bi bi-search me-2"></i> My Lost Items
-   </a>
-   
-   <a href="{{ url_for('user.my_found_items') }}"
-   class="{% if request.endpoint == 'user.my_found_items' %}active{% endif %}">
-   <i class="bi bi-box-seam me-2"></i> My Found Items
-  </a>
-
-   
-  <a href="{{ url_for('user.matches') }}" 
-  class="{% if request.endpoint == 'user.matches' %}active{% endif %}">
-  <i class="bi bi-link-45deg me-2"></i> Matches
-  {% if matches_count is defined and matches_count > 0 and not session.get('matches_seen') %}
-    <span class="notification-badge">{{ matches_count }}</span>
-  {% endif %}
-</a>
-
-   
-   <a href="{{ url_for('notifications.notifications_page') }}"
-      class="{% if request.endpoint == 'notifications.notifications_page' %}active{% endif %}">
-      <i class="bi bi-bell me-2"></i> Notifications
-      <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
-   </a>
-   
-   <a href="#" 
-   data-bs-toggle="modal" 
-   data-bs-target="#logoutConfirmModal"
-   class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
-   <i class="bi bi-box-arrow-right me-2"></i> Logout
-</a>
-
-   
-    </nav>
-    
-    <main class="flex-grow-1 content">
-      {% block content %}{% endblock %}
-    </main>
-  </div>
-<!-- Logout Confirmation Modal -->
-<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-3" style="background-color: var(--card-bg); border-color: var(--border-color);">
-      
-      <!-- Header -->
-      <div class="modal-header text-white rounded-top-3" style="background: linear-gradient(90deg, #ffa31a, #e68a00); border-bottom-color: var(--border-color);">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-box-arrow-right me-2"></i> Confirm Logout
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      
-      <!-- Body -->
-      <div class="modal-body" style="background-color: var(--card-bg); color: var(--text-primary);">
-        <p style="margin: 0;">Are you sure you want to log out?</p>
-      </div>
-      
-      <!-- Footer -->
-      <div class="modal-footer" style="background-color: var(--card-bg); border-top-color: var(--border-color);">
-        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal" style="border-color: var(--text-muted); color: var(--text-muted);">
-          Cancel
+      <div class="icon-buttons-container">
+        <button class="icon-btn" data-bs-toggle="modal" data-bs-target="#profileModal" title="Edit Profile">
+          <i class="fa-solid fa-pen"></i>
         </button>
-        <a href="{{ url_for('auth.logout') }}" class="btn rounded-pill" style="background-color: #dc3545; color: #ffffff;">
-          <i class="bi bi-box-arrow-right me-1"></i> Logout
-        </a>
+
+        <button class="icon-btn" id="notificationBellBtn" title="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span id="bellNotificationBadge" class="notification-badge" style="display:none">0</span>
+        </button>
       </div>
     </div>
+
+    <div class="sidebar-links">
+      <a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
+        <i class="fa-solid fa-table-columns me-2"></i> Dashboard
+      </a>
+
+      <a href="{{ url_for('user.lost_items') }}" class="{{ 'active' if request.endpoint == 'user.lost_items' }}">
+        <i class="fa-solid fa-cube me-2"></i> My Lost Items
+      </a>
+
+      <a href="{{ url_for('user.my_found_items') }}" class="{{ 'active' if request.endpoint == 'user.my_found_items' }}">
+        <i class="fa-solid fa-box-open me-2"></i> My Found Items
+      </a>
+
+      <a href="{{ url_for('user.matches') }}" class="{{ 'active' if request.endpoint == 'user.matches' }}">
+        <i class="fa-solid fa-cubes me-2"></i> Matches
+        <span id="matchesBadge" class="notification-badge" style="display:none"></span>
+      </a>
+
+      <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}">
+        <i class="fa-solid fa-bell me-2"></i> Notifications
+      </a>
+    </div>
+
+    <div class="sidebar-logout">
+      <a href="#" class="logout-link" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
+        <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="content flex-grow-1">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<!-- NOTIFICATION DROPDOWN -->
+<div id="notificationDropdown" class="notification-dropdown">
+  <div class="notification-header">
+    <span><i class="fa-solid fa-bell me-1"></i> Notifications</span>
+    <button class="btn btn-sm text-white" id="markAllReadBtn">Mark all</button>
+  </div>
+  <div class="notification-list" id="notificationsList"></div>
+  <div class="notification-footer">
+    <a href="{{ url_for('notifications.notifications_page') }}">View all</a>
   </div>
 </div>
 
-<!-- Profile Modal -->
+<!-- PROFILE MODAL -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
-    <div class="modal-content shadow-lg border-0 rounded-4" style="background-color: var(--card-bg); border-color: var(--border-color);">
+    <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
       
       <!-- Header -->
-      <div class="modal-header text-white rounded-top-4" style="background: linear-gradient(90deg, #ffa31a, #e68a00); border-bottom-color: var(--border-color);">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); border: none; border-radius: 16px 16px 0 0; padding: 2rem;">
         <h5 class="modal-title fw-bold">
-          <i class="bi bi-person-circle me-2"></i> Edit Profile
+          <i class="fa-solid fa-user me-2"></i> Edit Profile
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       
       <!-- Body -->
-      <form method="post" action="{{ url_for('user.profile') }}" enctype="multipart/form-data" id="profileFormModal" class="modal-body p-4" style="background-color: var(--card-bg); color: var(--text-primary);">
+      <form method="post" action="{{ url_for('user.profile') }}" enctype="multipart/form-data" id="profileFormModal" class="modal-body p-4">
         
         <!-- Profile Photo Section -->
         <div class="text-center mb-4">
-          <div class="rounded-circle overflow-hidden mb-3 profile-avatar d-inline-block" style="width:120px; height:120px;">
+          <div class="rounded-circle overflow-hidden mb-3 d-inline-block" style="width: 120px; height: 120px; border: 3px solid var(--primary-teal);">
             <img id="profilePhotoModalImg"
-                 src="{% if current_user.profile_photo %}{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect fill='%23343a40' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' font-size='48' fill='%23808080' text-anchor='middle' dominant-baseline='central'%3E?%3C/text%3E%3C/svg%3E{% endif %}"
+                 src="{% if current_user.profile_photo %}{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}{% else %}data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect fill='%23e6f0ff' width='120' height='120'/%3E%3Ctext x='50%25' y='50%25' font-size='48' fill='%239ca3af' text-anchor='middle' dominant-baseline='central'%3E?%3C/text%3E%3C/svg%3E{% endif %}"
                  alt="Profile photo"
-                 style="width:100%; height:100%; object-fit:cover;">
+                 style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div class="mt-3">
-            <label class="btn btn-sm rounded-pill" style="background-color: var(--button-bg); color: var (--sidebar-active-text); cursor: pointer; border: none;">
-              <i class="bi bi-cloud-upload me-1"></i> Change Photo
+            <label class="btn btn-sm rounded-pill" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); color: white; cursor: pointer; border: none;">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i> Change Photo
               <input type="file" class="d-none" id="profilePhotoInputModal" name="profile_photo" accept="image/*" onchange="previewProfilePhoto(event)">
             </label>
           </div>
@@ -625,430 +347,163 @@
 
         <!-- Account Info Section -->
         <div class="mb-4">
-          <h6 class="fw-bold mb-3" style="color: var(--button-bg);">
-            <i class="bi bi-person-circle me-2"></i> Account Info
+          <h6 class="fw-bold mb-3" style="color: var(--primary-purple);">
+            <i class="fa-solid fa-user me-2"></i> Account Info
           </h6>
           <div class="mb-3">
             <label class="form-label small fw-semibold">Username</label>
-            <input type="text" class="form-control rounded-pill" value="{{ current_user.name }}" disabled style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <input type="text" class="form-control rounded-pill" value="{{ current_user.name }}" disabled>
           </div>
-          <div class="mb-3">
+          <div the="mb-3">
             <label class="form-label small fw-semibold">Email</label>
-            <input type="email" class="form-control rounded-pill" value="{{ current_user.email }}" disabled style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <input type="email" class="form-control rounded-pill" value="{{ current_user.email }}" disabled>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-semibold">Student ID</label>
-            <input type="text" class="form-control rounded-pill" value="{{ current_user.student_id }}" disabled style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <input type="text" class="form-control rounded-pill" value="{{ current_user.student_id }}" disabled>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-semibold">Member Since</label>
-            <input type="text" class="form-control rounded-pill" value="{{ current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else 'N/A' }}" disabled style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <input type="text" class="form-control rounded-pill" value="{{ current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else 'N/A' }}" disabled>
           </div>
         </div>
 
         <!-- Change Password Section -->
         <div class="mb-4">
-          <h6 class="fw-bold mb-3" style="color: var(--button-bg);">
-            <i class="bi bi-key me-2"></i> Security
+          <h6 class="fw-bold mb-3" style="color: var(--primary-purple);">
+            <i class="fa-solid fa-key me-2"></i> Security
           </h6>
-          <button type="button" class="btn btn-sm rounded-pill w-100" style="background-color: var(--button-bg); color: var(--sidebar-active-text); border: none;" 
+          <button type="button" class="btn btn-sm rounded-pill w-100" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); color: white; border: none;" 
                   data-bs-toggle="modal" data-bs-target="#changePasswordModal" data-bs-dismiss="modal">
-            <i class="bi bi-key me-1"></i> Change Password
+            <i class="fa-solid fa-key me-1"></i> Change Password
           </button>
         </div>
 
       </form>
       
       <!-- Footer -->
-      <div class="modal-footer rounded-bottom-4" style="background-color: var(--card-bg); border-top-color: var(--border-color);">
+      <div class="modal-footer rounded-bottom-4" style="background-color: var(--neutral-50); border-top: 1px solid var(--neutral-200);">
         <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i> Close
+          <i class="fa-solid fa-xmark me-1"></i> Close
         </button>
-        <button type="submit" class="btn rounded-pill" style="background-color: var(--button-bg); color: var(--sidebar-active-text); border: none; font-weight: 600;" form="profileFormModal">
-          <i class="bi bi-save me-1"></i> Save Changes
+        <button type="submit" class="btn rounded-pill" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); color: white; border: none; font-weight: 600;" form="profileFormModal">
+          <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Change Password Modal (reused from profile page) -->
+<!-- LOGOUT CONFIRMATION MODAL -->
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
+      
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); border: none; border-radius: 16px 16px 0 0; padding: 2rem;">
+        <h5 class="modal-title fw-bold">
+          <i class="fa-solid fa-right-from-bracket me-2"></i> Confirm Logout
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <div class="modal-body p-4">
+        <p>Are you sure you want to log out?</p>
+      </div>
+      
+      <div class="modal-footer rounded-bottom-4" style="background-color: var(--neutral-50); border-top: 1px solid var(--neutral-200);">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <a href="{{ url_for('auth.logout') }}" class="btn rounded-pill" style="background: var(--accent-red); color: white; border: none;">
+          <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-3 shadow-sm" style="background-color: var(--card-bg); border-color: var(--border-color);">
+    <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
       <form method="post" action="{{ url_for('user.change_password') }}">
-        <div class="modal-header text-white rounded-top-3" style="background: linear-gradient(90deg, #ffa31a, #e68a00); border-bottom-color: var(--border-color);">
-          <h5 class="modal-title"><i class="bi bi-key me-2"></i> Change Password</h5>
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); border: none; border-radius: 16px 16px 0 0; padding: 2rem;">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-key me-2"></i> Change Password</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body py-3 small" style="background-color: var(--card-bg); color: var(--text-primary);">
+        <div class="modal-body p-4">
           <div class="mb-3">
-            <label class="form-label">Current Password</label>
-            <input type="password" name="current_password" class="form-control form-control-sm rounded-pill" required style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <label class="form-label small fw-semibold">Current Password</label>
+            <input type="password" name="current_password" class="form-control rounded-pill" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">New Password</label>
-            <input type="password" name="new_password" class="form-control form-control-sm rounded-pill" required style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <label class="form-label small fw-semibold">New Password</label>
+            <input type="password" name="new_password" class="form-control rounded-pill" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Confirm New Password</label>
-            <input type="password" name="confirm_password" class="form-control form-control-sm rounded-pill" required style="background-color: #343a40; color: var(--text-primary); border-color: var(--button-bg);">
+            <label class="form-label small fw-semibold">Confirm New Password</label>
+            <input type="password" name="confirm_password" class="form-control rounded-pill" required>
           </div>
         </div>
-        <div class="modal-footer rounded-bottom-3" style="background-color: var(--card-bg); border-top-color: var(--border-color);">
-          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal" style="border-color: var(--text-muted); color: var(--text-muted);">Cancel</button>
-          <button type="submit" class="btn btn-sm rounded-pill" style="background-color: var(--button-bg); color: var(--sidebar-active-text); border: none;">Update Password</button>
+        <div class="modal-footer rounded-bottom-4" style="background-color: var(--neutral-50); border-top: 1px solid var(--neutral-200);">
+          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm rounded-pill" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); color: white; border: none;">Update Password</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-  <script>
-    // Initialize dark mode from localStorage
-    document.addEventListener('DOMContentLoaded', () => {
-      const darkMode = localStorage.getItem('darkMode') === 'true';
-      if (darkMode) {
-        document.body.classList.add('dark-mode');
-      }
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-      const walker = document.querySelector('.walker');
-      if (walker) {
-        const delay = Math.random() * 3;
-        walker.style.animationDelay = `${delay}s`;
-      }
-    });
+<script>
+/* ===================== NOTIFICATION BELL ===================== */
+const bellBtn = document.getElementById('notificationBellBtn');
+const dropdown = document.getElementById('notificationDropdown');
 
-    function toggleDarkMode() {
-      const isDarkMode = document.body.classList.toggle('dark-mode');
-      localStorage.setItem('darkMode', isDarkMode);
-      updateMoonIcon(isDarkMode);
-    }
+bellBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const rect = bellBtn.getBoundingClientRect();
+  
+  // Calculate position
+  let top = rect.bottom + 10;
+  let left = rect.right - 360;
+  
+  // Ensure dropdown doesn't go off-screen horizontally
+  if (left < 10) {
+    left = 10;
+  } else if (left + 360 > window.innerWidth) {
+    left = window.innerWidth - 370;
+  }
+  
+  // Ensure dropdown doesn't go off-screen vertically
+  const dropdownHeight = 500;
+  if (top + dropdownHeight > window.innerHeight) {
+    top = rect.top - dropdownHeight - 10;
+  }
+  
+  dropdown.style.top = top + 'px';
+  dropdown.style.left = left + 'px';
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
 
-    function updateMoonIcon(isDarkMode) {
-      const icon = document.querySelector('#darkModeToggle i');
-      if (icon) {
-        if (isDarkMode) {
-          icon.classList.remove('bi-moon');
-          icon.classList.add('bi-sun');
-        } else {
-          icon.classList.remove('bi-sun');
-          icon.classList.add('bi-moon');
-        }
-      }
-    }
+document.addEventListener('click', () => dropdown.style.display = 'none');
 
-    function toggleSidebar() {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      sidebar.classList.toggle('mobile-hidden');
-      sidebar.classList.toggle('show');
-      overlay.classList.toggle('active');
-    }
+/* ===================== PROFILE PHOTO PREVIEW ===================== */
+function previewProfilePhoto(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('profilePhotoModalImg').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+</script>
 
-    function previewProfilePhoto(event) {
-      const input = event.target;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = document.getElementById('profilePhotoModalImg');
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
+{# Allow child templates (e.g., my_lost_items.html) to inject their page-specific JS #}
+{% block scripts %}{% endblock %}
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const flashCards = document.querySelectorAll('.flash-card');
-      flashCards.forEach(card => {
-        setTimeout(() => {
-          card.style.transition = 'opacity 0.5s ease';
-          card.style.opacity = '0';
-          setTimeout(() => card.remove(), 500);
-        }, 3000);
-      });
-
-      // Fetch and display unread notification count
-      fetchUnreadNotifications();
-      // Refresh every 30 seconds
-      setInterval(fetchUnreadNotifications, 30000);
-
-      // Fetch and display matches count
-      fetchMatchesCount();
-      // Refresh every 30 seconds
-      setInterval(fetchMatchesCount, 30000);
-
-      // Initialize notification bell dropdown
-      initializeNotificationBell();
-    });
-
-    function fetchUnreadNotifications() {
-      fetch('/notifications/api/recent?limit=1')
-        .then(response => response.json())
-        .then(data => {
-          const badge = document.getElementById('notificationBadge');
-          const bellBadge = document.getElementById('bellNotificationBadge');
-          const unreadCount = data.unread_count || 0;
-          
-          if (unreadCount > 0) {
-            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            badge.style.display = 'flex';
-            bellBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            bellBadge.style.display = 'flex';
-          } else {
-            badge.style.display = 'none';
-            bellBadge.style.display = 'none';
-          }
-        })
-        .catch(err => console.log('Notification fetch error:', err));
-    }
-
-    function fetchMatchesCount() {
-      fetch('/user/api/matches-count')
-        .then(response => response.json())
-        .then(data => {
-          const badge = document.getElementById('matchesBadge');
-          const matchesCount = data.matches_count || 0;
-          
-          if (matchesCount > 0) {
-            badge.textContent = matchesCount > 99 ? '99+' : matchesCount;
-            badge.style.display = 'flex';
-          } else {
-            badge.style.display = 'none';
-          }
-        })
-        .catch(err => console.log('Matches fetch error:', err));
-    }
-
-    function initializeNotificationBell() {
-      const bellBtn = document.getElementById('notificationBellBtn');
-      const dropdown = document.getElementById('notificationDropdown');
-      const notificationsList = document.getElementById('notificationsList');
-      const markAllReadBtn = document.getElementById('markAllReadBtn');
-
-      if (!bellBtn || !dropdown) return;
-
-      // Toggle dropdown visibility
-      bellBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const isVisible = dropdown.style.display === 'block';
-        
-        if (isVisible) {
-          dropdown.style.display = 'none';
-        } else {
-          // Position dropdown below the bell button
-          const rect = bellBtn.getBoundingClientRect();
-          const dropdownWidth = 360;
-          const margin = 10;
-          
-          // Calculate positions
-          let leftPos = rect.right - dropdownWidth + margin;
-          let topPos = rect.bottom + 10;
-          
-          // Ensure dropdown doesn't go off screen to the left
-          if (leftPos < margin) {
-            leftPos = margin;
-          }
-          
-          // Ensure dropdown doesn't go off screen to the right
-          if (leftPos + dropdownWidth > window.innerWidth - margin) {
-            leftPos = window.innerWidth - dropdownWidth - margin;
-          }
-          
-          dropdown.style.top = topPos + 'px';
-          dropdown.style.left = leftPos + 'px';
-          dropdown.style.right = 'auto';
-          dropdown.style.display = 'block';
-          loadNotificationsDropdown();
-        }
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target) && e.target !== bellBtn && !bellBtn.contains(e.target)) {
-          dropdown.style.display = 'none';
-        }
-      });
-
-      // Mark all as read
-      if (markAllReadBtn) {
-        markAllReadBtn.addEventListener('click', () => {
-          markAllNotificationsRead();
-        });
-      }
-    }
-
-    function loadNotificationsDropdown() {
-      const notificationsList = document.getElementById('notificationsList');
-      const notificationsLoading = document.getElementById('notificationsLoading');
-      const notificationsEmpty = document.getElementById('notificationsEmpty');
-
-      if (!notificationsList) return;
-
-      // Show loading state
-      notificationsLoading.style.display = 'block';
-      notificationsEmpty.style.display = 'none';
-      notificationsList.innerHTML = '';
-      notificationsList.appendChild(notificationsLoading);
-
-      fetch('/notifications/api/recent?limit=50')
-        .then(response => {
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          return response.json();
-        })
-        .then(data => {
-          notificationsLoading.style.display = 'none';
-          notificationsList.innerHTML = '';
-
-          const allNotifications = data.notifications || [];
-          // Filter to show only unread notifications
-          const unreadNotifications = allNotifications.filter(notif => !notif.is_read);
-
-          if (unreadNotifications.length === 0) {
-            notificationsEmpty.style.display = 'block';
-            notificationsList.appendChild(notificationsEmpty);
-          } else {
-            unreadNotifications.forEach(notif => {
-              const notifElement = createNotificationElement(notif);
-              notificationsList.appendChild(notifElement);
-            });
-          }
-        })
-        .catch(err => {
-          console.error('Error loading notifications:', err);
-          notificationsLoading.style.display = 'none';
-          notificationsEmpty.style.display = 'block';
-          notificationsList.innerHTML = '';
-          notificationsEmpty.innerHTML = `
-            <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.5; display: block; margin-bottom: 0.5rem;"></i>
-            <p style="margin: 0; font-size: 0.9rem;">Error loading notifications</p>
-          `;
-          notificationsList.appendChild(notificationsEmpty);
-        });
-    }
-
-    function createNotificationElement(notif) {
-      const div = document.createElement('div');
-      const isRead = notif.is_read;
-      
-      div.style.cssText = `
-        padding: 0.875rem 1rem;
-        border-bottom: 1px solid var(--border-color);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background-color: ${isRead ? 'transparent' : 'rgba(255, 163, 26, 0.08)'};
-      `;
-
-      div.onmouseover = () => {
-        div.style.backgroundColor = 'rgba(255, 163, 26, 0.12)';
-      };
-
-      div.onmouseout = () => {
-        div.style.backgroundColor = isRead ? 'transparent' : 'rgba(255, 163, 26, 0.08)';
-      };
-
-      const timeAgo = getTimeAgo(new Date(notif.created_at));
-      const icon = getNotificationIcon(notif.type);
-      const description = notif.message || notif.description || '';
-
-      div.innerHTML = `
-        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-          <div style="color: var(--button-bg); font-size: 1rem; flex-shrink: 0; margin-top: 0.2rem;">
-            ${icon}
-          </div>
-          <div style="flex-grow: 1; min-width: 0;">
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-              <p style="
-                margin: 0;
-                color: var(--text-primary);
-                font-weight: ${isRead ? '500' : '700'};
-                font-size: 0.9rem;
-                word-break: break-word;
-              ">${notif.title || 'Notification'}</p>
-              ${!isRead ? '<span style="width: 6px; height: 6px; background-color: var(--button-bg); border-radius: 50%; flex-shrink: 0;"></span>' : ''}
-            </div>
-            ${description ? `<p style="margin: 0; color: var(--text-muted); font-size: 0.8rem; line-height: 1.3;">${escapeHtml(description)}</p>` : ''}
-            <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.75rem;">${timeAgo}</p>
-          </div>
-        </div>
-      `;
-
-      div.addEventListener('click', () => {
-        // Mark as read on click
-        if (!isRead) {
-          fetch(`/notifications/${notif.id}/read`, { method: 'POST' });
-        }
-        
-        // Navigate to related item if applicable
-        if (notif.related_id) {
-          if (notif.type === 'claim_approved' || notif.type === 'claim_rejected') {
-            window.location.href = '/user/my-found-items';
-          } else if (notif.type === 'item_matched' || notif.type === 'match_found') {
-            window.location.href = '/user/matches';
-          }
-        }
-      });
-
-      return div;
-    }
-
-    function escapeHtml(text) {
-      const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      };
-      return text.replace(/[&<>"']/g, m => map[m]);
-    }
-
-    function getNotificationIcon(type) {
-      const icons = {
-        'claim_approved': '✓',
-        'claim_rejected': '✕',
-        'new_claim': '⏳',
-        'claim_pending': '⏳',
-        'match_found': '🔗',
-        'item_matched': '🎯',
-        'default': '📢'
-      };
-      return icons[type] || icons['default'];
-    }
-
-    function getTimeAgo(date) {
-      const seconds = Math.floor((new Date() - date) / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-
-      if (seconds < 60) return 'just now';
-      if (minutes < 60) return `${minutes}m ago`;
-      if (hours < 24) return `${hours}h ago`;
-      if (days < 7) return `${days}d ago`;
-      
-      return date.toLocaleDateString();
-    }
-
-    function markAllNotificationsRead() {
-      fetch('/notifications/api/mark-all-read', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            console.log('All notifications marked as read');
-            fetchUnreadNotifications();
-            loadNotificationsDropdown();
-          }
-        })
-        .catch(err => console.error('Error marking notifications as read:', err));
-    }
-  </script>
-  {% block scripts %}{% endblock %}
 </body>
 </html>

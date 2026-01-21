@@ -1,133 +1,509 @@
 {% extends 'layouts/base_admin_dashboard.html' %}
 {% block content %}
 
-<div class="container-fluid py-4">
-  <div class="card soft-card shadow-sm border-0">
-    <div class="card-header soft-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0 fw-bold">Users Overview</h5>
-    </div>
+<style>
+  /* ====== PAGE STYLING ====== */
+  .users-card {
+    background: #ffffff;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    overflow: hidden;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+  }
 
-    <!-- Scrollable table body -->
-    <div class="card-body p-0 scrollable-table">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light sticky-top">
-          <tr>
-            <th class="d-none d-md-table-cell">ID</th>
-            <th>Profile</th>
-            <th>Full Name</th>
-            <th class="d-none d-lg-table-cell">Email</th>
-            <th class="d-none d-lg-table-cell">Role</th>
-            <th>Status</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for u in users %}
-          <tr>
-            <!-- ID -->
-            <td class="fw-bold d-none d-md-table-cell">{{ u.id }}</td>
+  /* ====== HEADER SECTION ====== */
+  .users-header {
+    padding: 2.5rem 2.5rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
 
-            <!-- Profile -->
-            <td>
-              {% if u.profile_photo %}
-                <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.profile_photo) }}"
-                     class="avatar-sm rounded-circle shadow-sm" alt="avatar">
-              {% else %}
-                <div class="avatar-sm d-flex align-items-center justify-content-center bg-purple text-white fw-bold rounded-circle">
-                  {{ u.name[0]|upper }}
+  .users-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .users-header h2 i {
+    color: #8a2be2;
+    font-size: 2.2rem;
+  }
+
+  .users-count {
+    display: inline-block;
+    padding: 0.5rem 1.1rem;
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(13, 110, 253, 0.1));
+    color: #6c1bbd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .users-search {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #333;
+    background: #fafafa;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .users-search:focus {
+    outline: none;
+    border-color: #8a2be2;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+  }
+
+  /* ====== TABLE SECTION ====== */
+  .table-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .table-wrapper.scrollable {
+    max-height: 750px;
+    overflow-y: auto;
+  }
+
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+
+  .users-table thead {
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .users-table th {
+    padding: 1.25rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+    background: #f8f9fa;
+  }
+
+  .users-table td {
+    padding: 1.4rem 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+  }
+
+  .users-table tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  .users-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(138, 43, 226, 0.02), rgba(13, 110, 253, 0.02));
+  }
+
+  /* ====== AVATAR & USER INFO ====== */
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8a2be2, #0d6efd);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .user-name {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .user-email {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  /* ====== BADGES ====== */
+  .badge-pill {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .badge-admin {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(138, 43, 226, 0.1));
+    color: #6c1bbd;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+  }
+
+  .badge-user {
+    background: linear-gradient(135deg, rgba(100, 100, 110, 0.15), rgba(120, 120, 130, 0.1));
+    color: #555;
+    border: 1px solid rgba(100, 100, 110, 0.2);
+  }
+
+  .badge-faculty {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.15), rgba(32, 201, 151, 0.1));
+    color: #0d5fa8;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+  }
+
+  .badge-active {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(32, 201, 151, 0.1));
+    color: #1b7c3e;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+  }
+
+  .badge-inactive {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(200, 35, 51, 0.1));
+    color: #9b1e2c;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+  }
+
+  /* ====== ACTION BUTTON ====== */
+  .btn-action {
+    background: none;
+    border: none;
+    color: #8a2be2;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-action:hover {
+    color: #6c1bbd;
+    transform: scale(1.1);
+  }
+
+  /* ====== MODAL ====== */
+  .modal-content {
+    background: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #8a2be2 0%, #0d6efd 100%);
+    color: #ffffff;
+    border: none;
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .modal-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.3px;
+  }
+
+  .modal-body {
+    padding: 2rem;
+    background: #ffffff;
+  }
+
+  .modal-footer {
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    padding: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  .form-control,
+  .form-select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: #8a2be2;
+    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+  }
+
+  .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .form-check-input:checked {
+    background-color: #8a2be2;
+    border-color: #8a2be2;
+  }
+
+  /* ====== BUTTONS ====== */
+  .btn-modal {
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary-modal {
+    background: #8a2be2;
+    color: white;
+  }
+
+  .btn-primary-modal:hover {
+    background: #6c1bbd;
+    transform: translateY(-2px);
+  }
+
+  .btn-danger-modal {
+    background: #dc3545;
+    color: white;
+  }
+
+  .btn-danger-modal:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary-modal {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+  }
+
+  .btn-secondary-modal:hover {
+    border-color: #8a2be2;
+    color: #8a2be2;
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(13, 110, 253, 0.05));
+  }
+
+  /* ====== EMPTY STATE ====== */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .empty-state-icon {
+    font-size: 3.5rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h5 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    font-size: 0.95rem;
+    color: #999;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .users-header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.5rem;
+    }
+
+    .users-table th,
+    .users-table td {
+      padding: 0.9rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .col-md-hide {
+      display: none;
+    }
+  }
+</style>
+
+<div class="py-4">
+  <div class="container-fluid">
+    <div class="users-card">
+      
+      <!-- ====== HEADER SECTION ====== -->
+      <div class="users-header">
+        <div>
+          <h2>
+            <i class="bi bi-people"></i> Users Management
+          </h2>
+          <span class="users-count">{{ users|length }} users</span>
+        </div>
+        <input 
+          type="text" 
+          class="users-search" 
+          id="userSearch" 
+          placeholder="Search users by name or email..." 
+          onkeyup="filterUsers()">
+      </div>
+
+      <!-- ====== TABLE SECTION ====== -->
+      {% if users and users|length > 0 %}
+      <div class="table-wrapper scrollable">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">ID</th>
+              <th style="width: 160px;">Profile</th>
+              <th style="width: 180px;">Full Name</th>
+              <th class="col-md-hide" style="width: 220px;">Email</th>
+              <th style="width: 120px;">Role</th>
+              <th style="width: 130px;">Status</th>
+              <th style="width: 60px; text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            {% for u in users %}
+            <tr class="user-row" data-name="{{ u.name }}" data-email="{{ u.email }}">
+              <td class="fw-bold">#{{ u.id }}</td>
+              <td>
+                <div style="display: flex; align-items: center;">
+                  {% if u.profile_photo %}
+                    <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.profile_photo) }}"
+                         class="user-avatar" alt="profile">
+                  {% else %}
+                    <div class="user-avatar-placeholder">{{ u.name[0]|upper }}</div>
+                  {% endif %}
                 </div>
-              {% endif %}
-            </td>
-
-            <!-- Name -->
-            <td class="fw-bold">{{ u.name }}</td>
-
-            <!-- Email -->
-            <td class="text-muted d-none d-lg-table-cell">{{ u.email }}</td>
-
-            <!-- Role -->
-            <td class="d-none d-lg-table-cell">
-              <span class="pill {{ 'pill-active' if u.role == 'admin' else '' }}">
-                {{ u.role|title }}
-              </span>
-            </td>
-
-            <!-- Status -->
-            <td>
-              {% if u.active %}
-                <span class="pill pill-active">Active</span>
-              {% else %}
-                <span class="pill pill-disabled">Inactive</span>
-              {% endif %}
-            </td>
-
-            <!-- Actions Dropdown -->
-            <td class="text-end">
-              <div class="dropdown">
-                <button class="btn btn-sm btn-soft dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="bi bi-three-dots-vertical"></i>
+              </td>
+              <td class="user-name">{{ u.name }}</td>
+              <td class="col-md-hide user-email">{{ u.email }}</td>
+              <td>
+                <span class="badge-pill badge-{{ u.role }}">
+                  {{ u.role|title }}
+                </span>
+              </td>
+              <td>
+                <span class="badge-pill badge-{{ 'active' if u.active else 'inactive' }}">
+                  {{ 'Active' if u.active else 'Inactive' }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                <button 
+                  class="btn-action" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#editUserModal{{ u.id }}"
+                  title="Edit user"
+                  style="margin-right: 0.5rem;">
+                  <i class="bi bi-pencil"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li>
-                    <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editUserModal{{ u.id }}">
-                      <i class="bi bi-pencil me-2"></i> Edit
-                    </a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deactivateUserModal{{ u.id }}">
-                      <i class="bi bi-x-circle me-2"></i> Deactivate
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+                <button 
+                  class="btn-action" 
+                  data-bs-toggle="modal" 
+                  data-bs-target="#deactivateUserModal{{ u.id }}"
+                  title="Deactivate user">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="bi bi-people empty-state-icon"></i>
+          <h5>No Users Found</h5>
+          <p>There are no users in the system yet.</p>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
 
-<!-- User Modals -->
+<!-- ...existing modals with updated styling... -->
 {% for u in users %}
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-4">
-      <div class="modal-header text-white rounded-top-4" style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
-        <h5 class="modal-title fw-bold">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
           <i class="bi bi-pencil-square me-2"></i> Edit User
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('admin.edit_user', id=u.id) }}">
-        <div class="modal-body p-4 bg-white">
+        <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label fw-semibold">Name</label>
+            <label class="form-label">Name</label>
             <input type="text" class="form-control" value="{{ u.name }}" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Email</label>
+            <label class="form-label">Email</label>
             <input type="email" class="form-control" value="{{ u.email }}" disabled>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Role</label>
+            <label class="form-label">Role</label>
             <select name="role" class="form-select">
-              <option value="user" {% if u.role == 'user' %}selected{% endif %}>User</option>
+              <option value="user" {% if u.role == 'user' %}selected{% endif %}>Student</option>
+              <option value="faculty" {% if u.role == 'faculty' %}selected{% endif %}>Faculty</option>
               <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
             </select>
           </div>
           <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="activeCheck{{ u.id }}" name="active" {% if u.active %}checked{% endif %}>
-            <label class="form-check-label" for="activeCheck{{ u.id }}">Active</label>
+            <label class="form-check-label" for="activeCheck{{ u.id }}">
+              Active
+            </label>
           </div>
         </div>
-        <div class="modal-footer bg-light rounded-bottom-4">
-          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">
             <i class="bi bi-x-circle me-1"></i> Cancel
           </button>
-          <button type="submit" class="btn btn-purple rounded-pill">
+          <button type="submit" class="btn-modal btn-primary-modal">
             <i class="bi bi-save me-1"></i> Save Changes
           </button>
         </div>
@@ -139,24 +515,24 @@
 <!-- Deactivate User Modal -->
 <div class="modal fade" id="deactivateUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-4">
-      <div class="modal-header text-white rounded-top-4" style="background: linear-gradient(90deg,#c8a2c8,#8A2BE2);">
-        <h5 class="modal-title fw-bold">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
           <i class="bi bi-exclamation-triangle me-2"></i> Deactivate User
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('admin.deactivate_user', id=u.id) }}">
-        <div class="modal-body p-4 bg-white">
+        <div class="modal-body">
           <p>Are you sure you want to deactivate <strong>{{ u.name }}</strong>?</p>
           <p class="text-muted small">This user will no longer be able to access their account.</p>
         </div>
-        <div class="modal-footer bg-light rounded-bottom-4">
-          <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
+        <div class="modal-footer">
+          <button type="button" class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">
             <i class="bi bi-x-circle me-1"></i> Cancel
           </button>
-          <button type="submit" class="btn btn-danger rounded-pill">
-            <i class="bi bi-x-circle me-1"></i> Deactivate
+          <button type="submit" class="btn-modal btn-danger-modal">
+            <i class="bi bi-trash me-1"></i> Deactivate
           </button>
         </div>
       </form>
@@ -164,5 +540,23 @@
   </div>
 </div>
 {% endfor %}
+
+<script>
+  function filterUsers() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('.user-row');
+
+    rows.forEach(row => {
+      const name = row.dataset.name.toLowerCase();
+      const email = row.dataset.email.toLowerCase();
+
+      if (name.includes(searchTerm) || email.includes(searchTerm)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+</script>
 
 {% endblock %}

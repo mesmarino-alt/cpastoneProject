@@ -44,12 +44,18 @@ def register():
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
         confirm = request.form.get('confirm', '')
+        role = request.form.get('role', 'user').lower()  # Get role from form, default to 'user'
 
-        logging.debug(f"Register attempt: name={name}, student_id={student_id}, email={email}")
+        logging.debug(f"Register attempt: name={name}, student_id={student_id}, email={email}, role={role}")
 
         if not all([name, student_id, email, password, confirm]):
             flash('All fields are required.', 'danger')
             return redirect(url_for('auth.register'))
+
+        # Validate role - only allow 'user' (student) and 'faculty' for self-registration
+        if role not in ['user', 'faculty']:
+            role = 'user'  # Default to user if invalid
+            logging.warning(f"Invalid role provided during registration: {role}, defaulting to 'user'")
 
         if password != confirm:
             flash('Passwords do not match.', 'danger')
@@ -76,8 +82,9 @@ def register():
                 cur.execute("""
                     INSERT INTO users (name, student_id, email, password_hash, profile_photo, role)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, (name, student_id, email, pw_hash, photo_filename, 'user'))
+                """, (name, student_id, email, pw_hash, photo_filename, role))
                 conn.commit()
+                logging.info(f"New user registered: {email} with role={role}")
 
             flash('Account created successfully! Please log in.', 'success')
             return redirect(url_for('auth.login'))

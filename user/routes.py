@@ -62,31 +62,59 @@ def dashboard():
         """, (current_user.id,))
         total_count = cur.fetchone()['c']
 
-        # All items (lost + found) for current user for table with type indicator
+        # Only show APPROVED and CLAIMED items in the dashboard table
+        # These are items that have been reviewed and approved by admin
+        # Include items with approved claims so users can still browse them
         cur.execute("""
-            SELECT li.id, li.name, li.category, li.reported_at AS created_at, 
-                   COALESCE(c.status, 'pending') AS status, 'Lost' AS type, li.user_id
+            SELECT li.id, li.name, li.category, li.description, li.reported_at AS created_at, 
+                   CASE 
+                       WHEN c.status = 'Approved' THEN 'Claimed'
+                       WHEN c.status = 'Pending' THEN 'Pending Claim'
+                       WHEN c.status = 'Rejected' THEN 'Rejected'
+                       WHEN m.id IS NOT NULL THEN 'Matched'
+                       ELSE 'Available'
+                   END AS status, 
+                   'Lost' AS type, li.user_id
             FROM lost_items li
             LEFT JOIN claims c ON c.lost_item_id = li.id
-            UNION
-            SELECT fi.id, fi.name, fi.category, fi.reported_at AS created_at, 
-                   COALESCE(c.status, 'pending') AS status, 'Found' AS type, fi.user_id
+            LEFT JOIN matches m ON m.lost_item_id = li.id
+            WHERE li.status IN ('approved', 'claimed')
+            ORDER BY li.reported_at DESC
+        """)
+        lost_rows = cur.fetchall()
+
+        cur.execute("""
+            SELECT fi.id, fi.name, fi.category, fi.description, fi.reported_at AS created_at, 
+                   CASE 
+                       WHEN c.status = 'Approved' THEN 'Claimed'
+                       WHEN c.status = 'Pending' THEN 'Pending Claim'
+                       WHEN c.status = 'Rejected' THEN 'Rejected'
+                       WHEN m.id IS NOT NULL THEN 'Matched'
+                       ELSE 'Available'
+                   END AS status, 
+                   'Found' AS type, fi.user_id
             FROM found_items fi
             LEFT JOIN claims c ON c.found_item_id = fi.id
-            ORDER BY created_at DESC
+            LEFT JOIN matches m ON m.found_item_id = fi.id
+            WHERE fi.status IN ('approved', 'claimed')
+            ORDER BY fi.reported_at DESC
         """)
-        items = cur.fetchall()
+        found_rows = cur.fetchall()
 
-        # Category breakdown for current user's items
+        # combine and sort
+        items = (lost_rows or []) + (found_rows or [])
+        items.sort(key=lambda x: x.get('created_at') or '', reverse=True)
+
+        # Category breakdown for approved items only
         cur.execute("""
             SELECT category, COUNT(*) AS count
             FROM (
-                SELECT category FROM lost_items WHERE user_id=%s
+                SELECT category FROM lost_items WHERE status='approved'
                 UNION ALL
-                SELECT category FROM found_items WHERE user_id=%s
+                SELECT category FROM found_items WHERE status='approved'
             ) all_items
             GROUP BY category
-        """, (current_user.id, current_user.id))
+        """)
         rows = cur.fetchall()
         
         # Calculate percentages for chart
@@ -155,7 +183,7 @@ def my_lost_items():
         cur.execute("""
             SELECT li.id, li.user_id, li.name, li.category, li.description,
                    li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
-                   COALESCE(c.status, 'pending') as claim_status
+                   COALESCE(c.status, NULL) as claim_status
             FROM lost_items li
             LEFT JOIN claims c ON c.lost_item_id = li.id
             WHERE li.user_id=%s
@@ -168,8 +196,9 @@ def my_lost_items():
     items = []
     for r in rows:
         item = LostItem.from_row(r)
-        # Override status with claim status if available
-        item.status = r.get('claim_status', 'pending')
+        # Keep the actual item status (pending/approved/rejected)
+        # Don't override it with claim status
+        item.claim_status = r.get('claim_status')  # Store claim status separately
         items.append(item)
     
     return render_template('user/my_lost_items.html', items=items)
@@ -196,8 +225,9 @@ def my_found_items():
     items = []
     for r in rows:
         item = FoundItem.from_row(r)
-        # Add claim status to item
-        item.claim_status = r.get('claim_status')
+        # Keep the actual item status (pending/approved/rejected)
+        # Don't override it with claim status
+        item.claim_status = r.get('claim_status')  # Store claim status separately
         items.append(item)
     
     return render_template('user/my_found_items.html', items=items)
@@ -219,16 +249,36 @@ def report_lost():
         flash('Item name is required.', 'danger')
         return redirect(url_for('user.my_lost_items'))
 
-    photo_filename = None
-    if photo_file and allowed_file(photo_file.filename):
-        os.makedirs(UPLOADS_DIR, exist_ok=True)
-        safe = secure_filename(photo_file.filename)
-        photo_filename = f"{current_user.id}_{safe}"
-        photo_path = os.path.join(UPLOADS_DIR, photo_filename)
-        photo_file.save(photo_path)
-
-    conn = get_db(); cur = conn.cursor()
+    # 🔒 DEDUPLICATION CHECK 1: Prevent duplicate reports by same user
+    # Check if user already reported a similar item (same name, category, date)
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
+        cur.execute("""
+            SELECT id FROM lost_items
+            WHERE user_id=%s 
+            AND LOWER(name)=LOWER(%s)
+            AND category=%s
+            AND DATE(last_seen_at)=DATE(%s)
+            AND status IN ('pending', 'approved')
+            LIMIT 1
+        """, (int(current_user.get_id()), name, category, last_seen_at))
+        
+        duplicate_report = cur.fetchone()
+        if duplicate_report:
+            print(f"[LOST] Duplicate report detected for user {current_user.id}: {name}")
+            flash('You already reported this item with the same details. Please check your existing reports or provide different information.', 'warning')
+            return redirect(url_for('user.my_lost_items'))
+        
+        # Photo handling
+        photo_filename = None
+        if photo_file and allowed_file(photo_file.filename):
+            os.makedirs(UPLOADS_DIR, exist_ok=True)
+            safe = secure_filename(photo_file.filename)
+            photo_filename = f"{current_user.id}_{safe}"
+            photo_path = os.path.join(UPLOADS_DIR, photo_filename)
+            photo_file.save(photo_path)
+
         cur.execute("""
             INSERT INTO lost_items
             (user_id, name, category, description, last_seen, last_seen_at, status, photo, reported_at)
@@ -263,7 +313,8 @@ def report_lost():
         flash(f'Error reporting item: {str(e)}', 'danger')
         return redirect(url_for('user.my_lost_items'))
     finally:
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
 
     # Run matching pipeline
     print(f"[LOST] Triggering matching pipeline...")
@@ -286,15 +337,34 @@ def report_found():
     found_at = request.form.get('found_at')
     photo = request.files.get('photo')
 
-    photo_filename = None
-    if photo and allowed_file(photo.filename):
-        filename = secure_filename(photo.filename)
-        photo_filename = f"{current_user.id}_{filename}"
-        os.makedirs(UPLOADS_DIR, exist_ok=True)
-        photo.save(os.path.join(UPLOADS_DIR, photo_filename))
-
-    conn = get_db(); cur = conn.cursor()
+    # 🔒 DEDUPLICATION CHECK 1: Prevent duplicate reports by same user
+    # Check if user already reported a similar item (same name, category, date)
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
+        cur.execute("""
+            SELECT id FROM found_items
+            WHERE user_id=%s 
+            AND LOWER(name)=LOWER(%s)
+            AND category=%s
+            AND DATE(found_at)=DATE(%s)
+            AND status IN ('pending', 'approved')
+            LIMIT 1
+        """, (int(current_user.get_id()), name, category, found_at))
+        
+        duplicate_report = cur.fetchone()
+        if duplicate_report:
+            print(f"[FOUND] Duplicate report detected for user {current_user.id}: {name}")
+            flash('You already reported this item with the same details. Please check your existing reports or provide different information.', 'warning')
+            return redirect(url_for('user.my_found_items'))
+
+        photo_filename = None
+        if photo and allowed_file(photo.filename):
+            filename = secure_filename(photo.filename)
+            photo_filename = f"{current_user.id}_{filename}"
+            os.makedirs(UPLOADS_DIR, exist_ok=True)
+            photo.save(os.path.join(UPLOADS_DIR, photo_filename))
+
         cur.execute("""
             INSERT INTO found_items
             (user_id, name, category, description, where_found, found_at, status, photo, reported_at)
@@ -328,7 +398,8 @@ def report_found():
         flash(f'Error reporting item: {str(e)}', 'danger')
         return redirect(url_for('user.my_found_items'))
     finally:
-        cur.close(); conn.close()
+        cur.close()
+        conn.close()
 
     # Run matching pipeline
     print(f"[FOUND] Triggering matching pipeline...")
@@ -685,24 +756,79 @@ def debug_user():
 @login_required
 def api_lost_item(item_id):
     conn = get_db()
-    cur = conn.cursor()
+    # Use DictCursor because this endpoint uses row.get(...)
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
         cur.execute("""
             SELECT li.id, li.user_id, li.name, li.category, li.description,
                    li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
-                   COALESCE(c.status, 'pending') as claim_status
+                   COALESCE(c.status, NULL) as claim_status
             FROM lost_items li
             LEFT JOIN claims c ON c.lost_item_id = li.id
-            WHERE li.id=%s AND li.user_id=%s
+            WHERE li.id=%s AND (li.status IN ('approved', 'claimed') OR li.user_id=%s)
         """, (item_id, int(current_user.get_id())))
         row = cur.fetchone()
     finally:
         cur.close(); conn.close()
 
     if not row:
-        return jsonify({'error': 'Item not found'}), 404
+        return jsonify({'error': 'Item not found or not published'}), 404
 
-    # Format reported_at date
+    # Format reported_at and last_seen_at date
+    reported_at_str = None
+    if row.get('reported_at'):
+        try:
+            reported_at_str = row['reported_at'].strftime('%Y-%m-%d')
+        except Exception:
+            reported_at_str = str(row['reported_at'])
+
+    last_seen_at_str = None
+    if row.get('last_seen_at'):
+        try:
+            last_seen_at_str = row['last_seen_at'].strftime('%Y-%m-%d')
+        except Exception:
+            last_seen_at_str = str(row['last_seen_at'])
+
+    return jsonify({
+        'id': row.get('id'),
+        'name': row.get('name'),
+        'category': row.get('category'),
+        'description': row.get('description'),
+        'last_seen': row.get('last_seen'),
+        'last_seen_at': last_seen_at_str,
+        'status': row.get('status'),
+        'photo': row.get('photo'),
+        'reported_at': reported_at_str
+    })
+
+
+@user_bp.route('/api/found_items/<int:id>')
+@login_required
+def api_found_item(id):
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT id, user_id, name, category, description,
+                   where_found, found_at, status, photo, reported_at
+            FROM found_items
+            WHERE id=%s AND (status IN ('approved', 'claimed') OR user_id=%s)
+        """, (id, int(current_user.get_id())))
+        row = cur.fetchone()
+    finally:
+        cur.close(); conn.close()
+
+    if not row:
+        return jsonify({'error': 'Item not found or not published'}), 404
+
+    # Format found_at and reported_at date
+    found_at_str = None
+    if row.get('found_at'):
+        try:
+            found_at_str = row['found_at'].strftime('%Y-%m-%d')
+        except:
+            found_at_str = str(row['found_at'])
+
     reported_at_str = None
     if row.get('reported_at'):
         try:
@@ -715,50 +841,11 @@ def api_lost_item(item_id):
         'name': row.get('name'),
         'category': row.get('category'),
         'description': row.get('description'),
-        'last_seen': row.get('last_seen'),
-        'last_seen_at': row.get('last_seen_at'),
-        'status': row.get('claim_status'),
-        'photo': row.get('photo'),
-        'reported_at': reported_at_str
-    })
-
-@user_bp.route('/api/found_items/<int:id>')
-@login_required
-def api_found_item(id):
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        cur.execute("""
-            SELECT id, user_id, name, category, description,
-                   where_found, found_at, status, photo, reported_at
-            FROM found_items
-            WHERE id=%s AND user_id=%s
-        """, (id, int(current_user.get_id())))
-        row = cur.fetchone()
-    finally:
-        cur.close(); conn.close()
-
-    if not row:
-        return jsonify({'error': 'Item not found'}), 404
-
-    # Format found_at date
-    found_at_str = None
-    if row.get('found_at'):
-        try:
-            found_at_str = row['found_at'].strftime('%Y-%m-%d')
-        except:
-            found_at_str = str(row['found_at'])
-
-    return jsonify({
-        'id': row.get('id'),
-        'name': row.get('name'),
-        'category': row.get('category'),
-        'description': row.get('description'),
         'where_found': row.get('where_found'),
         'found_at': found_at_str,
         'status': row.get('status'),
         'photo': row.get('photo'),
-        'reported_at': row.get('reported_at')
+        'reported_at': reported_at_str
     })
 
 @user_bp.route('/api/matches-count')

@@ -16,7 +16,7 @@ COPY requirements.txt .
 # Using --no-cache-dir to reduce image size and --no-build-isolation for faster builds
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
+    --index-url https://download.pytorch.org/whl/cpu \
     -r requirements.txt
 
 # Copy application code
@@ -29,5 +29,5 @@ EXPOSE 5000 8000
 ENV FLASK_APP=app.py
 ENV PYTHONUNBUFFERED=1
 
-# Run with gunicorn with 1 worker to save memory
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
+# Run with gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]

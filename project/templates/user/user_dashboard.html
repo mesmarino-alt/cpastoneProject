@@ -2,51 +2,76 @@
 
 {% block content %}
 <style>
-  /* Dark Mode Only Palette */
+  /* ===== NEW COLOR PALETTE ===== */
   :root {
-    --page-bg: #1b1b1b;
-    --blue: #0d6efd;
-    --purple: #8A2BE2;
-    --green: #28a745;
-    --red: #dc3545;
-    --yellow: #ffc107;
-    --bg: #1b1b1b;
-    --card: #292929;
-    --text: #ffffff;
-    --muted: #808080;
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --border-color: #404040;
-    --accent-orange: #ffa31a;
-    --accent-orange-hover: #e68a00;
+    --primary-purple: #4A249D;
+    --primary-teal: #009FBD;
+    --accent-gold: #F9E2AF;
+    --neutral-bg: #F6F5F5;
+    --neutral-white: #ffffff;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+    --neutral-100: #f3f4f6;
+    --neutral-200: #e5e7eb;
+    --neutral-300: #d1d5db;
+    --neutral-400: #9ca3af;
+    --neutral-600: #4b5563;
+    --neutral-700: #374151;
+    --neutral-900: #111827;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  * {
+    box-sizing: border-box;
   }
 
   body, .container-fluid {
-    background: var(--page-bg);
-    color: var(--text);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    background: linear-gradient(135deg, var(--neutral-bg) 0%, rgba(240, 226, 175, 0.2) 100%);
+    color: var(--neutral-900);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    min-height: 100vh;
   }
 
-  /* ====== SUMMARY CARDS ====== */
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .page-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-purple);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .page-header p {
+    color: var(--neutral-600);
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* ===== SUMMARY CARDS CONTAINER ===== */
   .summary-cards-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
 
   .summary-card {
-    background: var(--card);
+    background: var(--neutral-white);
     border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--accent-gold);
     position: relative;
     overflow: hidden;
-  }
-
-  .summary-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(255, 163, 26, 0.2);
   }
 
   .summary-card::before {
@@ -55,55 +80,55 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent-color), transparent);
+    height: 5px;
+    background: var(--accent-color);
   }
 
+  .summary-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-color);
+  }
+
+  .summary-card.green { --accent-color: var(--accent-green); }
+  .summary-card.red { --accent-color: var(--accent-red); }
+  .summary-card.yellow { --accent-color: var(--accent-yellow); }
+  .summary-card.blue { --accent-color: var(--primary-teal); }
+
   .card-icon {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     margin-bottom: 1rem;
+    background: var(--icon-bg);
   }
 
-  .card-icon.green {
-    background-color: rgba(40, 167, 69, 0.25);
-    color: #28a745;
-  }
-
-  .card-icon.red {
-    background-color: rgba(220, 53, 69, 0.25);
-    color: #dc3545;
-  }
-
-  .card-icon.yellow {
-    background-color: rgba(255, 193, 7, 0.25);
-    color: #ffc107;
-  }
-
-  .card-icon.blue {
-    background-color: rgba(13, 110, 253, 0.25);
-    color: #0d6efd;
-  }
+  .summary-card.green .card-icon { --icon-bg: rgba(16, 185, 129, 0.12); }
+  .summary-card.red .card-icon { --icon-bg: rgba(239, 68, 68, 0.12); }
+  .summary-card.yellow .card-icon { --icon-bg: rgba(245, 158, 11, 0.12); }
+  .summary-card.blue .card-icon { --icon-bg: rgba(0, 159, 189, 0.12); }
 
   .card-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--neutral-900);
     margin-bottom: 0.5rem;
+    line-height: 1;
   }
 
   .card-label {
-    font-size: 0.9rem;
-    color: var(--muted);
-    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--neutral-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  /* ====== MAIN CONTENT AREA ====== */
+  /* ===== MAIN CONTENT WRAPPER ===== */
   .main-content-wrapper {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
@@ -111,11 +136,23 @@
     margin-bottom: 2rem;
   }
 
+  @media (max-width: 1200px) {
+    .main-content-wrapper {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .content-panel {
-    background: var(--card);
+    background: var(--neutral-white);
     border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--accent-gold);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .content-panel:hover {
+    box-shadow: var(--shadow-lg);
   }
 
   .panel-header {
@@ -124,13 +161,13 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--accent-gold);
   }
 
   .panel-title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--neutral-900);
     margin: 0;
     display: flex;
     align-items: center;
@@ -138,51 +175,75 @@
   }
 
   .panel-title i {
-    color: var(--accent-orange);
-    font-size: 1.3rem;
+    color: var(--primary-teal);
+    font-size: 1.5rem;
   }
 
-  /* ====== TABLE SECTION ====== */
+  /* ===== TABLE CONTROLS ===== */
   .table-controls {
     display: flex;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .table-controls input,
   .table-controls select {
-    padding: 0.6rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid var(--accent-orange);
-    background-color: #343a40;
-    color: var(--text);
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--accent-gold);
+    background-color: var(--neutral-white);
+    color: var(--neutral-900);
     font-size: 0.9rem;
+    font-family: inherit;
     transition: all 0.3s ease;
   }
 
   .table-controls input:focus,
   .table-controls select:focus {
     outline: none;
-    border-color: var(--accent-orange);
-    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 3px rgba(0, 159, 189, 0.1);
   }
 
+  .table-controls input::placeholder {
+    color: var(--neutral-400);
+  }
+
+  /* ===== TABLE SECTION ===== */
   .table-wrapper {
-    max-height: 400px;
+    max-height: 450px;
     overflow-y: auto;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border: 1px solid var(--accent-gold);
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 3px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(240, 226, 175, 0.8);
   }
 
   .data-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: var(--card);
+    background-color: var(--neutral-white);
   }
 
   .data-table thead {
-    background-color: rgba(255, 163, 26, 0.12);
+    background: rgba(240, 226, 175, 0.3);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -192,109 +253,136 @@
     padding: 1rem;
     text-align: left;
     font-weight: 700;
-    color: var(--text);
-    border-bottom: 2px solid var(--border-color);
-    font-size: 0.9rem;
+    color: var(--primary-purple);
+    border-bottom: 2px solid var(--accent-gold);
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   .data-table td {
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text);
-    font-size: 0.9rem;
+    border-bottom: 1px solid var(--accent-gold);
+    color: var(--neutral-700);
+    font-size: 0.95rem;
+  }
+
+  .data-table tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  .data-table tbody tr:nth-child(odd) {
+    background-color: rgba(240, 226, 175, 0.1);
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(255, 163, 26, 0.1);
+    background-color: rgba(0, 159, 189, 0.08);
   }
 
   .data-table tbody tr:last-child td {
     border-bottom: none;
   }
 
+  /* ===== BADGES ===== */
   .badge-status {
     display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .badge-approved {
-    background-color: rgba(40, 167, 69, 0.3);
-    color: #28a745;
-  }
-
-  .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.3);
-    color: #dc3545;
-  }
-
-  .badge-pending {
-    background-color: rgba(255, 193, 7, 0.3);
-    color: #ffc107;
-  }
-
-  .badge-type {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-
-  .badge-lost {
-    background-color: rgba(220, 53, 69, 0.3);
-    color: #dc3545;
-  }
-
-  .badge-found {
-    background-color: rgba(40, 167, 69, 0.3);
-    color: #28a745;
-  }
-
-  .btn-view {
-    background-color: var(--accent-orange);
-    color: #1b1b1b;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-view:hover {
-    background-color: var(--accent-orange-hover);
-    transform: scale(1.05);
-  }
-
-  /* Reporter Badge */
-  .badge-reporter {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
+    padding: 0.4rem 0.9rem;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.2) 0%, rgba(255, 163, 26, 0.1) 100%);
-    color: var(--accent-orange);
-    border: 1px solid rgba(255, 163, 26, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    width: fit-content;
+    border: 1px solid;
   }
 
-  .badge-reporter i {
+  .badge-claimed {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--accent-green);
+    color: var(--accent-green);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .badge-pending-claim {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--accent-yellow);
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  .badge-matched {
+    background: rgba(0, 159, 189, 0.12);
+    color: var(--primary-teal);
+    border-color: rgba(0, 159, 189, 0.3);
+  }
+
+  .badge-rejected {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--accent-red);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .badge-type {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid;
+  }
+
+  .badge-lost {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--accent-red);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .badge-found {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--accent-green);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .badge-reporter {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
     font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(0, 159, 189, 0.08);
+    color: var(--primary-teal);
+    border: 1px solid rgba(0, 159, 189, 0.2);
+    margin-top: 0.5rem;
   }
 
-  /* ====== PIE CHART SECTION ====== */
+  /* ===== VIEW BUTTON ===== */
+  .btn-view {
+    background: var(--primary-teal);
+    color: var(--neutral-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-view:hover {
+    background: var(--primary-purple);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 36, 157, 0.3);
+  }
+
+  .btn-view:active {
+    transform: translateY(0);
+  }
+
+  /* ===== CHART SECTION ===== */
   .chart-container {
     display: flex;
     flex-direction: column;
@@ -306,8 +394,8 @@
 
   .chart-canvas-wrapper {
     position: relative;
-    width: 250px;
-    height: 250px;
+    width: 220px;
+    height: 220px;
     margin: 0 auto 1.5rem auto;
     display: flex;
     align-items: center;
@@ -317,485 +405,111 @@
   .chart-legend {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.75rem;
-    text-align: center;
   }
 
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--neutral-700);
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ===== EMPTY STATE ===== */
   .empty-state {
     text-align: center;
-    padding: 2rem 1rem;
-    color: var(--muted);
+    padding: 3rem 2rem;
+    color: var(--neutral-600);
   }
 
   .empty-state i {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  .empty-state h5 {
-    color: var(--text);
-    margin: 1rem 0 0.5rem 0;
-  }
-
-  /* ====== RESPONSIVE ====== */
-  @media (max-width: 1024px) {
-    .main-content-wrapper {
-      grid-template-columns: 1fr;
-    }
-
-    .summary-cards-container {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .summary-cards-container {
-      grid-template-columns: 1fr;
-    }
-
-    .table-wrapper {
-      max-height: 300px;
-    }
-
-    .data-table td,
-    .data-table th {
-      padding: 0.75rem 0.5rem;
-      font-size: 0.85rem;
-    }
-
-    .chart-legend {
-      grid-template-columns: repeat(1, 1fr);
-    }
-  }
-
-  /* ====== FOOTER ====== */
-  .dashboard-footer {
-    text-align: center;
-    color: var(--muted);
-    padding: 2rem 0;
-    border-top: 1px solid var(--border-color);
-    margin-top: 2rem;
-  }
-
-  .dashboard-footer p {
-    margin: 0;
-    font-size: 0.9rem;
-  }
-
-  /* ====== MODAL ====== */
-  .modal-content {
-    background-color: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  .modal-header {
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .modal-footer {
-    border-top: 1px solid var(--border-color);
-  }
-
-  .btn-close {
-    filter: brightness(1.5);
-  }
-
-  /* ====== MODAL STYLES - PROFESSIONAL & MODERN ====== */
-  .modal-content {
-    background-color: var(--card);
-    color: var(--text);
-    border: none;
-    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
-    border-radius: 20px !important;
-  }
-
-  .modal-header {
-    border: none;
-    padding: 2.5rem 2rem;
-    background: linear-gradient(135deg, #ffa31a 0%, #e68a00 100%);
-    border-radius: 20px 20px 0 0 !important;
-  }
-
-  .modal-title {
-    font-size: 1.6rem;
-    font-weight: 800;
-    letter-spacing: -0.8px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-body {
-    padding: 2.5rem 2rem;
-  }
-
-  .modal-footer {
-    border-top: 1px solid rgba(255, 163, 26, 0.1);
-    padding: 1.75rem 2rem;
-    background-color: rgba(41, 41, 41, 0.5);
-    border-radius: 0 0 20px 20px !important;
-    gap: 1rem;
-  }
-
-  .btn-close-white {
-    opacity: 0.9;
-    transition: opacity 0.2s ease;
-  }
-
-  .btn-close-white:hover {
-    opacity: 1;
-  }
-
-  /* Modal Info Items */
-  .modal-info-item {
-    padding: 1.25rem;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.08) 0%, rgba(255, 163, 26, 0.02) 100%);
-    border-left: 4px solid var(--accent-orange);
-    margin-bottom: 1.25rem;
-    transition: all 0.3s ease;
-  }
-
-  .modal-info-item:hover {
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.12) 0%, rgba(255, 163, 26, 0.04) 100%);
-    transform: translateX(4px);
-  }
-
-  .modal-info-label {
-    display: flex;
-    align-items: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.75rem;
-  }
-
-  .modal-info-label i {
-    margin-right: 0.5rem;
-    color: var(--accent-orange);
-    font-size: 1.1rem;
-  }
-
-  .modal-info-value {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text);
-    word-break: break-word;
-    line-height: 1.5;
-  }
-
-  .modal-info-value.description {
-    font-size: 0.95rem;
-    font-weight: 500;
-    line-height: 1.7;
-    color: var(--muted);
-  }
-
-  /* Professional Badges */
-  .modal-badge {
-    display: inline-block;
-    padding: 0.6rem 1.2rem;
-    border-radius: 25px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .modal-badge.badge-found {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0.1) 100%);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.3);
-  }
-
-  .modal-badge.badge-lost {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(220, 53, 69, 0.1) 100%);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.3);
-  }
-
-  .modal-badge.badge-pending {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 193, 7, 0.1) 100%);
-    color: #ffc107;
-    border: 1px solid rgba(255, 193, 7, 0.3);
-  }
-
-  .modal-badge.badge-approved {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(40, 167, 69, 0.1) 100%);
-    color: #28a745;
-    border: 1px solid rgba(40, 167, 69, 0.3);
-  }
-
-  .modal-badge.badge-rejected {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(220, 53, 69, 0.1) 100%);
-    color: #dc3545;
-    border: 1px solid rgba(220, 53, 69, 0.3);
-  }
-
-  /* Status Alert Box */
-  .modal-status-alert {
-    padding: 1.5rem;
-    border-radius: 12px;
-    border-left: 5px solid;
-    margin-top: 1.5rem;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-  }
-
-  .modal-status-alert.approved {
-    border-left-color: #28a745;
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.02) 100%);
-  }
-
-  .modal-status-alert.rejected {
-    border-left-color: #dc3545;
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.02) 100%);
-  }
-
-  .modal-status-alert h6 {
-    margin-bottom: 0.75rem;
-    font-weight: 700;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .modal-status-alert p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
-
-  .modal-status-alert.approved h6 {
-    color: #28a745;
-  }
-
-  .modal-status-alert.rejected h6 {
-    color: #dc3545;
-  }
-
-  /* Claim Form Styling */
-  .modal-claim-form {
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.1) 0%, rgba(255, 163, 26, 0.02) 100%);
-    padding: 1.75rem;
-    border-radius: 12px;
-    border: 1.5px solid rgba(255, 163, 26, 0.2);
-    margin-top: 1.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .modal-claim-form:hover {
-    border-color: rgba(255, 163, 26, 0.4);
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.12) 0%, rgba(255, 163, 26, 0.04) 100%);
-  }
-
-  .modal-claim-form .form-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 0.75rem;
-  }
-
-  .modal-claim-form .form-control {
-    background-color: rgba(52, 58, 64, 0.5);
-    border: 1.5px solid var(--border-color);
-    color: var(--text);
-    font-size: 0.9rem;
-    padding: 0.8rem 1.1rem;
-    margin-bottom: 1.25rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .modal-claim-form .form-control:focus {
-    background-color: var(--card);
-    border-color: var(--accent-orange);
-    color: var(--text);
-    box-shadow: 0 0 0 0.25rem rgba(255, 163, 26, 0.25);
-  }
-
-  .modal-claim-form .form-control::placeholder {
-    color: var(--muted);
+    color: var(--neutral-400);
     opacity: 0.6;
   }
 
-  /* Modal Buttons */
-  .modal-footer .btn {
-    padding: 0.7rem 1.4rem;
+  .empty-state h5 {
+    color: var(--neutral-900);
+    margin: 1rem 0 0.5rem 0;
     font-weight: 700;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border: none;
   }
 
-  .modal-footer .btn-outline-secondary {
-    border: 1.5px solid var(--border-color);
-    color: var(--text);
-    background-color: transparent;
+  .empty-state p {
+    margin: 0;
+    font-size: 0.95rem;
   }
 
-  .modal-footer .btn-outline-secondary:hover {
-    background-color: rgba(255, 163, 26, 0.1);
-    border-color: var(--accent-orange);
-    color: var(--accent-orange);
-    transform: translateY(-2px);
-  }
-
-  .modal-footer .btn-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    border: none;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-  }
-
-  .modal-footer .btn-success:hover {
-    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
-  }
-
-  .modal-footer .btn-success:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-  }
-
-  /* Responsive Modal */
-  @media (max-width: 768px) {
-    .modal-header {
-      padding: 1.75rem 1.5rem;
-    }
-
-    .modal-body {
-      padding: 1.75rem 1.5rem;
-    }
-
-    .modal-footer {
-      padding: 1.5rem;
-      flex-direction: column;
-    }
-
-    .modal-title {
-      font-size: 1.3rem;
-    }
-
-    .modal-info-item {
-      padding: 1rem;
-    }
-
-    .modal-footer .btn {
-      width: 100%;
-    }
-  }
-
-  /* ====== MODERN MODAL STYLING ====== */
-  .modern-modal {
-    background-color: var(--card);
-    border: none;
-    border-radius: 18px !important;
-    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.7);
-    overflow: hidden;
+  /* ===== MODAL STYLING ===== */
+  .modal-content {
+    background: var(--neutral-white);
+    border: 1px solid var(--neutral-200);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   }
 
   .modern-modal-header {
-    background: linear-gradient(135deg, #ffa31a 0%, #e68a00 100%);
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-teal) 100%);
     border: none;
-    padding: 2rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
-
-  .modal-header-content {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-  }
-
-  .modal-icon-wrapper {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: #ffffff;
-    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 16px 16px 0 0;
+    color: var(--neutral-white);
   }
 
   .modal-title {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #ffffff;
+    color: var(--neutral-white);
     margin: 0;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .btn-close-modern {
     background: none;
     border: none;
-    color: #ffffff;
+    color: var(--neutral-white);
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 0.25rem;
-    width: auto;
-    height: auto;
-    opacity: 0.9;
-    transition: all 0.2s ease;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
   }
 
   .btn-close-modern:hover {
     opacity: 1;
-    transform: rotate(90deg);
   }
 
   .modern-modal-body {
-    padding: 2.5rem 2rem;
-    background-color: var(--card);
+    padding: 2rem;
   }
 
-  /* Item Details Grid */
   .item-details-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 1.25rem;
     margin-bottom: 1.5rem;
   }
 
   .detail-item {
     padding: 1.25rem;
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.06) 0%, rgba(255, 163, 26, 0.01) 100%);
+    background: rgba(240, 226, 175, 0.3);
     border-radius: 12px;
-    border: 1px solid rgba(255, 163, 26, 0.12);
+    border: 1px solid var(--accent-gold);
     transition: all 0.3s ease;
   }
 
   .detail-item:hover {
-    background: linear-gradient(135deg, rgba(255, 163, 26, 0.1) 0%, rgba(255, 163, 26, 0.02) 100%);
-    border-color: rgba(255, 163, 26, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 163, 26, 0.1);
+    border-color: var(--primary-teal);
+    box-shadow: 0 4px 12px rgba(0, 159, 189, 0.1);
   }
 
   .detail-item.full-width {
@@ -808,21 +522,21 @@
     gap: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
+    color: var(--primary-purple);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
+    letter-spacing: 0.5px;
     margin-bottom: 0.75rem;
   }
 
   .detail-label i {
+    color: var(--primary-teal);
     font-size: 1rem;
-    color: var(--accent-orange);
   }
 
   .detail-value {
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--neutral-900);
     margin: 0;
     line-height: 1.5;
     word-break: break-word;
@@ -831,228 +545,67 @@
   .detail-value.description-text {
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--muted);
+    color: var(--neutral-700);
     line-height: 1.7;
   }
 
-  /* Modern Badges */
-  .modern-badge {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+  .modal-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent-gold) 50%, transparent 100%);
+    margin: 1.5rem 0;
+  }
+
+  .modal-footer {
+    background: rgba(240, 226, 175, 0.15);
+    border-top: 1px solid var(--accent-gold);
+    padding: 1.5rem 2rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .modal-footer .btn {
+    padding: 0.7rem 1.5rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+    border-radius: 8px;
     border: 1px solid;
     transition: all 0.3s ease;
   }
 
-  .modern-badge-found {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
-    color: #28a745;
-    border-color: rgba(40, 167, 69, 0.3);
-  }
-
-  .modern-badge-found:hover {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.25) 0%, rgba(40, 167, 69, 0.1) 100%);
-    border-color: rgba(40, 167, 69, 0.5);
-  }
-
-  .modern-badge-lost {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
-    color: #dc3545;
-    border-color: rgba(220, 53, 69, 0.3);
-  }
-
-  .modern-badge-lost:hover {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.25) 0%, rgba(220, 53, 69, 0.1) 100%);
-    border-color: rgba(220, 53, 69, 0.5);
-  }
-
-  .modern-badge-pending {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.05) 100%);
-    color: #ffc107;
-    border-color: rgba(255, 193, 7, 0.3);
-  }
-
-  .modern-badge-pending:hover {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.25) 0%, rgba(255, 193, 7, 0.1) 100%);
-    border-color: rgba(255, 193, 7, 0.5);
-  }
-
-  .modern-badge-approved {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
-    color: #28a745;
-    border-color: rgba(40, 167, 69, 0.3);
-  }
-
-  .modern-badge-rejected {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.05) 100%);
-    color: #dc3545;
-    border-color: rgba(220, 53, 69, 0.3);
-  }
-
-  /* Modal Divider */
-  .modal-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 163, 26, 0.2) 50%, transparent 100%);
-    margin: 1.5rem 0;
-  }
-
-  /* Status Alert */
-  .status-alert {
-    padding: 1.5rem;
-    border-radius: 12px;
-    border-left: 4px solid;
-    background: rgba(0, 0, 0, 0.1);
-    margin-top: 1rem;
-  }
-
-  .status-alert.approved {
-    border-left-color: #28a745;
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(40, 167, 69, 0.02) 100%);
-  }
-
-  .status-alert.rejected {
-    border-left-color: #dc3545;
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.02) 100%);
-  }
-
-  .status-alert h6 {
-    margin: 0 0 0.5rem 0;
-    font-weight: 700;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .status-alert.approved h6 {
-    color: #28a745;
-  }
-
-  .status-alert.rejected h6 {
-    color: #dc3545;
-  }
-
-  .status-alert p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
-
-  /* Claim Input Group */
-  .claim-input-group {
-    width: 100%;
-  }
-
-  .modern-textarea {
-    width: 100%;
-    padding: 1rem;
-    background-color: rgba(52, 58, 64, 0.4);
-    border: 1.5px solid var(--border-color);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 0.9rem;
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-    transition: all 0.3s ease;
-    margin-bottom: 1.25rem;
-  }
-
-  .modern-textarea:focus {
-    outline: none;
-    background-color: var(--card);
-    border-color: var(--accent-orange);
-    box-shadow: 0 0 0 0.25rem rgba(255, 163, 26, 0.25);
-  }
-
-  .modern-textarea::placeholder {
-    color: var(--muted);
-    opacity: 0.6;
-  }
-
-  /* Modern Modal Footer */
-  .modern-modal-footer {
-    background-color: rgba(41, 41, 41, 0.6);
-    border-top: 1px solid rgba(255, 163, 26, 0.1);
-    padding: 1.5rem 2rem;
-    border-radius: 0 0 18px 18px;
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  /* Footer Buttons */
-  .footer-buttons {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  .btn {
-    padding: 0.7rem 1.5rem;
-    font-weight: 700;
-    font-size: 0.85rem;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
   .btn-close-secondary {
-    background-color: rgba(255, 163, 26, 0.08);
-    color: var(--accent-orange);
-    border: 1.5px solid var(--border-color);
+    background: var(--neutral-white);
+    color: var(--primary-purple);
+    border-color: var(--accent-gold);
   }
 
   .btn-close-secondary:hover {
-    background-color: rgba(255, 163, 26, 0.15);
-    border-color: var(--accent-orange);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 163, 26, 0.15);
+    background: var(--accent-gold);
+    border-color: var(--primary-teal);
+    color: var(--primary-purple);
   }
 
-  .btn-claim-primary {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  /* ===== FOOTER ===== */
+  .dashboard-footer {
+    text-align: center;
+    color: var(--neutral-600);
+    padding: 2rem 0;
+    border-top: 1px solid var(--accent-gold);
+    margin-top: 3rem;
+    font-size: 0.9rem;
   }
 
-  .btn-claim-primary:hover {
-    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(40, 167, 69, 0.4);
-  }
-
-  .btn-claim-primary:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-  }
-
-  /* Responsive Modern Modal */
+  /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
-    .modern-modal {
-      border-radius: 16px !important;
+    .summary-cards-container {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    .modern-modal-header {
-      padding: 1.5rem;
-      flex-direction: column;
-      text-align: center;
+    .table-wrapper {
+      max-height: 350px;
     }
 
-    .modal-header-content {
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .modern-modal-body {
-      padding: 2rem 1.5rem;
+    .data-table th,
+    .data-table td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
     }
 
     .item-details-grid {
@@ -1060,74 +613,84 @@
       gap: 1rem;
     }
 
-    .modern-modal-footer {
+    .modal-content {
+      border-radius: 14px;
+    }
+
+    .modern-modal-header {
+      padding: 1.5rem;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .modern-modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
       padding: 1.25rem 1.5rem;
-      flex-direction: column;
-    }
-
-    .footer-buttons {
-      flex-direction: column;
-      width: 100%;
-    }
-
-    .footer-buttons .btn {
-      width: 100%;
-    }
-
-    .modern-textarea {
-      min-height: 100px;
+      border-radius: 0 0 14px 14px;
     }
   }
+
+  @media (max-width: 480px) {
+    .summary-cards-container {
+      grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+      max-height: 300px;
+    }
+
+    .chart-canvas-wrapper {
+      width: 180px;
+      height: 180px;
+    }
+  }
+
 </style>
 
-<div class="py-4" >
+<div class="py-4">
   <div class="container-fluid">
     
     <!-- PAGE HEADER -->
-    <!-- <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 style="font-weight: 800; margin: 0; color: var(--text);">Dashboard</h2>
-        <p style="color: var(--muted); margin: 0.5rem 0 0 0;">Welcome back! Here's your activity overview.</p>
-      </div>
-      <button type="button" class="btn btn-light border" id="darkModeToggle" title="Toggle dark mode" onclick="toggleDarkMode()" style="border-radius: 8px;">
-        <i class="bi bi-moon"></i>
-      </button> -->
-      
-    </div>
+    <!-- <div class="page-header mb-4">
+      <h2>Dashboard</h2>
+      <p>Welcome back! Here's your activity overview.</p>
+    </div> -->
 
     <!-- SUMMARY CARDS -->
     <div class="summary-cards-container">
       <!-- Approved Reports -->
-      <div class="summary-card" style="--accent-color: #28a745;">
-        <div class="card-icon green">
-          <i class="bi bi-check-circle"></i>
+      <div class="summary-card green">
+        <div class="card-icon">
+          <i class="bi bi-check-circle-fill" style="color: var(--accent-green);"></i>
         </div>
         <div class="card-value">{{ approved_count|default(0) }}</div>
         <div class="card-label">Approved Reports</div>
       </div>
 
       <!-- Rejected Reports -->
-      <div class="summary-card" style="--accent-color: #dc3545;">
-        <div class="card-icon red">
-          <i class="bi bi-x-circle"></i>
+      <div class="summary-card red">
+        <div class="card-icon">
+          <i class="bi bi-x-circle-fill" style="color: var(--accent-red);"></i>
         </div>
         <div class="card-value">{{ rejected_count|default(0) }}</div>
         <div class="card-label">Rejected Reports</div>
       </div>
 
       <!-- Pending Reports -->
-      <div class="summary-card" style="--accent-color: #ffc107;">
-        <div class="card-icon yellow">
-          <i class="bi bi-clock"></i>
+      <div class="summary-card yellow">
+        <div class="card-icon">
+          <i class="bi bi-hourglass-split" style="color: var(--accent-yellow);"></i>
         </div>
         <div class="card-value">{{ pending_count|default(0) }}</div>
         <div class="card-label">Pending Reports</div>
       </div>
 
       <!-- Total Reports -->
-      <div class="summary-card" style="--accent-color: #0d6efd;">
-        <div class="card-icon blue">
-          <i class="bi bi-file-text"></i>
+      <div class="summary-card blue">
+        <div class="card-icon">
+          <i class="bi bi-file-earmark-text" style="color: var(--primary-teal);"></i>
         </div>
         <div class="card-value">{{ total_count|default(0) }}</div>
         <div class="card-label">Total Reports</div>
@@ -1137,18 +700,18 @@
     <!-- MAIN CONTENT AREA -->
     <div class="main-content-wrapper">
       
-      <!-- LEFT PANEL: Lost & Found Table -->
+      <!-- LEFT PANEL: Items Table -->
       <div class="content-panel">
         <div class="panel-header">
           <h3 class="panel-title">
-            <i class="bi bi-list-ul"></i> Lost & Found Items
+            <i class="bi bi-inbox"></i> Lost & Found Items
           </h3>
         </div>
 
-        <!-- Table Controls -->
+        <!-- Controls -->
         <div class="table-controls">
-          <input type="text" placeholder="Search items..." class="flex-grow-1" style="max-width: 200px;" id="tableSearch" onkeyup="filterTable()">
-          <select id="categoryFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+          <input type="text" placeholder="Search items..." id="tableSearch" onkeyup="filterTable()" style="flex: 1; min-width: 200px;">
+          <select id="categoryFilter" onchange="filterTable()">
             <option value="">All Categories</option>
             <option value="Electronics">Electronics</option>
             <option value="Gadgets">Gadgets</option>
@@ -1156,7 +719,7 @@
             <option value="Wallets">Wallets</option>
             <option value="Documents">Documents</option>
             <option value="Clothing">Clothing</option>
-            <option value="Other">Other</option>
+            <option value="Others">Others</option>
           </select>
         </div>
 
@@ -1168,8 +731,8 @@
                 <th>Item Name</th>
                 <th>Category</th>
                 <th>Type</th>
-                <th>Date Reported</th>
                 <th>Status</th>
+                <th>Date</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -1178,41 +741,39 @@
               {% for item in items %}
               <tr>
                 <td>
-                  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <span>{{ item.name }}</span>
+                  <div>
+                    <strong>{{ item.name }}</strong>
                     {% if item.user_id == current_user.id %}
-                    <span class="badge-reporter">
-                      <i class="bi bi-check2-circle"></i> You submitted this
-                    </span>
+                    <div class="badge-reporter">
+                      <i class="bi bi-check2-circle"></i> Your Report
+                    </div>
                     {% endif %}
                   </div>
                 </td>
-                <td>{{ item.category }}</td>
+                <td>{{ item.category or 'General' }}</td>
                 <td>
                   <span class="badge-type {% if item.type|lower == 'lost' %}badge-lost{% else %}badge-found{% endif %}">
                     {{ item.type|title }}
                   </span>
                 </td>
-                <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else '—' }}</td>
                 <td>
-                  {% if item.status|lower == 'pending' %}
-                    <span class="badge-status badge-pending">Pending</span>
-                  {% elif item.status|lower == 'approved' %}
-                    <span class="badge-status badge-approved">Approved</span>
-                  {% elif item.status|lower == 'rejected' %}
-                    <span class="badge-status badge-rejected">Rejected</span>
+                  {% if item.status == 'Claimed' %}
+                    <span class="badge-status badge-claimed"><i class="bi bi-check-lg"></i> Claimed</span>
+                  {% elif item.status == 'Pending Claim' %}
+                    <span class="badge-status badge-pending-claim"><i class="bi bi-hourglass-split"></i> Pending</span>
+                  {% elif item.status == 'Matched' %}
+                    <span class="badge-status badge-matched"><i class="bi bi-link-45deg"></i> Matched</span>
+                  {% elif item.status == 'Rejected' %}
+                    <span class="badge-status badge-rejected"><i class="bi bi-x-lg"></i> Rejected</span>
                   {% else %}
-                    <span class="badge-status badge-pending">{{ item.status|capitalize }}</span>
+                    <span class="badge-status" style="background: rgba(16, 185, 129, 0.12); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3);"><i class="bi bi-check-circle"></i> Available</span>
                   {% endif %}
                 </td>
+                <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else '—' }}</td>
                 <td>
                   <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewItemModal" 
                           data-item-id="{{ item.id }}" 
-                          data-item-type="{{ item.type }}"
-                          data-item-name="{{ item.name }}"
-                          data-item-category="{{ item.category }}"
-                          data-item-description="{{ item.description or '' }}"
-                          data-item-status="{{ item.status }}">
+                          data-item-type="{{ item.type }}">
                     <i class="bi bi-eye"></i> View
                   </button>
                 </td>
@@ -1220,10 +781,11 @@
               {% endfor %}
               {% else %}
               <tr>
-                <td colspan="6" style="text-align: center; padding: 2rem;">
+                <td colspan="6">
                   <div class="empty-state">
                     <i class="bi bi-inbox"></i>
-                    <p style="margin: 0;">No items found</p>
+                    <h5>No items found</h5>
+                    <p>Start reporting items to see them here.</p>
                   </div>
                 </td>
               </tr>
@@ -1233,7 +795,7 @@
         </div>
       </div>
 
-      <!-- RIGHT PANEL: Pie Chart -->
+      <!-- RIGHT PANEL: Chart -->
       <div class="content-panel">
         <div class="panel-header">
           <h3 class="panel-title">
@@ -1274,323 +836,104 @@
   </div>
 </div>
 
-<!-- View Item Modal -->
+<!-- VIEW ITEM MODAL -->
 <div class="modal fade" id="viewItemModal" tabindex="-1" aria-labelledby="viewItemModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
-    <div class="modal-content modern-modal">
-      
-      <!-- Header -->
+    <div class="modal-content">
       <div class="modal-header modern-modal-header">
-        <div class="modal-header-content">
-          <div class="modal-icon-wrapper">
-            <i class="bi bi-box-seam"></i>
-          </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <i class="bi bi-box-seam" style="font-size: 1.5rem;"></i>
           <h5 class="modal-title" id="viewItemModalLabel">Item Details</h5>
         </div>
-        <button type="button" class="btn-close-modern" data-bs-dismiss="modal" aria-label="Close">
+        <button type="button" class="btn-close-modern" data-bs-dismiss="modal">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
 
-      <!-- Body -->
-      <div class="modal-body modern-modal-body">
-        
-        <!-- Item Details Grid -->
+      <div class="modern-modal-body">
         <div class="item-details-grid">
-          
-          <!-- Item Name -->
           <div class="detail-item">
-            <span class="detail-label">
-              <i class="bi bi-tag"></i> Item Name
-            </span>
+            <span class="detail-label"><i class="bi bi-tag"></i> Item Name</span>
             <p class="detail-value" id="modalItemName">—</p>
           </div>
 
-          <!-- Category -->
           <div class="detail-item">
-            <span class="detail-label">
-              <i class="bi bi-list-ul"></i> Category
-            </span>
+            <span class="detail-label"><i class="bi bi-list-ul"></i> Category</span>
             <p class="detail-value" id="modalItemCategory">—</p>
           </div>
 
-          <!-- Type Badge -->
           <div class="detail-item">
-            <span class="detail-label">
-              <i class="bi bi-tag-fill"></i> Type
-            </span>
-            <span id="modalItemType" class="modern-badge modern-badge-found">—</span>
+            <span class="detail-label"><i class="bi bi-tag-fill"></i> Type</span>
+            <p class="detail-value" id="modalItemType">—</p>
           </div>
 
-          <!-- Status Badge -->
           <div class="detail-item">
-            <span class="detail-label">
-              <i class="bi bi-info-circle"></i> Status
-            </span>
-            <span id="modalItemStatus" class="modern-badge modern-badge-pending">—</span>
+            <span class="detail-label"><i class="bi bi-calendar-event"></i> Date</span>
+            <p class="detail-value" id="modalItemDate">—</p>
           </div>
 
-          <!-- Description (Full Width) -->
           <div class="detail-item full-width">
-            <span class="detail-label">
-              <i class="bi bi-card-text"></i> Description
-            </span>
+            <span class="detail-label"><i class="bi bi-card-text"></i> Description</span>
             <p class="detail-value description-text" id="modalItemDescription">—</p>
           </div>
         </div>
 
-        <!-- Divider -->
         <div class="modal-divider"></div>
 
-        <!-- Status Alert (conditionally shown) -->
-        <div id="claimStatusAlert" class="status-alert" style="display: none;">
-          <div id="claimStatusContent"></div>
+        <div style="text-align: center;">
+          <div id="modalPhotoContainer" style="max-width: 320px; margin: 0 auto;"></div>
         </div>
-
       </div>
 
-      <!-- Footer / Action Section -->
-      <div class="modal-footer modern-modal-footer">
-        
-        <!-- Claim Form (only for pending found items) -->
-        <form id="claimItemForm" method="post" action="{{ url_for('user_items.claim_item_from_modal') }}" style="display: none; width: 100%;">
-          <input type="hidden" name="item_id" id="modalItemId">
-          <input type="hidden" name="item_type" id="modalItemTypeInput">
-          
-          <div class="claim-input-group">
-            <textarea 
-              name="justification" 
-              id="claimJustification"
-              class="modern-textarea" 
-              placeholder="Why do you claim this item?"
-              required></textarea>
-            <div class="footer-buttons">
-              <button type="button" class="btn btn-close-secondary" data-bs-dismiss="modal">
-                Close
-              </button>
-              <button type="submit" class="btn btn-claim-primary">
-                <i class="bi bi-hand-thumbs-up me-2"></i>Claim Item
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <!-- Default Footer (for non-pending items) -->
-        <div id="defaultFooter" class="footer-buttons" style="width: 100%; gap: 0.75rem;">
-          <button type="button" class="btn btn-close-secondary" data-bs-dismiss="modal">
-            Close
-          </button>
-        </div>
-
+      <div class="modal-footer">
+        <button type="button" class="btn btn-close-secondary" data-bs-dismiss="modal">Close</button>
       </div>
-
     </div>
   </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   let categoryChartInstance = null;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Dark mode init
-    const darkMode = localStorage.getItem('darkMode') === 'true';
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-      updateMoonIcon(true);
-    }
-
-    // Charts
     initCategoryChart();
 
-    // Handle view modal population when opened
+    // Handle modal data population
     const viewModal = document.getElementById('viewItemModal');
     if (viewModal) {
       viewModal.addEventListener('show.bs.modal', event => {
         const button = event.relatedTarget;
         if (!button) return;
 
-        // Get data from button attributes
         const itemId = button.getAttribute('data-item-id');
-        const itemType = button.getAttribute('data-item-type');
-        const itemName = button.getAttribute('data-item-name');
-        const itemCategory = button.getAttribute('data-item-category');
-        const itemDescription = button.getAttribute('data-item-description');
-        const itemStatus = button.getAttribute('data-item-status');
+        const itemType = (button.getAttribute('data-item-type') || 'Lost').toLowerCase();
+        const endpoint = itemType === 'found' ? `/user/api/found_items/${itemId}` : `/user/api/lost_items/${itemId}`;
 
-        // Populate modal fields
-        document.getElementById('modalItemId').value = itemId;
-        document.getElementById('modalItemTypeInput').value = itemType;
-        document.getElementById('modalItemName').textContent = itemName || '—';
-        document.getElementById('modalItemCategory').textContent = itemCategory || '—';
-        document.getElementById('modalItemDescription').textContent = itemDescription || '—';
+        fetch(endpoint, { credentials: 'include' })
+          .then(r => r.json())
+          .then(data => {
+            document.getElementById('modalItemName').textContent = data.name || '—';
+            document.getElementById('modalItemCategory').textContent = data.category || '—';
+            document.getElementById('modalItemType').textContent = itemType.charAt(0).toUpperCase() + itemType.slice(1);
+            document.getElementById('modalItemDate').textContent = data.reported_at || data.found_at || data.last_seen_at || '—';
+            document.getElementById('modalItemDescription').textContent = data.description || '—';
 
-        // Set Type badge with modern styles
-        const typeEl = document.getElementById('modalItemType');
-        const typeText = itemType ? itemType.charAt(0).toUpperCase() + itemType.slice(1) : '—';
-        typeEl.textContent = typeText;
-        typeEl.className = 'modern-badge';
-        if (itemType && itemType.toLowerCase() === 'found') {
-          typeEl.classList.add('modern-badge-found');
-        } else {
-          typeEl.classList.add('modern-badge-lost');
-        }
-
-        // Set Status badge with modern styles
-        const statusEl = document.getElementById('modalItemStatus');
-        const statusText = itemStatus ? itemStatus.charAt(0).toUpperCase() + itemStatus.slice(1) : '—';
-        statusEl.textContent = statusText;
-        statusEl.className = 'modern-badge';
-        
-        const statusLower = itemStatus ? itemStatus.toLowerCase() : '';
-        if (statusLower === 'pending') {
-          statusEl.classList.add('modern-badge-pending');
-        } else if (statusLower === 'approved') {
-          statusEl.classList.add('modern-badge-approved');
-        } else if (statusLower === 'rejected') {
-          statusEl.classList.add('modern-badge-rejected');
-        } else {
-          statusEl.classList.add('modern-badge-pending');
-        }
-
-        // Handle conditional display: claim form vs status alert
-        const claimForm = document.getElementById('claimItemForm');
-        const statusAlert = document.getElementById('claimStatusAlert');
-        const defaultFooter = document.getElementById('defaultFooter');
-
-        // Add submit handler to claim form
-        claimForm.onsubmit = function(e) {
-          console.log('[FORM] Claim form submitted!');
-          console.log('[FORM] Item ID:', document.getElementById('modalItemId').value);
-          console.log('[FORM] Item Type:', document.getElementById('modalItemTypeInput').value);
-          console.log('[FORM] Justification:', document.getElementById('claimJustification').value);
-          // Form will submit naturally to the backend
-        };
-
-        // Fetch claim information for this item
-        fetch(`/api/item-claim/${itemId}/${itemType}`)
-          .then(response => response.json())
-          .then(claimData => {
-            console.log('Claim data:', claimData);
-
-            // If item has a claim (status is "Claimed")
-            if (claimData.has_claim) {
-              const status = claimData.status ? claimData.status.toLowerCase() : '';
-              
-              // Show status alert
-              statusAlert.style.display = 'block';
-              statusAlert.className = `status-alert ${status}`;
-              
-              const contentEl = document.getElementById('claimStatusContent');
-              
-              // Check if current user submitted this claim
-              if (claimData.is_current_user) {
-                contentEl.innerHTML = `
-                  <h6><i class="bi bi-hourglass-split"></i> Claim Submitted</h6>
-                  <p>You submitted a claim for this ${itemType} item. Your claim is pending admin review.</p>
-                `;
-              } else {
-                // Another user submitted the claim
-                contentEl.innerHTML = `
-                  <h6><i class="bi bi-hourglass-split"></i> Claim Pending</h6>
-                  <p>A claim has been submitted for this item and is pending admin review.</p>
-                `;
-              }
-              
-              // Hide claim form and default footer
-              claimForm.style.display = 'none';
-              defaultFooter.style.display = 'none';
-            } 
-            // Check if current user is the owner of this item
-            else if (claimData.is_owner) {
-              statusAlert.style.display = 'block';
-              statusAlert.className = 'status-alert pending';
-              
-              const contentEl = document.getElementById('claimStatusContent');
-              contentEl.innerHTML = `
-                <h6><i class="bi bi-info-circle"></i> Your Item</h6>
-                <p>This is your own item. You cannot claim your own item. Other users can claim this item if they believe it's theirs.</p>
-              `;
-              
-              // Hide claim form and default footer
-              claimForm.style.display = 'none';
-              defaultFooter.style.display = 'none';
-            }
-            // Item status is "Approved" or "Rejected"
-            else if (statusLower === 'approved' || statusLower === 'rejected') {
-              statusAlert.style.display = 'block';
-              statusAlert.className = `status-alert ${statusLower}`;
-              
-              const contentEl = document.getElementById('claimStatusContent');
-              if (statusLower === 'approved') {
-                contentEl.innerHTML = `
-                  <h6><i class="bi bi-check-circle"></i> Claim Approved!</h6>
-                  <p>The item owner has verified that this is their item. Congratulations! 🎉</p>
-                `;
-              } else if (statusLower === 'rejected') {
-                contentEl.innerHTML = `
-                  <h6><i class="bi bi-x-circle"></i> Claim Rejected</h6>
-                  <p>The item owner could not verify that this is their item. You may try another item.</p>
-                `;
-              }
-              claimForm.style.display = 'none';
-              defaultFooter.style.display = 'none';
-            }
-            // Item status is "Pending" and type is "Found" - show claim form
-            else if (itemType && itemType.toLowerCase() === 'found' && statusLower === 'pending') {
-              claimForm.style.display = 'block';
-              statusAlert.style.display = 'none';
-              defaultFooter.style.display = 'none';
-            }
-            // Default: just show close button
-            else {
-              claimForm.style.display = 'none';
-              statusAlert.style.display = 'none';
-              defaultFooter.style.display = 'flex';
+            const photoContainer = document.getElementById('modalPhotoContainer');
+            if (data.photo) {
+              photoContainer.innerHTML = `<img src="/static/uploads/${data.photo}" class="img-fluid rounded" style="border: 1px solid var(--neutral-200);" alt="Item photo">`;
+            } else {
+              photoContainer.innerHTML = `<div style="padding: 2rem; background: var(--neutral-100); border-radius: 12px; color: var(--neutral-600); text-align: center;">No photo available</div>`;
             }
           })
-          .catch(error => {
-            console.error('Error fetching claim data:', error);
-            // Fallback to original logic
-            if (itemType && itemType.toLowerCase() === 'found' && statusLower === 'pending') {
-              claimForm.style.display = 'block';
-              statusAlert.style.display = 'none';
-              defaultFooter.style.display = 'none';
-            } else {
-              claimForm.style.display = 'none';
-              statusAlert.style.display = 'none';
-              defaultFooter.style.display = 'flex';
-            }
-          });
-
-        console.log(`Modal opened: ${itemType} item "${itemName}" (ID: ${itemId}, Status: ${itemStatus})`);
+          .catch(err => console.error('Failed to load item:', err));
       });
     }
   });
 
-  // Toggle dark mode
-  function toggleDarkMode() {
-    const isDarkMode = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode);
-    updateMoonIcon(isDarkMode);
-    updateChartColors();
-  }
-
-  function updateMoonIcon(isDarkMode) {
-    const icon = document.querySelector('#darkModeToggle i');
-    if (!icon) return;
-    icon.classList.toggle('bi-sun', isDarkMode);
-    icon.classList.toggle('bi-moon', !isDarkMode);
-  }
-
-  // Charts
   function initCategoryChart() {
     const canvas = document.getElementById('categoryChart');
     if (!canvas) return;
-
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    const borderColor = isDark ? '#292929' : '#ffffff';
 
     const labels = [
       {% for category, data in category_data.items() %}
@@ -1616,8 +959,8 @@
         datasets: [{
           data: values,
           backgroundColor: colors,
-          borderColor: borderColor,
-          borderWidth: 2,
+          borderColor: '#ffffff',
+          borderWidth: 3,
           borderRadius: 8
         }]
       },
@@ -1629,20 +972,13 @@
           tooltip: {
             callbacks: {
               label: function(context) {
-                return context.label + ': ' + context.parsed;
+                return context.label + ': ' + context.parsed + '%';
               }
             }
           }
         }
       }
     });
-  }
-
-  function updateChartColors() {
-    if (categoryChartInstance) {
-      categoryChartInstance.destroy();
-      initCategoryChart();
-    }
   }
 
   function filterTable() {
@@ -1661,6 +997,5 @@
     });
   }
 </script>
-
 
 {% endblock %}

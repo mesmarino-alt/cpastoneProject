@@ -3,16 +3,29 @@
 
 {% block content %}
 <style>
-  /* Dark Mode Only Palette */
+  /* Use shared dashboard palette (primary purple/teal, neutrals, shadows)
+     and follow the same light/dark variable approach as dashboard.html */
   :root {
-    --page-bg: #1b1b1b;
-    --card: #292929;
-    --text: #ffffff;
-    --muted: #808080;
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --border-color: #404040;
-    --primary-accent: #ffa31a;
-    --primary-accent-hover: #e68a00;
+    --page-bg: var(--neutral-50, #f7f8fc);
+    --card: var(--neutral-0, #ffffff);
+    --text: var(--neutral-900, #2b2d42);
+    --muted: var(--neutral-600, #6c757d);
+    --shadow: var(--shadow-md, 0 8px 24px rgba(18, 38, 63, 0.06));
+    --border-color: var(--neutral-200, #e9ecef);
+
+    /* Theme accents */
+    --primary-accent: var(--primary-purple, #6f42c1);
+    --primary-accent-2: var(--primary-teal, #20c997);
+    --primary-accent-hover: var(--primary-purple-700, #5a35a0);
+  }
+
+  body.dark-mode {
+    --page-bg: var(--neutral-950, #1b1b1b);
+    --card: var(--neutral-900, #292929);
+    --text: var(--neutral-0, #ffffff);
+    --muted: var(--neutral-400, #808080);
+    --shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.3));
+    --border-color: var(--neutral-800, #404040);
   }
 
   body, .container-fluid {
@@ -26,7 +39,8 @@
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: var(--shadow);
-    transition: background-color 0.3s ease;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .panel-header {
@@ -63,18 +77,25 @@
   .table-controls select {
     padding: 0.6rem 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--primary-accent);
-    background-color: #343a40;
+    border: 1px solid var(--border-color);
+    background-color: var(--card);
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
+  }
+
+  body.dark-mode .table-controls input,
+  body.dark-mode .table-controls select,
+  body.dark-mode .form-control,
+  body.dark-mode .form-select {
+    background-color: #343a40;
   }
 
   .table-controls input:focus,
   .table-controls select:focus {
     outline: none;
     border-color: var(--primary-accent);
-    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-accent) 25%, transparent);
   }
 
   .table-wrapper {
@@ -91,7 +112,7 @@
   }
 
   .data-table thead {
-    background-color: rgba(255, 163, 26, 0.12);
+    background-color: color-mix(in srgb, var(--primary-accent) 12%, transparent);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -114,7 +135,7 @@
   }
 
   .data-table tbody tr:hover {
-    background-color: rgba(255, 163, 26, 0.1);
+    background-color: color-mix(in srgb, var(--primary-accent) 10%, transparent);
   }
 
   .badge-status {
@@ -126,33 +147,42 @@
   }
 
   .badge-pending {
-    background-color: rgba(255, 193, 7, 0.3);
+    background-color: rgba(255, 193, 7, 0.18);
+    color: #b78103;
+  }
+
+  body.dark-mode .badge-pending {
     color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.25);
   }
 
+  .badge-approved,
   .badge-matched {
-    background-color: rgba(40, 167, 69, 0.3);
+    background-color: rgba(40, 167, 69, 0.18);
+    color: #1f7a34;
+  }
+
+  body.dark-mode .badge-approved,
+  body.dark-mode .badge-matched {
+    background-color: rgba(40, 167, 69, 0.25);
     color: #28a745;
   }
 
+  .badge-rejected,
   .badge-closed {
-    background-color: rgba(220, 53, 69, 0.3);
-    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.18);
+    color: #a61f2f;
   }
 
-  .badge-approved {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-  }
-
-  .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.2);
+  body.dark-mode .badge-rejected,
+  body.dark-mode .badge-closed {
+    background-color: rgba(220, 53, 69, 0.25);
     color: #dc3545;
   }
 
   .btn-view {
     background-color: var(--primary-accent);
-    color: #1b1b1b;
+    color: #ffffff;
     border: none;
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
@@ -192,8 +222,8 @@
   }
 
   .modal-header {
-    background: linear-gradient(90deg, #ffa31a, #e68a00);
-    color: #1b1b1b;
+    background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));
+    color: #ffffff;
     border-bottom-color: var(--border-color);
   }
 
@@ -212,7 +242,11 @@
   }
 
   .btn-close {
-    background-color: #ffffff;
+    filter: none;
+  }
+
+  body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%);
   }
 
   .text-purple {
@@ -220,78 +254,41 @@
   }
 
   .bg-light {
-    background-color: #343a40;
-  }
-
-  /* Modal body dark mode support */
-  .modal-body.p-4 {
-    background-color: var(--card);
-    color: var(--text);
-  }
-
-  /* Modal photo container dark mode */
-  .bg-light.rounded-4 {
-    background-color: #343a40;
-  }
-
-  /* Modal footer dark mode */
-  .modal-footer.bg-light {
-    background-color: var(--card);
-    border-top-color: var(--border-color);
-  }
-
-  /* Edit modal body dark mode */
-  .modal-body.p-3.bg-white {
-    background-color: var(--card);
-    color: var(--text);
-  }
-
-  /* Form controls in modals */
-  .modal-body .form-label {
-    color: var(--text);
+    background-color: var(--card) !important;
   }
 
   .form-control,
   .form-select {
-    background-color: #343a40;
-    border-color: var(--primary-accent);
+    background-color: var(--card);
+    border-color: var(--border-color);
     color: var(--text);
     transition: all 0.3s ease;
   }
 
   .form-control:focus,
   .form-select:focus {
-    background-color: #343a40;
     border-color: var(--primary-accent);
     color: var(--text);
-    box-shadow: 0 0 0 0.2rem rgba(255, 163, 26, 0.25);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-accent) 25%, transparent);
   }
 
   .btn-outline-secondary {
-    border-color: var(--primary-accent);
+    border-color: var(--border-color);
     color: var(--text);
   }
 
   .btn-outline-secondary:hover {
-    background-color: var(--primary-accent);
+    background-color: color-mix(in srgb, var(--primary-accent) 12%, transparent);
     border-color: var(--primary-accent);
-    color: #1b1b1b;
+    color: var(--text);
   }
 
-  .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    transition: all 0.3s ease;
-  }
-
-  .btn-success:hover {
-    background-color: #218838;
-    border-color: #218838;
-  }
-
-  /* Text utilities for dark mode */
   .text-muted {
-    color: var(--muted);
+    color: var(--muted) !important;
+  }
+
+  .form-control-plaintext {
+    color: var(--text);
   }
 
   @media (max-width: 768px) {
@@ -323,7 +320,7 @@
         <h3 class="panel-title">
           <i class="bi bi-box-seam"></i> My Found Items
         </h3>
-        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal" style="background-color: #d88e06; color: #fff;">
+        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal" style="background-color: var(--primary-accent); color: #fff;">
           <i class="bi bi-plus-lg me-1"></i> Add Found Item
         </button>
       </div>
@@ -419,47 +416,91 @@
 
 <!-- Report Found Item Modal -->
 <div class="modal fade" id="reportFoundModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" action="{{ url_for('user.report_found') }}" enctype="multipart/form-data">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width: 700px;">
+    <form class="modal-content" id="reportFoundForm" method="post" action="{{ url_for('user.report_found') }}" enctype="multipart/form-data">
       <div class="modal-header">
         <h5 class="modal-title">Report found item</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">Item name</label>
-          <input type="text" name="name" class="form-control" required>
+        <!-- Option B (NO JS): confirmation step without previewing unsent inputs -->
+        <input type="checkbox" class="d-none" id="found_review_toggle">
+
+        <style>
+          #found_review_panel { display: none; }
+          #found_review_toggle:checked ~ #found_form_fields { display: none; }
+          #found_review_toggle:checked ~ #found_review_panel { display: block; }
+
+          /* footer buttons */
+          .found-footer-review { display: none; }
+          .found-footer-edit { display: inline-block; }
+          #found_review_toggle:checked ~ .modal-footer .found-footer-edit { display: none; }
+          #found_review_toggle:checked ~ .modal-footer .found-footer-review { display: inline-block; }
+        </style>
+
+        <div id="found_form_fields">
+          <div class="mb-3">
+            <label class="form-label">Item name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select">
+              <option value="Accessory">Accessory</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bag">Bag</option>
+              <option value="Electronics">Electronics</option>
+              <option value="ID/Card">ID/Card</option>
+              <option value="Documents">Documents</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Where found</label>
+            <input type="text" name="where_found" class="form-control" placeholder="Building, room, area">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date/time found</label>
+            <input type="datetime-local" name="found_at" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Photo (optional)</label>
+            <input type="file" name="photo" class="form-control" accept="image/*">
+          </div>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Category</label>
-          <select name="category" class="form-select">
-            <option>Accessory</option>
-            <option>Bag</option>
-            <option>Electronics</option>
-            <option>ID/Card</option>
-            <option>Others</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Where found</label>
-          <input type="text" name="where_found" class="form-control" placeholder="Building, room, area">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Date/time found</label>
-          <input type="datetime-local" name="found_at" class="form-control">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Photo (optional)</label>
-          <input type="file" name="photo" class="form-control" accept="image/*">
+
+        <div id="found_review_panel">
+          <div class="alert alert-warning mb-3" style="background-color: rgba(255, 193, 7, 0.15); border-color: #ffc107; color: inherit;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Confirm submission:</strong> Once you submit this report, you cannot edit or delete it.
+          </div>
+          <div class="border rounded-3 p-3 bg-light">
+            <p class="mb-2"><strong>Note:</strong> This step does not preview your typed description or selected photo (JavaScript is required for that).</p>
+            <p class="mb-0">If you're ready, click <strong>Confirm &amp; Submit</strong>.</p>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-success">Submit report</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+
+        <!-- Always-visible submit button -->
+        <button type="submit" class="btn btn-success" id="alwaysSubmitFoundButton">
+          <i class="bi bi-check-circle me-1"></i> Confirm &amp; Submit
+        </button>
+
+        <!-- Edit footer buttons -->
+        <label for="found_review_toggle" class="btn btn-success found-footer-edit" id="previewFoundButton">
+          <i class="bi bi-check-lg me-1"></i> Review
+        </label>
+
+        <!-- Review footer buttons -->
+        <label for="found_review_toggle" class="btn btn-outline-secondary found-footer-review">
+          <i class="bi bi-pencil me-1"></i> Back
+        </label>
       </div>
     </form>
   </div>
@@ -472,7 +513,7 @@
       
       <!-- Header -->
       <div class="modal-header text-white rounded-top-4"
-           style="background: linear-gradient(90deg, #ffa31a, #e68a00);">
+           style="background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));">
         <h5 class="modal-title fw-bold">
           <i class="bi bi-eye me-2"></i> View Found Item
         </h5>
@@ -516,7 +557,7 @@
           <div class="col-md-5">
             <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height:220px;">
               <div id="foundModalPhotoContainer" class="w-100 text-center">
-                <!-- JS will inject <img> or placeholder here -->
+                <div class="text-muted border rounded p-3 text-center">No photo</div>
               </div>
             </div>
           </div>
@@ -528,14 +569,6 @@
       <div class="modal-footer rounded-bottom-4">
         <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Close
-        </button>
-        <button class="btn btn-primary rounded-pill"
-                id="editButtonInFoundViewModal"
-                style="background-color: #ffa31a; color: #1b1b1b; border: none; font-weight: 600;"
-                data-bs-toggle="modal"
-                data-bs-target="#editFoundItemModal"
-                data-action="">
-          <i class="bi bi-pencil-square me-1"></i> Edit / Manage
         </button>
       </div>
       
@@ -652,9 +685,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const photoContainer = document.getElementById('foundModalPhotoContainer');
           if (photoContainer) {
-            if (data.photo) {
-              const photoUrl = `/static/uploads/${data.photo}`;
-              photoContainer.innerHTML = `<img src="${photoUrl}" class="img-fluid rounded border" alt="Found item photo">`;
+            const rawPhoto = (data.photo || '').trim();
+            if (rawPhoto) {
+              // Normalize to the real storage location: /static/uploads/
+              const normalized = rawPhoto.replace(/^\/+/, '');
+              const fileName = normalized.startsWith('uploads/') ? normalized.slice('uploads/'.length) : normalized;
+              const photoUrl = `/static/uploads/${fileName}`;
+
+              photoContainer.innerHTML = `
+                <img
+                  src="${photoUrl}"
+                  class="img-fluid rounded border"
+                  alt="Found item photo"
+                  
+                >
+              `;
             } else {
               photoContainer.innerHTML = `<div class="text-muted border rounded p-3 text-center">No photo</div>`;
             }

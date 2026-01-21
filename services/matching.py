@@ -6,14 +6,15 @@ from services.embeddings import deserialize_embedding
 from sklearn.metrics.pairwise import cosine_similarity
 
 def get_unmatched_lost_items():
-    """Get all lost items that haven't been matched yet"""
+    """Get all APPROVED lost items that haven't been matched yet"""
     conn = get_db()
     cur = conn.cursor()
     try:
         cur.execute("""
             SELECT id, name, description, last_seen, last_seen_at, embedding
             FROM lost_items
-            WHERE embedding IS NOT NULL
+            WHERE status='approved'
+            AND embedding IS NOT NULL
             AND id NOT IN (
                 SELECT DISTINCT lost_item_id FROM matches
             )
@@ -25,14 +26,15 @@ def get_unmatched_lost_items():
     return items if items else []
 
 def get_all_found_items():
-    """Get all found items with embeddings"""
+    """Get all APPROVED found items with embeddings"""
     conn = get_db()
     cur = conn.cursor()
     try:
         cur.execute("""
             SELECT id, name, description, where_found, found_at, embedding
             FROM found_items
-            WHERE embedding IS NOT NULL
+            WHERE status='approved'
+            AND embedding IS NOT NULL
         """)
         items = cur.fetchall()
     finally:

@@ -93,43 +93,89 @@ def submit_claim():
     found_item_id = request.form.get('found_item_id', type=int)
     justification = request.form.get('justification', '').strip()
 
+    print(f"\n[MATCH CLAIM] User {current_user.id} submitting claim for match {match_id}")
+    print(f"[MATCH CLAIM] Lost item: {lost_item_id}, Found item: {found_item_id}")
+
     if not (match_id and lost_item_id and found_item_id and justification):
+        print(f"[MATCH CLAIM] ERROR: Invalid claim request - missing required fields")
         flash("Invalid claim request.", "danger")
         return redirect(url_for('user.matches'))
 
     conn = get_db()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
-        # Prevent duplicate pending claims
+        # 🔒 DEDUPLICATION CHECK 1: Prevent duplicate pending claims on same match by this user
+        print(f"[MATCH CLAIM] Checking for existing claims on match {match_id}...")
         cur.execute("""
-            SELECT id FROM claims
-            WHERE match_id=%s AND user_id=%s AND status='Pending'
+            SELECT id, status FROM claims
+            WHERE match_id=%s AND user_id=%s AND status IN ('Pending', 'Approved')
             LIMIT 1
         """, (match_id, current_user.id))
-        if cur.fetchone():
-            flash("You already have a pending claim for this match.", "warning")
+        
+        existing_match_claim = cur.fetchone()
+        if existing_match_claim:
+            status = existing_match_claim.get('status')
+            print(f"[MATCH CLAIM] ERROR: User already has {status} claim on match {match_id}")
+            flash(f"You already have a {status.lower()} claim for this match.", "warning")
             return redirect(url_for('user.matches'))
 
-        # Secondary dedup: same user, same item pair, pending
+        # 🔒 DEDUPLICATION CHECK 2: Prevent duplicate claims for same item pair
+        print(f"[MATCH CLAIM] Checking for duplicate claims on items {lost_item_id}/{found_item_id}...")
         cur.execute("""
-            SELECT id FROM claims
-            WHERE user_id=%s AND lost_item_id=%s AND found_item_id=%s AND status='Pending'
+            SELECT id, status FROM claims
+            WHERE user_id=%s 
+              AND lost_item_id=%s 
+              AND found_item_id=%s 
+              AND status IN ('Pending', 'Approved')
             LIMIT 1
         """, (current_user.id, lost_item_id, found_item_id))
-        if cur.fetchone():
-            flash("You already have a pending claim for these items.", "warning")
+        
+        existing_item_claim = cur.fetchone()
+        if existing_item_claim:
+            status = existing_item_claim.get('status')
+            print(f"[MATCH CLAIM] ERROR: User already has {status} claim for these items")
+            flash(f"You already have a {status.lower()} claim for these items.", "warning")
+            return redirect(url_for('user.matches'))
+
+        # 🔒 DEDUPLICATION CHECK 3: Verify user is not claiming their own items
+        # User SHOULD be able to claim if they own ONE side (they reported either lost OR found)
+        # User should NOT be able to claim if they own BOTH sides (they reported both items)
+        cur.execute("SELECT user_id FROM lost_items WHERE id=%s", (lost_item_id,))
+        lost_item = cur.fetchone()
+        lost_owner = lost_item.get('user_id') if lost_item else None
+
+        cur.execute("SELECT user_id FROM found_items WHERE id=%s", (found_item_id,))
+        found_item = cur.fetchone()
+        found_owner = found_item.get('user_id') if found_item else None
+
+        # Only prevent claim if user owns BOTH items (not just one)
+        if lost_owner == current_user.id and found_owner == current_user.id:
+            print(f"[MATCH CLAIM] ERROR: User {current_user.id} tried to claim their own items (both)")
+            flash("You cannot claim if you reported both items!", "warning")
+            return redirect(url_for('user.matches'))
+
+        # 🔒 DEDUPLICATION CHECK 4: Verify items haven't been already claimed/recovered
+        cur.execute("""
+            SELECT status FROM lost_items WHERE id=%s AND status NOT IN ('Recovered', 'Returned', 'Closed')
+        """, (lost_item_id,))
+        lost_available = cur.fetchone()
+
+        cur.execute("""
+            SELECT status FROM found_items WHERE id=%s AND status NOT IN ('Recovered', 'Returned', 'Closed')
+        """, (found_item_id,))
+        found_available = cur.fetchone()
+
+        if not lost_available or not found_available:
+            print(f"[MATCH CLAIM] ERROR: One or both items are no longer available")
+            flash("One or both items are no longer available for claiming.", "warning")
             return redirect(url_for('user.matches'))
 
         # Get item names for notification
-        cur.execute("SELECT name FROM lost_items WHERE id=%s", (lost_item_id,))
-        lost_item = cur.fetchone()
         lost_name = lost_item.get('name') if lost_item else 'Item'
-
-        cur.execute("SELECT name FROM found_items WHERE id=%s", (found_item_id,))
-        found_item = cur.fetchone()
         found_name = found_item.get('name') if found_item else 'Item'
 
-        # Insert the claim
+        # All validations passed - Insert the claim
+        print(f"[MATCH CLAIM] Inserting claim into database...")
         cur.execute("""
             INSERT INTO claims (match_id, lost_item_id, found_item_id, user_id, status, justification, created_at)
             VALUES (%s, %s, %s, %s, 'Pending', %s, NOW())
@@ -137,11 +183,11 @@ def submit_claim():
         conn.commit()
 
         # Get the inserted claim ID
-        cur.execute("SELECT LAST_INSERT_ID()")
+        cur.execute("SELECT LAST_INSERT_ID() as claim_id")
         result = cur.fetchone()
-        claim_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
+        claim_id = result.get('claim_id') if isinstance(result, dict) else result[0]
 
-        print(f"\n[CLAIM SUBMIT] User {current_user.id} submitted claim {claim_id}")
+        print(f"[MATCH CLAIM] ✓ Claim {claim_id} inserted successfully")
 
         # Get admin users to notify
         cur.execute("SELECT id FROM users WHERE role='admin'")
@@ -159,10 +205,13 @@ def submit_claim():
             )
 
         flash("Your claim has been submitted and is pending review.", "success")
+        print(f"[MATCH CLAIM] ✓ Claim submission complete!")
         return redirect(url_for('user.matches'))
     except Exception as e:
         conn.rollback()
-        print(f"[CLAIM SUBMIT] ERROR: {str(e)}")
+        print(f"[MATCH CLAIM] ERROR: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         flash(f"Error submitting claim: {str(e)}", "danger")
         return redirect(url_for('user.matches'))
     finally:

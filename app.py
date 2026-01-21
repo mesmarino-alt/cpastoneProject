@@ -45,8 +45,6 @@ def inject_notifications():
         'notifications': notifications
     }
 
-
-
 @app.route('/')
 def index():
     return redirect(url_for('auth.login'))
