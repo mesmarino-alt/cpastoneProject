@@ -357,32 +357,666 @@
   }
 
   /* Ensure images scale correctly inside the photo container */
+  /* Removed: legacy rule that conflicts with card-cover photo sizing */
+  /* #lostView_photo img { max-width: 100%; height: auto; display: block; } */
+
+  /* ------------------------------
+     View Lost Item modal (v3 modern, clean redesign)
+     ------------------------------ */
+  :root {
+    --navy: #0b1b3a;
+    --teal: #20c997;
+    --soft-purple: #8A2BE2;
+    --surface: var(--card);
+    --surface-2: color-mix(in srgb, var(--card) 92%, #0000 8%);
+  }
+
+  .lost-modal-dialog {
+    max-width: 860px;
+  }
+
+  .lost-modal-content {
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 14px 40px rgba(18, 38, 63, 0.16);
+  }
+
+  /* Entrance micro-interaction */
+  @keyframes lostModalIn {
+    from { opacity: 0; transform: translateY(10px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  #viewLostItemModal.show .modal-dialog {
+    animation: lostModalIn 160ms ease-out;
+  }
+
+  .lost-modal-header {
+    background: linear-gradient(90deg, var(--navy), color-mix(in srgb, var(--teal) 55%, var(--soft-purple) 45%));
+    color: #fff;
+    padding: 1rem 1.25rem;
+  }
+
+  .lost-modal-title {
+    font-weight: 800;
+    letter-spacing: .2px;
+    margin: 0;
+  }
+
+  .lost-close {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.10);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+  }
+  .lost-close:hover {
+    background: rgba(255,255,255,.18);
+    border-color: rgba(255,255,255,.35);
+    transform: translateY(-1px);
+  }
+
+  .lost-modal-body {
+    padding: 1.25rem;
+    background: var(--surface);
+  }
+
+  .lost-grid {
+    display: grid;
+    grid-template-columns: 1.25fr .85fr;
+    gap: 1.1rem;
+    align-items: start;
+  }
+
+  /* Metadata badges */
+  .lost-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .5rem;
+    margin-bottom: .9rem;
+  }
+
+  .lost-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .65rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    transition: transform .12s ease, background-color .12s ease;
+  }
+  .lost-badge:hover { transform: translateY(-1px); }
+
+  /* Status badge colors (set via JS class) */
+  .lost-status {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.18);
+  }
+  .lost-status--pending { background: rgba(255, 193, 7, .24); }
+  .lost-status--approved { background: rgba(40, 167, 69, .26); }
+  .lost-status--rejected { background: rgba(220, 53, 69, .26); }
+  .lost-status--closed { background: rgba(108, 117, 125, .26); }
+
+  /* Identity */
+  .lost-identity {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface-2);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .lost-identity:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(18, 38, 63, 0.08);
+  }
+
+  .lost-item-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .lost-item-sub {
+    margin-top: .25rem;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: .92rem;
+  }
+
+  .lost-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: .9rem 0;
+  }
+
+  /* Attributes panel */
+  .lost-attrs {
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .lost-attrs-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+  .lost-attrs-row:first-child { border-top: 0; }
+
+  .lost-k {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+  }
+  .lost-v {
+    color: var(--text);
+    font-weight: 700;
+    font-size: .92rem;
+    word-break: break-word;
+  }
+
+  /* Features */
+  .lost-features {
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--surface-2);
+    padding: .9rem 1rem;
+  }
+
+  .lost-features-title {
+    margin: 0 0 .5rem 0;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .92rem;
+  }
+
+  .lost-features-body {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  /* Image panel */
+  .lost-image-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--surface) 88%, #f3f5f8 12%);
+    overflow: hidden;
+  }
+
+  .lost-image-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .lost-image-header .label {
+    font-weight: 800;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .lost-image-wrap {
+    padding: .75rem;
+  }
+
+  .lost-image-frame {
+    border-radius: 14px;
+    overflow: hidden;
+    background: #eef1f6;
+    border: 1px solid color-mix(in srgb, var(--border-color) 70%, #0000 30%);
+  }
+
+  /* Full-cover (cropped) */
   #lostView_photo img {
-    max-width: 100%;
-    height: auto;
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
     display: block;
+  }
+
+  .lost-image-empty {
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    color: var(--muted);
+    background: #eef1f6;
+  }
+
+  /* Footer */
+  .lost-modal-footer {
+    padding: .9rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface);
+    display: flex;
+    gap: .6rem;
+    justify-content: flex-end;
+  }
+
+  .lost-btn {
+    border-radius: 999px;
+    padding: .55rem 1rem;
+    font-weight: 800;
+  }
+
+  .lost-btn-primary {
+    background: linear-gradient(90deg, var(--soft-purple), var(--teal));
+    border: none;
+    color: #fff;
+  }
+  .lost-btn-primary:hover { filter: brightness(.98); }
+
+  /* Responsive: stack, image above details */
+  @media (max-width: 768px) {
+    .lost-modal-dialog { max-width: 96vw; }
+    .lost-grid {
+      grid-template-columns: 1fr;
+    }
+    .lost-image-panel { order: -1; }
+    #lostView_photo img,
+    .lost-image-empty { height: 220px; }
+    .lost-attrs-row { grid-template-columns: 1fr; gap: .25rem; }
+    .lost-modal-footer {
+      flex-direction: column;
+    }
+    .lost-modal-footer .btn {
+      width: 100%;
+    }
+  }
+
+  /* Make sure icons look crisp even in dark mode */
+  body.dark-mode .lost-image-frame,
+  body.dark-mode .lost-image-empty {
+    background: #20242a;
+  }
+
+  /* ---------------------------------------------
+     My Lost Items page (modern dashboard redesign)
+     --------------------------------------------- */
+  .lost-page-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 1200px) {
+    .container-fluid.lost-page-wrap {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1600px) {
+    .lost-page-wrap {
+      max-width: 1560px;
+    }
+  }
+
+  .lost-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .lost-page-title {
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: .2px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  .lost-page-subtitle {
+    margin: .35rem 0 0 0;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: .95rem;
+  }
+
+  .lost-cta {
+    background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: .7rem 1.05rem;
+    font-weight: 800;
+    box-shadow: 0 10px 20px rgba(18, 38, 63, 0.10);
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    white-space: nowrap;
+  }
+  .lost-cta:hover {
+    transform: translateY(-1px);
+    filter: brightness(.98);
+    box-shadow: 0 14px 28px rgba(18, 38, 63, 0.14);
+  }
+
+  /* Filter bar */
+  .lost-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+    padding: .85rem;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card) 92%, rgba(138, 43, 226, 0.05) 8%);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+  }
+
+  .lost-filter {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
+
+  .lost-filter i {
+    position: absolute;
+    left: .8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .lost-filter input,
+  .lost-filter select {
+    width: 100%;
+    padding: .65rem .85rem .65rem 2.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card);
+    color: var(--text);
+    font-weight: 700;
+    font-size: .9rem;
+    transition: box-shadow .2s ease, border-color .2s ease, transform .12s ease;
+  }
+
+  .lost-filter select {
+    padding-left: 2.1rem;
+  }
+
+  .lost-filter input:focus,
+  .lost-filter select:focus {
+    outline: none;
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 .2rem rgba(138, 43, 226, .18);
+  }
+
+  /* Table card */
+  .lost-table-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  .lost-table-head {
+    padding: .9rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+  }
+
+  .lost-table-head .hint {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .9rem;
+    margin: 0;
+  }
+
+  .lost-table-wrapper {
+    max-height: 520px;
+    overflow: auto;
+  }
+
+  .data-table {
+    margin: 0;
+  }
+
+  .data-table thead {
+    background: color-mix(in srgb, var(--primary-accent) 10%, transparent);
+  }
+
+  .data-table th {
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .data-table td {
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr {
+    transition: background-color .15s ease, transform .12s ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: color-mix(in srgb, var(--primary-accent) 7%, transparent);
+  }
+
+  /* Status pills (soft + consistent) */
+  .badge-status {
+    border-radius: 999px;
+    padding: .35rem .75rem;
+    font-size: .8rem;
+    font-weight: 800;
+    border: 1px solid transparent;
+  }
+
+  .badge-approved {
+    background: rgba(40, 167, 69, 0.14);
+    border-color: rgba(40, 167, 69, 0.18);
+    color: #1f7a34;
+  }
+
+  .badge-pending {
+    background: rgba(255, 193, 7, 0.16);
+    border-color: rgba(255, 193, 7, 0.22);
+    color: #b78103;
+  }
+
+  .badge-closed {
+    background: rgba(108, 117, 125, 0.14);
+    border-color: rgba(108, 117, 125, 0.18);
+    color: #555b61;
+  }
+
+  body.dark-mode .badge-approved {
+    background: rgba(40, 167, 69, 0.22);
+    border-color: rgba(40, 167, 69, 0.28);
+    color: #7be495;
+  }
+  body.dark-mode .badge-pending {
+    background: rgba(255, 193, 7, 0.22);
+    border-color: rgba(255, 193, 7, 0.28);
+    color: #ffd36b;
+  }
+  body.dark-mode .badge-closed {
+    background: rgba(108, 117, 125, 0.22);
+    border-color: rgba(108, 117, 125, 0.28);
+    color: #cfd4da;
+  }
+
+  /* View button */
+  .btn-view {
+    border-radius: 999px;
+    padding: .45rem .85rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: color-mix(in srgb, var(--primary-accent) 92%, #0000 8%);
+    transition: transform .12s ease, filter .12s ease;
+  }
+  .btn-view:hover {
+    transform: translateY(-1px);
+    filter: brightness(.98);
+  }
+
+  /* Empty state */
+  .lost-empty {
+    text-align: center;
+    padding: 2.25rem 1rem;
+    color: var(--muted);
+  }
+  .lost-empty i {
+    font-size: 2.75rem;
+    opacity: .55;
+    margin-bottom: .75rem;
+  }
+  .lost-empty h5 {
+    margin: .35rem 0 .35rem 0;
+    color: var(--text);
+    font-weight: 900;
+  }
+
+  /* Mobile: table -> stacked cards */
+  @media (max-width: 768px) {
+    .lost-page-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .lost-cta {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .lost-table-wrapper {
+      max-height: none;
+    }
+
+    /* turn table into cards */
+    #itemsTable thead {
+      display: none;
+    }
+
+    #itemsTable,
+    #itemsTable tbody,
+    #itemsTable tr,
+    #itemsTable td {
+      display: block;
+      width: 100%;
+    }
+
+    #itemsTable tbody tr {
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: .85rem;
+      margin: .75rem .75rem 0 .75rem;
+      background: var(--card);
+      box-shadow: 0 10px 20px rgba(18, 38, 63, 0.06);
+    }
+
+    #itemsTable td {
+      border: 0;
+      padding: .35rem 0;
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      align-items: baseline;
+    }
+
+    #itemsTable td::before {
+      content: attr(data-label);
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      flex: 0 0 38%;
+    }
+
+    #itemsTable td:last-child {
+      justify-content: flex-end;
+      padding-top: .6rem;
+    }
+
+    #itemsTable td:last-child::before {
+      content: '';
+      display: none;
+    }
+
+    .btn-view {
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>
 
 <div class="py-4">
-  <div class="container-fluid">
-    
-    <!-- Main Content Panel -->
-    <div class="content-panel">
-      <!-- Header -->
-      <div class="panel-header">
-        <h3 class="panel-title">
-          <i class="bi bi-search"></i> My Lost Items
+  <div class="container-fluid lost-page-wrap">
+
+    <!-- Page header -->
+    <div class="lost-page-header">
+      <div>
+        <h3 class="lost-page-title">
+          <i class="bi bi-search"></i>
+          My Lost Items
         </h3>
-        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportLostModal" style="background-color: var(--primary-accent); color: #fff;">
-          <i class="bi bi-plus-lg me-1"></i> Add Lost Item
-        </button>
+        <p class="lost-page-subtitle">Track and manage items you have reported as lost.</p>
       </div>
 
-      <!-- Table Controls -->
-      <div class="table-controls">
-        <input type="text" placeholder="Search items..." class="flex-grow-1" style="max-width: 200px;" id="tableSearch" onkeyup="filterTable()">
-        <select id="categoryFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+      <button class="lost-cta" data-bs-toggle="modal" data-bs-target="#reportLostModal" type="button">
+        <i class="bi bi-plus-lg me-1"></i> Add Lost Item
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="lost-filter-bar" aria-label="Filters">
+      <div class="lost-filter" style="flex: 2 1 320px; min-width: 240px;">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search items…"
+          id="tableSearch"
+          onkeyup="filterTable()"
+          aria-label="Search items"
+        >
+      </div>
+
+      <div class="lost-filter" style="flex: 1 1 220px;">
+        <i class="bi bi-grid"></i>
+        <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
           <option value="">All Categories</option>
           <option value="Electronics">Electronics</option>
           <option value="Gadgets">Gadgets</option>
@@ -394,17 +1028,27 @@
           <option value="ID/Card">ID/Card</option>
           <option value="Other">Other</option>
         </select>
-        <select id="statusFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+      </div>
+
+      <div class="lost-filter" style="flex: 1 1 220px;">
+        <i class="bi bi-flag"></i>
+        <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
           <option value="closed">Closed</option>
+          <option value="rejected">Rejected</option>
         </select>
       </div>
+    </div>
 
-      <!-- Table -->
-      <div class="table-wrapper">
+    <!-- Table card -->
+    <div class="lost-table-card">
+      <div class="lost-table-head">
+        <p class="hint mb-0"><i class="bi bi-info-circle me-1"></i>Tip: Use filters to quickly locate items.</p>
+      </div>
+
+      <div class="lost-table-wrapper" role="region" aria-label="Lost items list">
         <table class="data-table" id="itemsTable">
           <thead>
             <tr>
@@ -419,9 +1063,9 @@
             {% if items %}
               {% for item in items %}
               <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.category or 'General' }}</td>
-                <td>
+                <td data-label="Item">{{ item.name }}</td>
+                <td data-label="Category">{{ item.category or 'General' }}</td>
+                <td data-label="Date">
                   {% if item.reported_at %}
                     {% if item.reported_at.__class__.__name__ == 'datetime' %}
                       {{ item.reported_at.strftime('%b %d, %Y') }}
@@ -432,19 +1076,19 @@
                     N/A
                   {% endif %}
                 </td>
-                <td>
+                <td data-label="Status">
                   {% if item.status|lower == 'pending' %}
                     <span class="badge-status badge-pending">Pending</span>
                   {% elif item.status|lower == 'approved' %}
                     <span class="badge-status badge-approved">Approved</span>
                   {% elif item.status|lower == 'rejected' %}
-                    <span class="badge-status badge-rejected">Rejected</span>
+                    <span class="badge-status badge-closed">Rejected</span>
                   {% else %}
                     <span class="badge-status badge-closed">Closed</span>
                   {% endif %}
                 </td>
-                <td>
-                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewLostItemModal" data-id="{{ item.id }}">
+                <td data-label="Action">
+                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewLostItemModal" data-id="{{ item.id }}" type="button">
                     <i class="bi bi-eye"></i> View
                   </button>
                 </td>
@@ -452,11 +1096,11 @@
               {% endfor %}
             {% else %}
             <tr>
-              <td colspan="5" style="text-align: center; padding: 2rem;">
-                <div class="empty-state">
+              <td colspan="5" style="text-align: center; padding: 0;">
+                <div class="lost-empty">
                   <i class="bi bi-inbox"></i>
-                  <h5>No Items Found</h5>
-                  <p>Start reporting lost items to track them here.</p>
+                  <h5>No Lost Items Yet</h5>
+                  <p class="mb-0">When you report a lost item, it will appear here for tracking and updates.</p>
                 </div>
               </td>
             </tr>
@@ -621,46 +1265,103 @@
 
 <!-- View Lost Item Modal -->
 <div class="modal fade" id="viewLostItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 760px;">
-    <div class="modal-content shadow-lg border-0 rounded-4">
-      <div class="modal-header text-white rounded-top-4"
-           style="background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));">
-        <h5 class="modal-title fw-bold" id="viewLostItemModalLabel">
-          <i class="bi bi-eye me-2"></i> View Lost Item
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-dialog-centered lost-modal-dialog">
+    <div class="modal-content lost-modal-content">
+      <div class="modal-header lost-modal-header">
+        <div>
+          <h5 class="lost-modal-title" id="viewLostItemModalLabel">
+            <i class="bi bi-shield-check me-2"></i> Lost Item Details
+          </h5>
+          <div class="lost-badges" aria-label="Lost item metadata">
+            <span class="lost-badge" title="Category">
+              <i class="bi bi-folder2-open"></i>
+              <span id="lostView_category">—</span>
+            </span>
+            <span class="lost-badge" title="Date reported">
+              <i class="bi bi-calendar3"></i>
+              <span id="lostView_date">—</span>
+            </span>
+            <!-- status badge class is set by JS for color -->
+            <span id="lostView_status" class="lost-badge lost-status" title="Status">—</span>
+          </div>
+        </div>
+
+        <button type="button" class="lost-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
 
-      <div class="modal-body p-4">
-        <div class="row g-4">
-          <div class="col-md-7">
-            <div class="mb-3"><strong>Name:</strong> <span id="lostView_name">—</span></div>
-            <div class="mb-3"><strong>Category:</strong> <span id="lostView_category">—</span></div>
-            <div class="mb-3"><strong>Color:</strong> <span id="lostView_color">—</span></div>
-            <div class="mb-3"><strong>Brand:</strong> <span id="lostView_brand">—</span></div>
-            <div class="mb-3"><strong>Shape:</strong> <span id="lostView_shape">—</span></div>
-            <div class="mb-3"><strong>Material:</strong> <span id="lostView_material">—</span></div>
-            <div class="mb-3"><strong>Last Seen:</strong> <span id="lostView_lastSeen">—</span></div>
-            <div class="mb-3"><strong>Date:</strong> <span id="lostView_date">—</span></div>
-            <div class="mb-3"><strong>Status:</strong> <span id="lostView_status" class="badge rounded-pill px-3 py-2">—</span></div>
+      <div class="modal-body lost-modal-body">
+        <div class="lost-grid">
+          <!-- Left: details -->
+          <div>
+            <section class="lost-identity" aria-label="Item identity">
+              <h6 class="lost-item-name">
+                <span id="lostView_name">—</span>
+              </h6>
+              <div class="lost-item-sub">
+                <i class="bi bi-cpu me-1"></i>
+                <span id="lostView_brand">—</span>
+              </div>
 
-            <div class="mb-2"><strong>Distinctive features:</strong></div>
-            <div id="lostView_description" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
+              <div class="lost-divider"></div>
+
+              <div class="lost-attrs" aria-label="Item attributes">
+                <div class="lost-attrs-row">
+                  <div class="lost-k"><i class="bi bi-palette"></i> Color</div>
+                  <div class="lost-v" id="lostView_color">—</div>
+                </div>
+                <div class="lost-attrs-row">
+                  <div class="lost-k"><i class="bi bi-bounding-box"></i> Shape</div>
+                  <div class="lost-v" id="lostView_shape">—</div>
+                </div>
+                <div class="lost-attrs-row">
+                  <div class="lost-k"><i class="bi bi-box-seam"></i> Material</div>
+                  <div class="lost-v" id="lostView_material">—</div>
+                </div>
+                <div class="lost-attrs-row">
+                  <div class="lost-k"><i class="bi bi-geo-alt"></i> Last Seen Location</div>
+                  <div class="lost-v" id="lostView_lastSeen">—</div>
+                </div>
+              </div>
+
+              <div class="lost-features" aria-label="Distinctive features">
+                <div class="lost-features-title">
+                  <i class="bi bi-search"></i>
+                  Distinctive Features
+                </div>
+                <p class="lost-features-body" id="lostView_description">—</p>
+              </div>
+            </section>
           </div>
 
-          <div class="col-md-5">
-            <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height: 260px;">
-              <div id="lostView_photo" class="w-100 text-center">
-                <div class="text-muted border rounded p-3 text-center">No photo</div>
+          <!-- Right: image -->
+          <aside class="lost-image-panel" aria-label="Item image">
+            <div class="lost-image-header">
+              <span class="label"><i class="bi bi-image me-2"></i>Item Photo</span>
+            </div>
+            <div class="lost-image-wrap">
+              <div class="lost-image-frame">
+                <div id="lostView_photo" class="w-100">
+                  <div class="lost-image-empty">
+                    <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+                    <div class="fw-bold">No photo uploaded</div>
+                    <div style="font-size: .85rem;">This report can still be verified by details.</div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
 
-      <div class="modal-footer rounded-bottom-4">
-        <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i> Close
+      <div class="lost-modal-footer">
+        <!-- Optional primary action placeholder (kept hidden by default) -->
+        <button type="button" class="btn lost-btn lost-btn-primary d-none" id="lostView_primaryAction">
+          <i class="bi bi-chat-dots me-1"></i> Contact Finder
+        </button>
+        <button type="button" class="btn btn-outline-secondary lost-btn" data-bs-dismiss="modal">
+          Close
         </button>
       </div>
     </div>
@@ -832,12 +1533,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
 
     el.status.textContent = label;
-    el.status.className = 'badge rounded-pill px-3 py-2 ' + (
-      status === 'pending' ? 'bg-warning text-dark' :
-      status === 'approved' ? 'bg-success' :
-      status === 'rejected' ? 'bg-danger' :
-      status === 'closed' ? 'bg-secondary' :
-      'bg-secondary'
+    el.status.className = 'lost-badge lost-status ' + (
+      status === 'pending' ? 'lost-status--pending' :
+      status === 'approved' ? 'lost-status--approved' :
+      status === 'rejected' ? 'lost-status--rejected' :
+      status === 'closed' ? 'lost-status--closed' :
+      'lost-status--closed'
     );
   };
 
@@ -845,7 +1546,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const raw = (photoValue || '').toString().trim();
 
     if (!raw) {
-      el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+      // Match the new photo frame empty state
+      el.photo.innerHTML = `
+        <div class="lost-image-empty">
+          <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+          <div class="fw-bold">No photo uploaded</div>
+          <div style="font-size: .85rem;">This report can still be verified by details.</div>
+        </div>`;
       return;
     }
 
@@ -855,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
     normalized = normalized.replace(/^static\/uploads\//, '');
     normalized = normalized.replace(/^uploads\//, '');
 
-    el.photo.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" class="img-fluid rounded" style="border: 1px solid var(--border-color);" alt="Lost item photo">`;
+    el.photo.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" alt="Lost item photo">`;
   };
 
   const reset = () => {
@@ -869,7 +1576,12 @@ document.addEventListener('DOMContentLoaded', () => {
     el.date.textContent = '—';
     el.description.textContent = '—';
     setStatusBadge('');
-    el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+    el.photo.innerHTML = `
+      <div class="lost-image-empty">
+        <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+        <div class="fw-bold">No photo uploaded</div>
+        <div style="font-size: .85rem;">This report can still be verified by details.</div>
+      </div>`;
   };
 
   viewModal.addEventListener('show.bs.modal', (event) => {

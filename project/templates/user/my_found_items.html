@@ -174,19 +174,19 @@
     color: #a61f2f;
   }
 
-  body.dark-mode .badge-rejected,
-  body.dark-mode .badge-closed {
+  body.dark-mode .badge-rejected {
     background-color: rgba(220, 53, 69, 0.25);
     color: #dc3545;
   }
 
-  .btn-view {
-    background-color: var(--primary-accent);
-    color: #ffffff;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
+  .badge-closed {
+    background: rgba(108, 117, 125, 0.14);
+    border-color: rgba(108, 117, 125, 0.18);
+    color: #555b61;
+  }
+
+  body.dark-mode .badge-closed {
+    background: rgba(108, 117, 125, 0.22);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -308,27 +308,618 @@
       gap: 1rem;
     }
   }
+
+  /* -------------------------------------------------
+     View Found Item modal (v3 modern, clean redesign)
+     ------------------------------------------------- */
+  .found-modal-dialog {
+    max-width: 860px;
+  }
+
+  .found-modal-content {
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 14px 40px rgba(18, 38, 63, 0.16);
+  }
+
+  @keyframes foundModalIn {
+    from { opacity: 0; transform: translateY(10px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  #viewFoundItemModal.show .modal-dialog {
+    animation: foundModalIn 160ms ease-out;
+  }
+
+  .found-modal-header {
+    background: linear-gradient(90deg, #0b1b3a, color-mix(in srgb, var(--primary-accent-2) 55%, var(--primary-accent) 45%));
+    color: #fff;
+    padding: 1rem 1.25rem;
+    border-bottom: 0;
+  }
+
+  .found-modal-title {
+    font-weight: 800;
+    letter-spacing: .2px;
+    margin: 0;
+  }
+
+  .found-close {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(255,255,255,.10);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+  }
+  .found-close:hover {
+    background: rgba(255,255,255,.18);
+    border-color: rgba(255,255,255,.35);
+    transform: translateY(-1px);
+  }
+
+  .found-modal-body {
+    padding: 1.25rem;
+    background: var(--card);
+  }
+
+  .found-grid {
+    display: grid;
+    grid-template-columns: 1.25fr .85fr;
+    gap: 1.1rem;
+    align-items: start;
+  }
+
+  .found-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .5rem;
+    margin-bottom: .9rem;
+  }
+
+  .found-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .65rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    transition: transform .12s ease;
+  }
+  .found-badge:hover { transform: translateY(-1px); }
+
+  .found-status {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.18);
+  }
+
+  /* Identity / panels */
+  .found-identity {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card) 92%, rgba(111, 66, 193, 0.05) 8%);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .found-identity:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(18, 38, 63, 0.08);
+  }
+
+  .found-item-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .found-item-sub {
+    margin-top: .25rem;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: .92rem;
+  }
+
+  .found-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: .9rem 0;
+  }
+
+  .found-attrs {
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .found-attrs-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+  .found-attrs-row:first-child { border-top: 0; }
+
+  .found-k {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+  }
+  .found-v {
+    color: var(--text);
+    font-weight: 700;
+    font-size: .92rem;
+    word-break: break-word;
+  }
+
+  .found-features {
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card) 92%, rgba(32, 201, 151, 0.06) 8%);
+    padding: .9rem 1rem;
+  }
+
+  .found-features-title {
+    margin: 0 0 .5rem 0;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .92rem;
+  }
+
+  .found-features-body {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  /* Image panel */
+  .found-image-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--card) 88%, #f3f5f8 12%);
+    overflow: hidden;
+  }
+
+  .found-image-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .found-image-header .label {
+    font-weight: 800;
+    color: var(--text);
+    font-size: .9rem;
+  }
+
+  .found-image-wrap {
+    padding: .75rem;
+  }
+
+  .found-image-frame {
+    border-radius: 14px;
+    overflow: hidden;
+    background: #eef1f6;
+    border: 1px solid color-mix(in srgb, var(--border-color) 70%, #0000 30%);
+  }
+
+  /* Full-cover (cropped) */
+  #foundModalPhotoContainer img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .found-image-empty {
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    color: var(--muted);
+    background: #eef1f6;
+  }
+
+  .found-modal-footer {
+    padding: .9rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--card);
+    display: flex;
+    gap: .6rem;
+    justify-content: flex-end;
+  }
+
+  .found-btn {
+    border-radius: 999px;
+    padding: .55rem 1rem;
+    font-weight: 800;
+  }
+
+  .found-btn-primary {
+    background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));
+    border: none;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .found-modal-dialog { max-width: 96vw; }
+    .found-grid { grid-template-columns: 1fr; }
+    .found-image-panel { order: -1; }
+
+    #foundModalPhotoContainer img,
+    .found-image-empty { height: 220px; }
+
+    .found-attrs-row { grid-template-columns: 1fr; gap: .25rem; }
+
+    .found-modal-footer {
+      flex-direction: column;
+    }
+    .found-modal-footer .btn {
+      width: 100%;
+    }
+  }
+
+  body.dark-mode .found-image-frame,
+  body.dark-mode .found-image-empty {
+    background: #20242a;
+  }
+
+  /* ---------------------------------------------
+     My Found Items page (modern dashboard like Lost)
+     --------------------------------------------- */
+  .found-page-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 1200px) {
+    .container-fluid.found-page-wrap {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1600px) {
+    .found-page-wrap {
+      max-width: 1560px;
+    }
+  }
+
+  .found-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .found-page-title {
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: .2px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  .found-page-subtitle {
+    margin: .35rem 0 0 0;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: .95rem;
+  }
+
+  .found-cta {
+    background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: .7rem 1.05rem;
+    font-weight: 800;
+    box-shadow: 0 10px 20px rgba(18, 38, 63, 0.10);
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    white-space: nowrap;
+  }
+  .found-cta:hover {
+    transform: translateY(-1px);
+    filter: brightness(.98);
+    box-shadow: 0 14px 28px rgba(18, 38, 63, 0.14);
+  }
+
+  .found-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+    padding: .85rem;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card) 92%, rgba(138, 43, 226, 0.05) 8%);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+  }
+
+  .found-filter {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 200px;
+  }
+
+  .found-filter i {
+    position: absolute;
+    left: .8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .found-filter input,
+  .found-filter select {
+    width: 100%;
+    padding: .65rem .85rem .65rem 2.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--card);
+    color: var(--text);
+    font-weight: 700;
+    font-size: .9rem;
+    transition: box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .found-filter select {
+    padding-left: 2.1rem;
+  }
+
+  .found-filter input:focus,
+  .found-filter select:focus {
+    outline: none;
+    border-color: var(--primary-accent);
+    box-shadow: 0 0 0 .2rem rgba(138, 43, 226, .18);
+  }
+
+  .found-table-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  .found-table-head {
+    padding: .9rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+  }
+
+  .found-table-head .hint {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: .9rem;
+    margin: 0;
+  }
+
+  .found-table-wrapper {
+    max-height: 520px;
+    overflow: auto;
+  }
+
+  /* Status pills (match Lost) */
+  .badge-status {
+    border-radius: 999px;
+    padding: .35rem .75rem;
+    font-size: .8rem;
+    font-weight: 800;
+    border: 1px solid transparent;
+    display: inline-block;
+  }
+
+  .badge-approved {
+    background: rgba(40, 167, 69, 0.14);
+    border-color: rgba(40, 167, 69, 0.18);
+    color: #1f7a34;
+  }
+
+  .badge-pending {
+    background: rgba(255, 193, 7, 0.16);
+    border-color: rgba(255, 193, 7, 0.22);
+    color: #b78103;
+  }
+
+  .badge-closed {
+    background: rgba(108, 117, 125, 0.14);
+    border-color: rgba(108, 117, 125, 0.18);
+    color: #555b61;
+  }
+
+  body.dark-mode .badge-approved {
+    background: rgba(40, 167, 69, 0.22);
+    border-color: rgba(40, 167, 69, 0.28);
+    color: #7be495;
+  }
+  body.dark-mode .badge-pending {
+    background: rgba(255, 193, 7, 0.22);
+    border-color: rgba(255, 193, 7, 0.28);
+    color: #ffd36b;
+  }
+  body.dark-mode .badge-closed {
+    background: rgba(108, 117, 125, 0.22);
+    border-color: rgba(108, 117, 125, 0.28);
+    color: #cfd4da;
+  }
+
+  .btn-view {
+    border-radius: 999px;
+    padding: .45rem .85rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    background: color-mix(in srgb, var(--primary-accent) 92%, #0000 8%);
+    color: #fff;
+    border: none;
+    transition: transform .12s ease, filter .12s ease;
+  }
+
+  .btn-view:hover {
+    transform: translateY(-1px);
+    filter: brightness(.98);
+  }
+
+  .found-empty {
+    text-align: center;
+    padding: 2.25rem 1rem;
+    color: var(--muted);
+  }
+  .found-empty i {
+    font-size: 2.75rem;
+    opacity: .55;
+    margin-bottom: .75rem;
+  }
+  .found-empty h5 {
+    margin: .35rem 0 .35rem 0;
+    color: var(--text);
+    font-weight: 900;
+  }
+
+  /* Responsive: table -> stacked cards */
+  @media (max-width: 768px) {
+    .found-page-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .found-cta {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .found-table-wrapper {
+      max-height: none;
+    }
+
+    #itemsTable thead {
+      display: none;
+    }
+
+    #itemsTable,
+    #itemsTable tbody,
+    #itemsTable tr,
+    #itemsTable td {
+      display: block;
+      width: 100%;
+    }
+
+    #itemsTable tbody tr {
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: .85rem;
+      margin: .75rem .75rem 0 .75rem;
+      background: var(--card);
+      box-shadow: 0 10px 20px rgba(18, 38, 63, 0.06);
+    }
+
+    #itemsTable td {
+      border: 0;
+      padding: .35rem 0;
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      align-items: baseline;
+    }
+
+    #itemsTable td::before {
+      content: attr(data-label);
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      flex: 0 0 38%;
+    }
+
+    #itemsTable td:last-child {
+      justify-content: flex-end;
+      padding-top: .6rem;
+    }
+
+    #itemsTable td:last-child::before {
+      content: '';
+      display: none;
+    }
+
+    .btn-view {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* Legacy layout containers are no longer used by the redesigned page */
+  .content-panel { background: transparent; border: 0; box-shadow: none; padding: 0; }
+  .panel-header, .table-controls, .table-wrapper { display: none; }
+
 </style>
 
 <div class="py-4">
-  <div class="container-fluid">
-    
-    <!-- Main Content Panel -->
-    <div class="content-panel">
-      <!-- Header -->
-      <div class="panel-header">
-        <h3 class="panel-title">
-          <i class="bi bi-box-seam"></i> My Found Items
+  <div class="container-fluid found-page-wrap">
+
+    <!-- Page header -->
+    <div class="found-page-header">
+      <div>
+        <h3 class="found-page-title">
+          <i class="bi bi-box-seam"></i>
+          My Found Items
         </h3>
-        <button class="btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reportFoundModal" style="background-color: var(--primary-accent); color: #fff;">
-          <i class="bi bi-plus-lg me-1"></i> Add Found Item
-        </button>
+        <p class="found-page-subtitle">Track and manage items you have reported as found.</p>
       </div>
 
-      <!-- Table Controls -->
-      <div class="table-controls">
-        <input type="text" placeholder="Search items..." class="flex-grow-1" style="max-width: 200px;" id="tableSearch" onkeyup="filterTable()">
-        <select id="categoryFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+      <button class="found-cta" data-bs-toggle="modal" data-bs-target="#reportFoundModal" type="button">
+        <i class="bi bi-plus-lg me-1"></i> Add Found Item
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="found-filter-bar" aria-label="Filters">
+      <div class="found-filter" style="flex: 2 1 320px; min-width: 240px;">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search items…" id="tableSearch" onkeyup="filterTable()" aria-label="Search items">
+      </div>
+
+      <div class="found-filter" style="flex: 1 1 220px;">
+        <i class="bi bi-grid"></i>
+        <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
           <option value="">All Categories</option>
           <option value="Electronics">Electronics</option>
           <option value="Gadgets">Gadgets</option>
@@ -340,16 +931,26 @@
           <option value="ID/Card">ID/Card</option>
           <option value="Other">Other</option>
         </select>
-        <select id="statusFilter" onchange="filterTable()" style="flex: 0 0 150px;">
+      </div>
+
+      <div class="found-filter" style="flex: 1 1 220px;">
+        <i class="bi bi-flag"></i>
+        <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="matched">Matched</option>
           <option value="closed">Closed</option>
         </select>
       </div>
+    </div>
 
-      <!-- Table -->
-      <div class="table-wrapper">
+    <!-- Table card -->
+    <div class="found-table-card">
+      <div class="found-table-head">
+        <p class="hint mb-0"><i class="bi bi-info-circle me-1"></i>Tip: Use filters to quickly locate items.</p>
+      </div>
+
+      <div class="found-table-wrapper" role="region" aria-label="Found items list">
         <table class="data-table" id="itemsTable">
           <thead>
             <tr>
@@ -364,9 +965,9 @@
             {% if items %}
               {% for item in items %}
               <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.category or 'General' }}</td>
-                <td>
+                <td data-label="Item">{{ item.name }}</td>
+                <td data-label="Category">{{ item.category or 'General' }}</td>
+                <td data-label="Date">
                   {% if item.found_at %}
                     {% if item.found_at.__class__.__name__ == 'datetime' %}
                       {{ item.found_at.strftime('%b %d, %Y') }}
@@ -377,19 +978,25 @@
                     N/A
                   {% endif %}
                 </td>
-                <td>
+                <td data-label="Status">
                   {% if item.claim_status == 'Approved' %}
-                    <span class="badge-status badge-approved">✓ Resolved - Claimed</span>
-                  {% elif item.claim_status == 'Rejected' %}
-                    <span class="badge-status badge-rejected">✕ Claim Rejected</span>
+                    <span class="badge-status badge-approved">Resolved - Claimed</span>
                   {% elif item.claim_status == 'Pending' %}
-                    <span class="badge-status badge-pending">⏳ Claim Pending</span>
+                    <span class="badge-status badge-pending">Claim Pending</span>
+                  {% elif item.claim_status == 'Rejected' %}
+                    <span class="badge-status badge-closed">Claim Rejected</span>
                   {% else %}
-                    <span class="badge-status badge-pending">Awaiting Claim</span>
+                    {% if item.status and item.status|lower == 'matched' %}
+                      <span class="badge-status badge-approved">Matched</span>
+                    {% elif item.status and item.status|lower == 'closed' %}
+                      <span class="badge-status badge-closed">Closed</span>
+                    {% else %}
+                      <span class="badge-status badge-pending">Awaiting Claim</span>
+                    {% endif %}
                   {% endif %}
                 </td>
-                <td>
-                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewFoundItemModal" data-id="{{ item.id }}">
+                <td data-label="Action">
+                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewFoundItemModal" data-id="{{ item.id }}" type="button">
                     <i class="bi bi-eye"></i> View
                   </button>
                 </td>
@@ -397,11 +1004,11 @@
               {% endfor %}
             {% else %}
             <tr>
-              <td colspan="5" style="text-align: center; padding: 2rem;">
-                <div class="empty-state">
+              <td colspan="5" style="text-align: center; padding: 0;">
+                <div class="found-empty">
                   <i class="bi bi-inbox"></i>
-                  <h5>No Items Found</h5>
-                  <p>Start reporting found items to track them here.</p>
+                  <h5>No Found Items Yet</h5>
+                  <p class="mb-0">When you report a found item, it will appear here for tracking and updates.</p>
                 </div>
               </td>
             </tr>
@@ -560,88 +1167,102 @@
 
 <!-- View Found Item Modal -->
 <div class="modal fade" id="viewFoundItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width:700px;">
-    <div class="modal-content shadow-lg border-0 rounded-4">
-      
-      <!-- Header -->
-      <div class="modal-header text-white rounded-top-4"
-           style="background: linear-gradient(90deg, var(--primary-accent), var(--primary-accent-2));">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-eye me-2"></i> View Found Item
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      
-      <!-- Body -->
-      <div class="modal-body p-4">
-        <div class="row g-4 align-items-start">
-          
-          <!-- Left column: item details -->
-          <div class="col-md-7">
-            <div class="mb-3">
-              <i class="bi bi-tag text-purple me-2"></i>
-              <strong>Name:</strong> <span id="foundModalName">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-list-ul text-purple me-2"></i>
-              <strong>Category:</strong> <span id="foundModalCategory">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-card-text text-purple me-2"></i>
-              <strong>Color:</strong> <span id="foundModalColor">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-building text-purple me-2"></i>
-              <strong>Brand:</strong> <span id="foundModalBrand">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-bounding-box text-purple me-2"></i>
-              <strong>Shape:</strong> <span id="foundModalShape">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-box-seam text-purple me-2"></i>
-              <strong>Material:</strong> <span id="foundModalMaterial">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-geo-alt text-purple me-2"></i>
-              <strong>Where Found:</strong> <span id="foundModalWhere">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-calendar-event text-purple me-2"></i>
-              <strong>Date Found:</strong> <span id="foundModalDate">—</span>
-            </div>
-            <div class="mb-3">
-              <i class="bi bi-info-circle text-purple me-2"></i>
-              <strong>Status:</strong>
-              <span id="foundModalStatus" class="badge rounded-pill px-3 py-2">—</span>
-            </div>
-
-            <div class="mb-2">
-              <i class="bi bi-card-text text-purple me-2"></i>
-              <strong>Distinctive features:</strong>
-            </div>
-            <div id="foundModalDescription" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
+  <div class="modal-dialog modal-dialog-centered found-modal-dialog">
+    <div class="modal-content found-modal-content">
+      <div class="modal-header found-modal-header">
+        <div>
+          <h5 class="found-modal-title">
+            <i class="bi bi-shield-check me-2"></i> Found Item Details
+          </h5>
+          <div class="found-badges" aria-label="Found item metadata">
+            <span class="found-badge" title="Category">
+              <i class="bi bi-folder2-open"></i>
+              <span id="foundModalCategory">—</span>
+            </span>
+            <span class="found-badge" title="Date found">
+              <i class="bi bi-calendar3"></i>
+              <span id="foundModalDate">—</span>
+            </span>
+            <span id="foundModalStatus" class="found-badge found-status" title="Status">—</span>
           </div>
-          
-          <!-- Right column: item photo -->
-          <div class="col-md-5">
-            <div class="bg-light rounded-4 shadow-sm p-2 d-flex align-items-center justify-content-center" style="min-height:220px;">
-              <div id="foundModalPhotoContainer" class="w-100 text-center">
-                <div class="text-muted border rounded p-3 text-center">No photo</div>
-              </div>
-            </div>
-          </div>
-          
         </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="modal-footer rounded-bottom-4">
-        <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle me-1"></i> Close
+
+        <button type="button" class="found-close" data-bs-dismiss="modal" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
         </button>
       </div>
-      
+
+      <div class="modal-body found-modal-body">
+        <div class="found-grid">
+          <!-- Left: details -->
+          <div>
+            <section class="found-identity" aria-label="Item identity">
+              <h6 class="found-item-name"><span id="foundModalName">—</span></h6>
+              <div class="found-item-sub">
+                <i class="bi bi-cpu me-1"></i>
+                <span id="foundModalBrand">—</span>
+              </div>
+
+              <div class="found-divider"></div>
+
+              <div class="found-attrs" aria-label="Item attributes">
+                <div class="found-attrs-row">
+                  <div class="found-k"><i class="bi bi-palette"></i> Color</div>
+                  <div class="found-v" id="foundModalColor">—</div>
+                </div>
+                <div class="found-attrs-row">
+                  <div class="found-k"><i class="bi bi-bounding-box"></i> Shape</div>
+                  <div class="found-v" id="foundModalShape">—</div>
+                </div>
+                <div class="found-attrs-row">
+                  <div class="found-k"><i class="bi bi-box-seam"></i> Material</div>
+                  <div class="found-v" id="foundModalMaterial">—</div>
+                </div>
+                <div class="found-attrs-row">
+                  <div class="found-k"><i class="bi bi-geo-alt"></i> Where Found</div>
+                  <div class="found-v" id="foundModalWhere">—</div>
+                </div>
+              </div>
+
+              <div class="found-features" aria-label="Distinctive features">
+                <div class="found-features-title">
+                  <i class="bi bi-search"></i>
+                  Distinctive Features
+                </div>
+                <p class="found-features-body" id="foundModalDescription">—</p>
+              </div>
+            </section>
+          </div>
+
+          <!-- Right: image -->
+          <aside class="found-image-panel" aria-label="Item image">
+            <div class="found-image-header">
+              <span class="label"><i class="bi bi-image me-2"></i>Item Photo</span>
+            </div>
+            <div class="found-image-wrap">
+              <div class="found-image-frame">
+                <div id="foundModalPhotoContainer" class="w-100">
+                  <div class="found-image-empty">
+                    <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+                    <div class="fw-bold">No photo uploaded</div>
+                    <div style="font-size: .85rem;">This report can still be verified by details.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="found-modal-footer">
+        <!-- Optional primary action placeholder -->
+        <button type="button" class="btn found-btn found-btn-primary d-none" id="foundView_primaryAction">
+          <i class="bi bi-chat-dots me-1"></i> Contact Finder
+        </button>
+        <button class="btn btn-outline-secondary found-btn" data-bs-dismiss="modal" type="button">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -776,19 +1397,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const setStatusBadge = (statusEl, statusRaw) => {
       const status = (statusRaw || '').toString().toLowerCase().trim();
       const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+
       statusEl.textContent = label;
-      statusEl.className = 'badge rounded-pill px-3 py-2 ' + (
-        status === 'pending' ? 'bg-warning text-dark' :
-        status === 'matched' ? 'bg-success' :
-        status === 'closed' ? 'bg-secondary' :
-        'bg-secondary'
+
+      // Keep the new header badge styling and vary only the status tone.
+      // Found items typically use pending/matched/closed.
+      statusEl.className = 'found-badge found-status ' + (
+        status === 'pending' ? 'lost-status--pending' :
+        status === 'matched' ? 'lost-status--approved' :
+        status === 'closed' ? 'lost-status--closed' :
+        'lost-status--closed'
       );
     };
 
     const renderPhotoLikeDashboard = (photoContainer, photoValue) => {
       const raw = (photoValue || '').toString().trim();
       if (!raw) {
-        photoContainer.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+        photoContainer.innerHTML = `
+          <div class="found-image-empty">
+            <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+            <div class="fw-bold">No photo uploaded</div>
+            <div style="font-size: .85rem;">This report can still be verified by details.</div>
+          </div>`;
         return;
       }
 
@@ -796,7 +1426,8 @@ document.addEventListener('DOMContentLoaded', () => {
       normalized = normalized.replace(/^static\/uploads\//, '');
       normalized = normalized.replace(/^uploads\//, '');
 
-      photoContainer.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" class="img-fluid rounded border" alt="Found item photo">`;
+      // No extra classes: CSS targets #foundModalPhotoContainer img for full-cover.
+      photoContainer.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" alt="Found item photo">`;
     };
 
     const reset = () => {
@@ -820,7 +1451,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (statusEl) setStatusBadge(statusEl, '');
 
       const photoContainer = document.getElementById('foundModalPhotoContainer');
-      if (photoContainer) photoContainer.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+      if (photoContainer) {
+        photoContainer.innerHTML = `
+          <div class="found-image-empty">
+            <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
+            <div class="fw-bold">No photo uploaded</div>
+            <div style="font-size: .85rem;">This report can still be verified by details.</div>
+          </div>`;
+      }
     };
 
     viewModal.addEventListener('show.bs.modal', event => {
