@@ -580,11 +580,11 @@
           <div class="col-md-7">
             <div class="mb-3">
               <i class="bi bi-tag text-purple me-2"></i>
-              <strong>Name:</strong> <span id="foundModalName"></span>
+              <strong>Name:</strong> <span id="foundModalName">—</span>
             </div>
             <div class="mb-3">
               <i class="bi bi-list-ul text-purple me-2"></i>
-              <strong>Category:</strong> <span id="foundModalCategory"></span>
+              <strong>Category:</strong> <span id="foundModalCategory">—</span>
             </div>
             <div class="mb-3">
               <i class="bi bi-card-text text-purple me-2"></i>
@@ -603,22 +603,24 @@
               <strong>Material:</strong> <span id="foundModalMaterial">—</span>
             </div>
             <div class="mb-3">
-              <i class="bi bi-card-text text-purple me-2"></i>
-              <strong>Distinctive features:</strong> <span id="foundModalDescription"></span>
-            </div>
-            <div class="mb-3">
               <i class="bi bi-geo-alt text-purple me-2"></i>
-              <strong>Where Found:</strong> <span id="foundModalWhere"></span>
+              <strong>Where Found:</strong> <span id="foundModalWhere">—</span>
             </div>
             <div class="mb-3">
               <i class="bi bi-calendar-event text-purple me-2"></i>
-              <strong>Date Found:</strong> <span id="foundModalDate"></span>
+              <strong>Date Found:</strong> <span id="foundModalDate">—</span>
             </div>
             <div class="mb-3">
               <i class="bi bi-info-circle text-purple me-2"></i>
               <strong>Status:</strong>
-              <span id="foundModalStatus" class="badge rounded-pill px-3 py-2"></span>
+              <span id="foundModalStatus" class="badge rounded-pill px-3 py-2">—</span>
             </div>
+
+            <div class="mb-2">
+              <i class="bi bi-card-text text-purple me-2"></i>
+              <strong>Distinctive features:</strong>
+            </div>
+            <div id="foundModalDescription" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
           </div>
           
           <!-- Right column: item photo -->
@@ -771,20 +773,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const viewModal = document.getElementById('viewFoundItemModal');
   if (viewModal) {
-    viewModal.addEventListener('show.bs.modal', event => {
-      const button = event.relatedTarget;
-      const itemId = button?.getAttribute('data-id');
+    const setStatusBadge = (statusEl, statusRaw) => {
+      const status = (statusRaw || '').toString().toLowerCase().trim();
+      const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+      statusEl.textContent = label;
+      statusEl.className = 'badge rounded-pill px-3 py-2 ' + (
+        status === 'pending' ? 'bg-warning text-dark' :
+        status === 'matched' ? 'bg-success' :
+        status === 'closed' ? 'bg-secondary' :
+        'bg-secondary'
+      );
+    };
 
-      if (!itemId) {
-        console.error('No item ID found');
+    const renderPhotoLikeDashboard = (photoContainer, photoValue) => {
+      const raw = (photoValue || '').toString().trim();
+      if (!raw) {
+        photoContainer.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
         return;
       }
+
+      let normalized = raw.replace(/^\/+/, '');
+      normalized = normalized.replace(/^static\/uploads\//, '');
+      normalized = normalized.replace(/^uploads\//, '');
+
+      photoContainer.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" class="img-fluid rounded border" alt="Found item photo">`;
+    };
+
+    const reset = () => {
+      document.getElementById('foundModalName').textContent = '—';
+      document.getElementById('foundModalCategory').textContent = '—';
+      document.getElementById('foundModalWhere').textContent = '—';
+      document.getElementById('foundModalDate').textContent = '—';
+      const colorEl = document.getElementById('foundModalColor');
+      const brandEl = document.getElementById('foundModalBrand');
+      const shapeEl = document.getElementById('foundModalShape');
+      const materialEl = document.getElementById('foundModalMaterial');
+      if (colorEl) colorEl.textContent = '—';
+      if (brandEl) brandEl.textContent = '—';
+      if (shapeEl) shapeEl.textContent = '—';
+      if (materialEl) materialEl.textContent = '—';
+
+      const descEl = document.getElementById('foundModalDescription');
+      if (descEl) descEl.textContent = '—';
+
+      const statusEl = document.getElementById('foundModalStatus');
+      if (statusEl) setStatusBadge(statusEl, '');
+
+      const photoContainer = document.getElementById('foundModalPhotoContainer');
+      if (photoContainer) photoContainer.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
+    };
+
+    viewModal.addEventListener('show.bs.modal', event => {
+      reset();
+      const button = event.relatedTarget;
+      const itemId = button?.getAttribute('data-id');
+      if (!itemId) return;
 
       fetch(`/user/api/found_items/${itemId}`, { credentials: 'include' })
         .then(r => r.json())
         .then(data => {
-          console.log('✓ Found item data:', data);
-
           document.getElementById('foundModalName').textContent = data.name || '—';
           document.getElementById('foundModalCategory').textContent = data.category || '—';
           document.getElementById('foundModalWhere').textContent = data.where_found || '—';
@@ -799,39 +846,17 @@ document.addEventListener('DOMContentLoaded', () => {
           if (shapeEl) shapeEl.textContent = data.shape || '—';
           if (materialEl) materialEl.textContent = data.material || '—';
 
-          document.getElementById('foundModalDescription').textContent = data.description || '—';
+          // Like dashboard: textContent
+          const descEl = document.getElementById('foundModalDescription');
+          if (descEl) descEl.textContent = data.description || '—';
 
           const statusEl = document.getElementById('foundModalStatus');
-          if (statusEl) {
-            const status = (data.status || '').toLowerCase();
-            statusEl.textContent = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
-            statusEl.className = 'badge rounded-pill px-3 py-2 ' + (
-              status === 'pending' ? 'bg-warning text-dark' :
-              status === 'matched' ? 'bg-success' :
-              'bg-secondary'
-            );
-          }
+          if (statusEl) setStatusBadge(statusEl, data.status);
 
           const photoContainer = document.getElementById('foundModalPhotoContainer');
-          if (photoContainer) {
-            const rawPhoto = (data.photo || '').trim();
-            if (rawPhoto) {
-              const normalized = rawPhoto.replace(/^\/+/, '');
-              const fileName = normalized.startsWith('uploads/') ? normalized.slice('uploads/'.length) : normalized;
-              const photoUrl = `/static/uploads/${fileName}`;
+          if (photoContainer) renderPhotoLikeDashboard(photoContainer, data.photo);
 
-              photoContainer.innerHTML = `
-                <img
-                  src="${photoUrl}"
-                  class="img-fluid rounded border"
-                  alt="Found item photo"
-                >
-              `;
-            } else {
-              photoContainer.innerHTML = `<div class="text-muted border rounded p-3 text-center">No photo</div>`;
-            }
-          }
-
+          // keep edit button wiring if present
           const editBtn = document.getElementById('editButtonInFoundViewModal');
           if (editBtn) {
             editBtn.setAttribute('data-name', data.name);

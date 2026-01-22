@@ -349,6 +349,19 @@
       gap: 1rem;
     }
   }
+
+  /* Ensure view modal description box renders correctly (no odd vertical lines) */
+  #lostView_description {
+    border: 1px solid var(--border-color) !important;
+    background: var(--card) !important;
+  }
+
+  /* Ensure images scale correctly inside the photo container */
+  #lostView_photo img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
 </style>
 
 <div class="py-4">
@@ -629,6 +642,7 @@
             <div class="mb-3"><strong>Material:</strong> <span id="lostView_material">—</span></div>
             <div class="mb-3"><strong>Last Seen:</strong> <span id="lostView_lastSeen">—</span></div>
             <div class="mb-3"><strong>Date:</strong> <span id="lostView_date">—</span></div>
+            <div class="mb-3"><strong>Status:</strong> <span id="lostView_status" class="badge rounded-pill px-3 py-2">—</span></div>
 
             <div class="mb-2"><strong>Distinctive features:</strong></div>
             <div id="lostView_description" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
@@ -796,8 +810,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkMode = localStorage.getItem('darkMode') === 'true';
   if (darkMode) document.body.classList.add('dark-mode');
 
+  const viewModal = document.getElementById('viewLostItemModal');
+  if (!viewModal) return;
+
   const el = {
-    modal: document.getElementById('viewLostItemModal'),
     name: document.getElementById('lostView_name'),
     category: document.getElementById('lostView_category'),
     color: document.getElementById('lostView_color'),
@@ -808,10 +824,10 @@ document.addEventListener('DOMContentLoaded', () => {
     date: document.getElementById('lostView_date'),
     status: document.getElementById('lostView_status'),
     description: document.getElementById('lostView_description'),
-    photo: document.getElementById('lostView_photo'),
+    photo: document.getElementById('lostView_photo')
   };
 
-  function setStatusBadge(statusRaw) {
+  const setStatusBadge = (statusRaw) => {
     const status = (statusRaw || '').toString().toLowerCase().trim();
     const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
 
@@ -823,33 +839,26 @@ document.addEventListener('DOMContentLoaded', () => {
       status === 'closed' ? 'bg-secondary' :
       'bg-secondary'
     );
-  }
+  };
 
-  function renderPhoto(photoValue) {
+  const renderPhotoLikeDashboard = (photoValue) => {
     const raw = (photoValue || '').toString().trim();
+
     if (!raw) {
       el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
       return;
     }
 
-    // Accept: "filename.jpg", "uploads/filename.jpg", "/static/uploads/filename.jpg", "/uploads/filename.jpg"
+    // Mimic user_dashboard.html expectation: data.photo is a filename.
+    // Also accept accidental saved paths and strip them.
     let normalized = raw.replace(/^\/+/, '');
-    if (normalized.startsWith('static/uploads/')) normalized = normalized.slice('static/uploads/'.length);
-    if (normalized.startsWith('uploads/')) normalized = normalized.slice('uploads/'.length);
+    normalized = normalized.replace(/^static\/uploads\//, '');
+    normalized = normalized.replace(/^uploads\//, '');
 
-    const url = `/static/uploads/${normalized}`;
+    el.photo.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" class="img-fluid rounded" style="border: 1px solid var(--border-color);" alt="Lost item photo">`;
+  };
 
-    el.photo.innerHTML = `
-      <img
-        src="${url}"
-        alt="Lost item photo"
-        class="img-fluid rounded border"
-        onerror="this.outerHTML='<div class=\\"text-muted border rounded p-3 text-center">No photo</div>'"
-      />
-    `;
-  }
-
-  function resetView() {
+  const reset = () => {
     el.name.textContent = '—';
     el.category.textContent = '—';
     if (el.color) el.color.textContent = '—';
@@ -861,64 +870,35 @@ document.addEventListener('DOMContentLoaded', () => {
     el.description.textContent = '—';
     setStatusBadge('');
     el.photo.innerHTML = '<div class="text-muted border rounded p-3 text-center">No photo</div>';
-  }
+  };
 
-  if (el.modal) {
-    el.modal.addEventListener('show.bs.modal', async (event) => {
-      resetView();
+  viewModal.addEventListener('show.bs.modal', (event) => {
+    reset();
 
-      const button = event.relatedTarget;
-      const itemId = button?.getAttribute('data-id');
-      if (!itemId) return;
+    const button = event.relatedTarget;
+    const itemId = button?.getAttribute('data-id');
+    if (!itemId) return;
 
-      try {
-        const url = `/user/api/lost_items/${itemId}`;
-        const resp = await fetch(url, {
-          credentials: 'include',
-          headers: { 'Accept': 'application/json' }
-        });
+    fetch(`/user/api/lost_items/${itemId}`, { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => {
+        el.name.textContent = data.name || '—';
+        el.category.textContent = data.category || '—';
+        if (el.color) el.color.textContent = data.color || '—';
+        if (el.brand) el.brand.textContent = data.brand || '—';
+        if (el.shape) el.shape.textContent = data.shape || '—';
+        if (el.material) el.material.textContent = data.material || '—';
+        el.lastSeen.textContent = data.last_seen || '—';
+        el.date.textContent = data.reported_at || data.last_seen_at || '—';
 
-        const contentType = resp.headers.get('content-type') || '';
-        console.log('[Lost view] GET', url, 'status=', resp.status, 'content-type=', contentType);
+        // Exactly like dashboard: textContent (no HTML)
+        el.description.textContent = data.description || '—';
 
-        if (!contentType.includes('application/json')) {
-          const text = await resp.text();
-          console.error('[Lost view] Expected JSON but got:', text.slice(0, 300));
-          el.description.textContent = 'Unable to load item (non-JSON response).';
-          return;
-        }
-
-        const data = await resp.json();
-        console.log('[Lost view] payload keys:', Object.keys(data || {}));
-        console.log('[Lost view] payload:', data);
-
-        if (!resp.ok) {
-          el.description.textContent = data?.error || 'Unable to load item.';
-          return;
-        }
-
-        el.name.textContent = data?.name || '—';
-        el.category.textContent = data?.category || '—';
-        if (el.color) el.color.textContent = data?.color || '—';
-        if (el.brand) el.brand.textContent = data?.brand || '—';
-        if (el.shape) el.shape.textContent = data?.shape || '—';
-        if (el.material) el.material.textContent = data?.material || '—';
-        el.lastSeen.textContent = data?.last_seen || '—';
-        el.date.textContent = data?.reported_at || data?.last_seen_at || '—';
-
-        // Use innerText to preserve newlines and avoid HTML rendering/injection
-        el.description.innerText = (data?.description && data.description.toString().trim()) ? data.description : '—';
-
-        setStatusBadge(data?.status);
-
-        // support multiple keys just in case
-        renderPhoto(data?.photo ?? data?.image ?? data?.photo_url);
-      } catch (e) {
-        console.error('Lost item fetch failed:', e);
-        el.description.textContent = 'Unable to load item.';
-      }
-    });
-  }
+        setStatusBadge(data.status);
+        renderPhotoLikeDashboard(data.photo);
+      })
+      .catch(err => console.error('Failed to load lost item:', err));
+  });
 });
 
 function filterTable() {
