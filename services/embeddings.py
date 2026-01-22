@@ -81,3 +81,75 @@ def compute_item_embedding(name, description, location, date=None):
     if not text:
         return None
     return compute_embedding(text)
+
+def _clean(v):
+    if v is None:
+        return None
+    s = str(v).strip()
+    return s if s else None
+
+def build_item_text_structured(*,
+    name=None,
+    category=None,
+    color=None,
+    brand=None,
+    shape=None,
+    material=None,
+    features=None,
+    location=None,
+    date=None,
+):
+    """Build canonical text representation for embeddings using structured inputs.
+
+    This keeps wording consistent across users by emitting stable key/value fields.
+    Only non-empty fields are included.
+    """
+    parts = []
+
+    name = _clean(name)
+    category = _clean(category)
+    color = _clean(color)
+    brand = _clean(brand)
+    shape = _clean(shape)
+    material = _clean(material)
+    features = _clean(features)
+    location = _clean(location)
+
+    if name:
+        parts.append(f"Name: {name}")
+    if category:
+        parts.append(f"Category: {category}")
+    if brand:
+        parts.append(f"Brand: {brand}")
+    if color:
+        parts.append(f"Color: {color}")
+    if shape:
+        parts.append(f"Shape: {shape}")
+    if material:
+        parts.append(f"Material: {material}")
+    if features:
+        parts.append(f"Features: {features}")
+
+    if location:
+        parts.append(f"Location: {location}")
+
+    if date:
+        try:
+            if hasattr(date, 'strftime'):
+                date_str = date.strftime('%Y-%m-%d')
+            else:
+                date_str = str(date)
+        except Exception:
+            date_str = str(date)
+        date_str = _clean(date_str)
+        if date_str:
+            parts.append(f"Date: {date_str}")
+
+    return "; ".join(parts)
+
+def compute_item_embedding_structured(**kwargs):
+    """Compute embedding from build_item_text_structured output."""
+    text = build_item_text_structured(**kwargs)
+    if not text:
+        return None
+    return compute_embedding(text)

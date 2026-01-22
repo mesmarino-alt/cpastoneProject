@@ -490,15 +490,72 @@
           <div class="mb-3">
             <label class="form-label" for="lost_category">Category</label>
             <select id="lost_category" name="category" class="form-select">
-              <option value="Accessory">Accessory</option>
-              <option value="Gadgets">Gadgets</option>
-              <option value="Bag">Bag</option>
               <option value="Electronics">Electronics</option>
-              <option value="ID/Card">ID/Card</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bags">Bags</option>
+              <option value="Wallets">Wallets</option>
               <option value="Documents">Documents</option>
-              <option value="Others">Others</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessory">Accessory</option>
+              <option value="ID/Card">ID/Card</option>
+              <option value="Other">Other</option>
             </select>
           </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="lost_color">Color</label>
+              <select id="lost_color" name="color" class="form-select">
+                <option value="">Select color (optional)</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="Green">Green</option>
+                <option value="Gray">Gray</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Brown">Brown</option>
+                <option value="Pink">Pink</option>
+                <option value="Purple">Purple</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="lost_brand">Brand / Model</label>
+              <input type="text" id="lost_brand" name="brand" class="form-control" placeholder="e.g., Samsung, Apple (optional)">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="lost_shape">Shape / Form factor</label>
+              <select id="lost_shape" name="shape" class="form-select">
+                <option value="">Select shape (optional)</option>
+                <option value="Rectangular">Rectangular</option>
+                <option value="Round">Round</option>
+                <option value="Square">Square</option>
+                <option value="Cylindrical">Cylindrical</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="lost_material">Material</label>
+              <select id="lost_material" name="material" class="form-select">
+                <option value="">Select material (optional)</option>
+                <option value="Plastic">Plastic</option>
+                <option value="Metal">Metal</option>
+                <option value="Leather">Leather</option>
+                <option value="Fabric">Fabric</option>
+                <option value="Glass">Glass</option>
+                <option value="Rubber">Rubber</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-3">
+            <label class="form-label" for="lost_description">Distinctive features</label>
+            <textarea id="lost_description" name="description" class="form-control" rows="3" placeholder="Scratches, stickers, engravings, cracked screen..."></textarea>
+          </div>
+
           <div class="mb-3">
             <label class="form-label" for="lost_last_seen">Last seen location</label>
             <input type="text" id="lost_last_seen" name="last_seen" class="form-control" placeholder="Building, room, area">
@@ -506,10 +563,6 @@
           <div class="mb-3">
             <label class="form-label" for="lost_last_seen_at">Date/time last seen</label>
             <input type="datetime-local" id="lost_last_seen_at" name="last_seen_at" class="form-control">
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="lost_description">Description</label>
-            <textarea id="lost_description" name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
           </div>
           <div class="mb-3">
             <label class="form-label" for="lost_photo">Photo (optional)</label>
@@ -570,14 +623,14 @@
           <div class="col-md-7">
             <div class="mb-3"><strong>Name:</strong> <span id="lostView_name">—</span></div>
             <div class="mb-3"><strong>Category:</strong> <span id="lostView_category">—</span></div>
+            <div class="mb-3"><strong>Color:</strong> <span id="lostView_color">—</span></div>
+            <div class="mb-3"><strong>Brand:</strong> <span id="lostView_brand">—</span></div>
+            <div class="mb-3"><strong>Shape:</strong> <span id="lostView_shape">—</span></div>
+            <div class="mb-3"><strong>Material:</strong> <span id="lostView_material">—</span></div>
             <div class="mb-3"><strong>Last Seen:</strong> <span id="lostView_lastSeen">—</span></div>
             <div class="mb-3"><strong>Date:</strong> <span id="lostView_date">—</span></div>
-            <div class="mb-3">
-              <strong>Status:</strong>
-              <span id="lostView_status" class="badge rounded-pill px-3 py-2 bg-secondary">—</span>
-            </div>
 
-            <div class="mb-2"><strong>Description:</strong></div>
+            <div class="mb-2"><strong>Distinctive features:</strong></div>
             <div id="lostView_description" class="border rounded-3 p-3" style="min-height: 80px; white-space: pre-wrap;">—</div>
           </div>
 
@@ -629,12 +682,73 @@
               <i class="bi bi-list-ul text-purple me-2"></i> Category
             </label>
             <select name="category" id="editCategory" class="form-select rounded-pill">
-              <option value="Accessory">Accessory</option>
-              <option value="Bag">Bag</option>
               <option value="Electronics">Electronics</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bags">Bags</option>
+              <option value="Wallets">Wallets</option>
+              <option value="Documents">Documents</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessory">Accessory</option>
               <option value="ID/Card">ID/Card</option>
-              <option value="Others">Others</option>
+              <option value="Other">Other</option>
             </select>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-palette text-purple me-2"></i> Color
+              </label>
+              <select name="color" id="editColor" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="Green">Green</option>
+                <option value="Gray">Gray</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Brown">Brown</option>
+                <option value="Pink">Pink</option>
+                <option value="Purple">Purple</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-building text-purple me-2"></i> Brand / Model
+              </label>
+              <input type="text" name="brand" id="editBrand" class="form-control rounded-pill" placeholder="(optional)">
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-bounding-box text-purple me-2"></i> Shape
+              </label>
+              <select name="shape" id="editShape" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Rectangular">Rectangular</option>
+                <option value="Round">Round</option>
+                <option value="Square">Square</option>
+                <option value="Cylindrical">Cylindrical</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-box-seam text-purple me-2"></i> Material
+              </label>
+              <select name="material" id="editMaterial" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Plastic">Plastic</option>
+                <option value="Metal">Metal</option>
+                <option value="Leather">Leather</option>
+                <option value="Fabric">Fabric</option>
+                <option value="Glass">Glass</option>
+                <option value="Rubber">Rubber</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
           
           <div class="mb-2">
@@ -653,7 +767,7 @@
           
           <div class="mb-2">
             <label class="form-label fw-semibold">
-              <i class="bi bi-card-text text-purple me-2"></i> Description
+              <i class="bi bi-card-text text-purple me-2"></i> Distinctive features
             </label>
             <textarea name="description" id="editDescription" class="form-control rounded-3" rows="2"></textarea>
           </div>
@@ -686,6 +800,10 @@ document.addEventListener('DOMContentLoaded', () => {
     modal: document.getElementById('viewLostItemModal'),
     name: document.getElementById('lostView_name'),
     category: document.getElementById('lostView_category'),
+    color: document.getElementById('lostView_color'),
+    brand: document.getElementById('lostView_brand'),
+    shape: document.getElementById('lostView_shape'),
+    material: document.getElementById('lostView_material'),
     lastSeen: document.getElementById('lostView_lastSeen'),
     date: document.getElementById('lostView_date'),
     status: document.getElementById('lostView_status'),
@@ -726,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
         src="${url}"
         alt="Lost item photo"
         class="img-fluid rounded border"
-        onerror="this.outerHTML='<div class=\\"text-muted border rounded p-3 
+        onerror="this.outerHTML='<div class=\\"text-muted border rounded p-3 text-center">No photo</div>'"
       />
     `;
   }
@@ -734,6 +852,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetView() {
     el.name.textContent = '—';
     el.category.textContent = '—';
+    if (el.color) el.color.textContent = '—';
+    if (el.brand) el.brand.textContent = '—';
+    if (el.shape) el.shape.textContent = '—';
+    if (el.material) el.material.textContent = '—';
     el.lastSeen.textContent = '—';
     el.date.textContent = '—';
     el.description.textContent = '—';
@@ -777,6 +899,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         el.name.textContent = data?.name || '—';
         el.category.textContent = data?.category || '—';
+        if (el.color) el.color.textContent = data?.color || '—';
+        if (el.brand) el.brand.textContent = data?.brand || '—';
+        if (el.shape) el.shape.textContent = data?.shape || '—';
+        if (el.material) el.material.textContent = data?.material || '—';
         el.lastSeen.textContent = data?.last_seen || '—';
         el.date.textContent = data?.reported_at || data?.last_seen_at || '—';
 

@@ -9,7 +9,7 @@ from db import get_db
 from models.user import FoundItem, LostItem
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from services.embeddings import compute_embedding, compute_item_embedding
+from services.embeddings import compute_embedding, compute_item_embedding, compute_item_embedding_structured
 from services.matching import run_matching_pipeline
 
 
@@ -182,6 +182,7 @@ def my_lost_items():
         # Fetch lost items with their claim status
         cur.execute("""
             SELECT li.id, li.user_id, li.name, li.category, li.description,
+                   li.color, li.brand, li.shape, li.material,
                    li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
                    COALESCE(c.status, NULL) as claim_status
             FROM lost_items li
@@ -211,6 +212,7 @@ def my_found_items():
         # Fetch found items with their claim status
         cur.execute("""
             SELECT fi.id, fi.user_id, fi.name, fi.category, fi.description,
+                   fi.color, fi.brand, fi.shape, fi.material,
                    fi.where_found, fi.found_at, fi.status, fi.photo, fi.reported_at,
                    COALESCE(c.status, NULL) as claim_status
             FROM found_items fi
@@ -240,7 +242,13 @@ def my_found_items():
 def report_lost():
     name = request.form.get('name', '').strip()
     category = request.form.get('category', '').strip()
+    # treat description as "features" going forward (kept for backward compatibility)
     description = request.form.get('description', '').strip()
+    color = request.form.get('color', '').strip() or None
+    brand = request.form.get('brand', '').strip() or None
+    shape = request.form.get('shape', '').strip() or None
+    material = request.form.get('material', '').strip() or None
+
     last_seen = request.form.get('last_seen', '').strip()
     last_seen_at = request.form.get('last_seen_at') or None
     photo_file = request.files.get('photo')
@@ -281,9 +289,9 @@ def report_lost():
 
         cur.execute("""
             INSERT INTO lost_items
-            (user_id, name, category, description, last_seen, last_seen_at, status, photo, reported_at)
-            VALUES (%s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
-        """, (int(current_user.get_id()), name, category, description, last_seen, last_seen_at, photo_filename))
+            (user_id, name, category, description, color, brand, shape, material, last_seen, last_seen_at, status, photo, reported_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+        """, (int(current_user.get_id()), name, category, description, color, brand, shape, material, last_seen, last_seen_at, photo_filename))
         conn.commit()
 
         # Get new item id
@@ -292,19 +300,24 @@ def report_lost():
         item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
 
         # Compute unified embedding for all fields (name, description, location, date)
-        print(f"\n[LOST] Computing unified embedding for item {item_id}...")
-        print(f"[LOST]   - Name: {name}")
-        print(f"[LOST]   - Description: {description}")
-        print(f"[LOST]   - Location: {last_seen}")
-        print(f"[LOST]   - Date: {last_seen_at}")
-        
-        emb = compute_item_embedding(name, description, last_seen, last_seen_at)
+        print(f"\n[LOST] Computing structured embedding for item {item_id}...")
+        emb = compute_item_embedding_structured(
+            name=name,
+            category=category,
+            color=color,
+            brand=brand,
+            shape=shape,
+            material=material,
+            features=description,
+            location=last_seen,
+            date=last_seen_at,
+        )
         
         if emb:
             emb_json = json.dumps(emb)
             cur.execute("UPDATE lost_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
             conn.commit()
-            print(f"[LOST] ✓ Unified embedding saved for item {item_id}")
+            print(f"[LOST] ✓ Structured embedding saved for item {item_id}")
         else:
             print(f"[LOST] ✗ Failed to compute embedding")
     except Exception as e:
@@ -319,7 +332,7 @@ def report_lost():
     # Run matching pipeline
     print(f"[LOST] Triggering matching pipeline...")
     try:
-        run_matching_pipeline(threshold=0.75)
+        run_matching_pipeline(threshold=0.72)
     except Exception as e:
         print(f"[LOST] Matching pipeline error: {str(e)}")
 
@@ -330,10 +343,15 @@ def report_lost():
 @user_bp.route('/report-found', methods=['POST'])
 @login_required
 def report_found():
-    name = request.form.get('name')
-    category = request.form.get('category')
-    description = request.form.get('description')
-    where_found = request.form.get('where_found')
+    name = (request.form.get('name') or '').strip()
+    category = (request.form.get('category') or '').strip()
+    description = (request.form.get('description') or '').strip()
+    color = (request.form.get('color') or '').strip() or None
+    brand = (request.form.get('brand') or '').strip() or None
+    shape = (request.form.get('shape') or '').strip() or None
+    material = (request.form.get('material') or '').strip() or None
+
+    where_found = (request.form.get('where_found') or '').strip()
     found_at = request.form.get('found_at')
     photo = request.files.get('photo')
 
@@ -367,9 +385,9 @@ def report_found():
 
         cur.execute("""
             INSERT INTO found_items
-            (user_id, name, category, description, where_found, found_at, status, photo, reported_at)
-            VALUES (%s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
-        """, (int(current_user.get_id()), name, category, description, where_found, found_at, photo_filename))
+            (user_id, name, category, description, color, brand, shape, material, where_found, found_at, status, photo, reported_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+        """, (int(current_user.get_id()), name, category, description, color, brand, shape, material, where_found, found_at, photo_filename))
         conn.commit()
 
         cur.execute("SELECT LAST_INSERT_ID()")
@@ -377,19 +395,24 @@ def report_found():
         item_id = result.get('LAST_INSERT_ID()') if isinstance(result, dict) else result[0]
 
         # Compute unified embedding for all fields (name, description, location, date)
-        print(f"\n[FOUND] Computing unified embedding for item {item_id}...")
-        print(f"[FOUND]   - Name: {name}")
-        print(f"[FOUND]   - Description: {description}")
-        print(f"[FOUND]   - Location: {where_found}")
-        print(f"[FOUND]   - Date: {found_at}")
-        
-        emb = compute_item_embedding(name, description, where_found, found_at)
+        print(f"\n[FOUND] Computing structured embedding for item {item_id}...")
+        emb = compute_item_embedding_structured(
+            name=name,
+            category=category,
+            color=color,
+            brand=brand,
+            shape=shape,
+            material=material,
+            features=description,
+            location=where_found,
+            date=found_at,
+        )
         
         if emb:
             emb_json = json.dumps(emb)
             cur.execute("UPDATE found_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
             conn.commit()
-            print(f"[FOUND] ✓ Unified embedding saved for item {item_id}")
+            print(f"[FOUND] ✓ Structured embedding saved for item {item_id}")
         else:
             print(f"[FOUND] ✗ Failed to compute embedding")
     except Exception as e:
@@ -404,7 +427,7 @@ def report_found():
     # Run matching pipeline
     print(f"[FOUND] Triggering matching pipeline...")
     try:
-        run_matching_pipeline(threshold=0.75)
+        run_matching_pipeline(threshold=0.72)
     except Exception as e:
         print(f"[FOUND] Matching pipeline error: {str(e)}")
 
@@ -529,29 +552,45 @@ def edit_found_item(id):
 @user_bp.route('/found/<int:id>/update', methods=['POST'])
 @login_required
 def update_found_item(id):
-    name = request.form.get('name')
-    category = request.form.get('category')
-    description = request.form.get('description')
-    where_found = request.form.get('where_found')
+    name = (request.form.get('name') or '').strip()
+    category = (request.form.get('category') or '').strip()
+    description = (request.form.get('description') or '').strip()
+    where_found = (request.form.get('where_found') or '').strip()
     found_at = request.form.get('found_at')
+
+    color = (request.form.get('color') or '').strip() or None
+    brand = (request.form.get('brand') or '').strip() or None
+    shape = (request.form.get('shape') or '').strip() or None
+    material = (request.form.get('material') or '').strip() or None
 
     conn = get_db(); cur = conn.cursor()
     try:
         cur.execute("""
             UPDATE found_items
             SET name=%s, category=%s, description=%s,
+                color=%s, brand=%s, shape=%s, material=%s,
                 where_found=%s, found_at=%s
             WHERE id=%s AND user_id=%s
-        """, (name, category, description, where_found, found_at, id, current_user.id))
+        """, (name, category, description, color, brand, shape, material, where_found, found_at, id, current_user.id))
         
         # Recompute unified embedding with updated fields
-        print(f"\n[FOUND UPDATE] Computing unified embedding for item {id}...")
-        emb = compute_item_embedding(name, description, where_found, found_at)
+        print(f"\n[FOUND UPDATE] Computing structured embedding for item {id}...")
+        emb = compute_item_embedding_structured(
+            name=name,
+            category=category,
+            color=color,
+            brand=brand,
+            shape=shape,
+            material=material,
+            features=description,
+            location=where_found,
+            date=found_at,
+        )
         
         if emb:
             emb_json = json.dumps(emb)
             cur.execute("UPDATE found_items SET embedding=%s WHERE id=%s", (emb_json, id))
-            print(f"[FOUND UPDATE] ✓ Unified embedding updated for item {id}")
+            print(f"[FOUND UPDATE] ✓ Structured embedding updated for item {id}")
         
         conn.commit()
     except Exception as e:
@@ -569,29 +608,45 @@ def update_found_item(id):
 @login_required
 def update_lost_item(item_id):
     if request.method == 'POST':
-        name = request.form.get('name')
-        category = request.form.get('category')
-        last_seen = request.form.get('last_seen')
+        name = (request.form.get('name') or '').strip()
+        category = (request.form.get('category') or '').strip()
+        last_seen = (request.form.get('last_seen') or '').strip()
         last_seen_at = request.form.get('last_seen_at')
-        description = request.form.get('description')
+        description = (request.form.get('description') or '').strip()
+
+        color = (request.form.get('color') or '').strip() or None
+        brand = (request.form.get('brand') or '').strip() or None
+        shape = (request.form.get('shape') or '').strip() or None
+        material = (request.form.get('material') or '').strip() or None
 
         conn = get_db()
         cur = conn.cursor()
         try:
             cur.execute("""
                 UPDATE lost_items
-                SET name=%s, category=%s, last_seen=%s, last_seen_at=%s, description=%s
+                SET name=%s, category=%s, last_seen=%s, last_seen_at=%s, description=%s,
+                    color=%s, brand=%s, shape=%s, material=%s
                 WHERE id=%s AND user_id=%s
-            """, (name, category, last_seen, last_seen_at, description, item_id, current_user.id))
+            """, (name, category, last_seen, last_seen_at, description, color, brand, shape, material, item_id, current_user.id))
             
             # Recompute unified embedding with updated fields
-            print(f"\n[LOST UPDATE] Computing unified embedding for item {item_id}...")
-            emb = compute_item_embedding(name, description, last_seen, last_seen_at)
+            print(f"\n[LOST UPDATE] Computing structured embedding for item {item_id}...")
+            emb = compute_item_embedding_structured(
+                name=name,
+                category=category,
+                color=color,
+                brand=brand,
+                shape=shape,
+                material=material,
+                features=description,
+                location=last_seen,
+                date=last_seen_at,
+            )
             
             if emb:
                 emb_json = json.dumps(emb)
                 cur.execute("UPDATE lost_items SET embedding=%s WHERE id=%s", (emb_json, item_id))
-                print(f"[LOST UPDATE] ✓ Unified embedding updated for item {item_id}")
+                print(f"[LOST UPDATE] ✓ Structured embedding updated for item {item_id}")
             
             conn.commit()
         except Exception as e:
@@ -761,6 +816,7 @@ def api_lost_item(item_id):
     try:
         cur.execute("""
             SELECT li.id, li.user_id, li.name, li.category, li.description,
+                   li.color, li.brand, li.shape, li.material,
                    li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
                    COALESCE(c.status, NULL) as claim_status
             FROM lost_items li
@@ -794,6 +850,10 @@ def api_lost_item(item_id):
         'name': row.get('name'),
         'category': row.get('category'),
         'description': row.get('description'),
+        'color': row.get('color'),
+        'brand': row.get('brand'),
+        'shape': row.get('shape'),
+        'material': row.get('material'),
         'last_seen': row.get('last_seen'),
         'last_seen_at': last_seen_at_str,
         'status': row.get('status'),
@@ -806,10 +866,11 @@ def api_lost_item(item_id):
 @login_required
 def api_found_item(id):
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
         cur.execute("""
             SELECT id, user_id, name, category, description,
+                   color, brand, shape, material,
                    where_found, found_at, status, photo, reported_at
             FROM found_items
             WHERE id=%s AND (status IN ('approved', 'claimed') OR user_id=%s)
@@ -826,14 +887,14 @@ def api_found_item(id):
     if row.get('found_at'):
         try:
             found_at_str = row['found_at'].strftime('%Y-%m-%d')
-        except:
+        except Exception:
             found_at_str = str(row['found_at'])
 
     reported_at_str = None
     if row.get('reported_at'):
         try:
             reported_at_str = row['reported_at'].strftime('%Y-%m-%d')
-        except:
+        except Exception:
             reported_at_str = str(row['reported_at'])
 
     return jsonify({
@@ -841,6 +902,10 @@ def api_found_item(id):
         'name': row.get('name'),
         'category': row.get('category'),
         'description': row.get('description'),
+        'color': row.get('color'),
+        'brand': row.get('brand'),
+        'shape': row.get('shape'),
+        'material': row.get('material'),
         'where_found': row.get('where_found'),
         'found_at': found_at_str,
         'status': row.get('status'),

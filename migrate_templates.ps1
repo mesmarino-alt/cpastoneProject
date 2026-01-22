@@ -67,4 +67,45 @@ foreach ($dir in $dirs) {
     }
 }
 
+# --- Structured attributes migration (no Alembic) ---
+# Adds color/brand/shape/material columns to lost_items and found_items.
+# Safe to re-run: checks INFORMATION_SCHEMA before altering.
+
+function Add-ColumnIfMissing {
+    param(
+        [string]$Table,
+        [string]$Column,
+        [string]$Definition
+    )
+
+    $check = @"
+SELECT COUNT(*) AS c
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = '$Table'
+  AND COLUMN_NAME = '$Column';
+"@
+
+    $result = & mysql @mysqlArgs -N -e $check
+    if ([int]$result -eq 0) {
+        Write-Host "Adding $Table.$Column ..." -ForegroundColor Yellow
+        & mysql @mysqlArgs -e "ALTER TABLE $Table ADD COLUMN $Column $Definition;"
+    } else {
+        Write-Host "Already exists: $Table.$Column" -ForegroundColor DarkGray
+    }
+}
+
+# Expect mysql CLI accessible + env vars used above in this script
+# (DB_HOST/DB_USER/DB_PASS/DB_NAME) or adjust mysqlArgs accordingly.
+
+Add-ColumnIfMissing -Table 'lost_items'  -Column 'color'    -Definition 'VARCHAR(50) NULL'
+Add-ColumnIfMissing -Table 'lost_items'  -Column 'brand'    -Definition 'VARCHAR(120) NULL'
+Add-ColumnIfMissing -Table 'lost_items'  -Column 'shape'    -Definition 'VARCHAR(50) NULL'
+Add-ColumnIfMissing -Table 'lost_items'  -Column 'material' -Definition 'VARCHAR(50) NULL'
+
+Add-ColumnIfMissing -Table 'found_items' -Column 'color'    -Definition 'VARCHAR(50) NULL'
+Add-ColumnIfMissing -Table 'found_items' -Column 'brand'    -Definition 'VARCHAR(120) NULL'
+Add-ColumnIfMissing -Table 'found_items' -Column 'shape'    -Definition 'VARCHAR(50) NULL'
+Add-ColumnIfMissing -Table 'found_items' -Column 'material' -Definition 'VARCHAR(50) NULL'
+
 Write-Host "`n[DONE] Migration complete!" -ForegroundColor Green

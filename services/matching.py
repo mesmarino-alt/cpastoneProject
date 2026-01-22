@@ -5,13 +5,20 @@ from db import get_db
 from services.embeddings import deserialize_embedding
 from sklearn.metrics.pairwise import cosine_similarity
 
+def _get(row, key, idx=None):
+    if isinstance(row, dict):
+        return row.get(key)
+    if idx is None:
+        return None
+    return row[idx] if row and len(row) > idx else None
+
 def get_unmatched_lost_items():
     """Get all APPROVED lost items that haven't been matched yet"""
     conn = get_db()
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, name, description, last_seen, last_seen_at, embedding
+            SELECT id, name, category, color, brand, description, last_seen, last_seen_at, embedding
             FROM lost_items
             WHERE status='approved'
             AND embedding IS NOT NULL
@@ -31,7 +38,7 @@ def get_all_found_items():
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, name, description, where_found, found_at, embedding
+            SELECT id, name, category, color, brand, description, where_found, found_at, embedding
             FROM found_items
             WHERE status='approved'
             AND embedding IS NOT NULL
@@ -55,56 +62,70 @@ def compute_cosine_similarity(emb1, emb2):
     except Exception:
         return 0.0
 
-def generate_matches(threshold=0.75):
+def _prefilter_found_items(lost_row, found_items):
+    """Prefilter found candidates using structured attributes.
+
+    - Always filter by category if present.
+    - Optionally filter by color and brand if present.
     """
-    Generate matches between lost and found items using unified embeddings.
-    
-    Each item's embedding encodes all fields (name, description, location, date)
-    in one unified vector space, allowing ML to capture semantic relationships
-    across all dimensions without hand-tuned field weights.
-    
-    Args:
-        threshold (float): Similarity score threshold (0.0 to 1.0)
-    
-    Returns:
-        list: List of match dictionaries with lost_item_id, found_item_id, and score
-    """
+    lost_category = (_get(lost_row, 'category', 2) or '').strip()
+    lost_color = (_get(lost_row, 'color', 3) or '').strip()
+    lost_brand = (_get(lost_row, 'brand', 4) or '').strip()
+
+    candidates = found_items
+
+    if lost_category:
+        candidates = [f for f in candidates if (_get(f, 'category', 2) or '').strip() == lost_category]
+
+    if lost_color:
+        candidates = [f for f in candidates if (_get(f, 'color', 3) or '').strip() == lost_color]
+
+    # brand can be sparse/typo-prone; only apply if it doesn't eliminate everything
+    if lost_brand:
+        brand_filtered = [f for f in candidates if (_get(f, 'brand', 4) or '').strip().lower() == lost_brand.lower()]
+        if brand_filtered:
+            candidates = brand_filtered
+
+    return candidates
+
+def generate_matches(threshold=0.72):
+    """Generate matches between lost and found items using unified embeddings + structured prefilter."""
     lost_items = get_unmatched_lost_items()
     found_items = get_all_found_items()
-    
+
     matches = []
-    
+
     for lost in lost_items:
-        # Handle both dict and tuple returns
-        lost_embedding = lost.get('embedding') if isinstance(lost, dict) else (lost[5] if lost and len(lost) > 5 else None)
+        lost_embedding = _get(lost, 'embedding', 8)
         if not lost_embedding:
             continue
-        
+
         try:
             lost_emb = deserialize_embedding(lost_embedding)
         except (json.JSONDecodeError, TypeError):
-            lost_id = lost.get('id') if isinstance(lost, dict) else (lost[0] if lost and len(lost) > 0 else '?')
+            lost_id = _get(lost, 'id', 0) or '?'
             print(f"ERROR: Could not deserialize embedding for lost item {lost_id}")
             continue
-        
-        for found in found_items:
-            found_embedding = found.get('embedding') if isinstance(found, dict) else (found[5] if found and len(found) > 5 else None)
+
+        candidates = _prefilter_found_items(lost, found_items)
+
+        for found in candidates:
+            found_embedding = _get(found, 'embedding', 8)
             if not found_embedding:
                 continue
-            
+
             try:
                 found_emb = deserialize_embedding(found_embedding)
             except (json.JSONDecodeError, TypeError):
-                found_id = found.get('id') if isinstance(found, dict) else (found[0] if found and len(found) > 0 else '?')
+                found_id = _get(found, 'id', 0) or '?'
                 print(f"ERROR: Could not deserialize embedding for found item {found_id}")
                 continue
-            
-            # Compare unified embeddings
+
             similarity = compute_cosine_similarity(lost_emb, found_emb)
-            
+
             if similarity >= threshold:
-                lost_id = lost.get('id') if isinstance(lost, dict) else (lost[0] if lost and len(lost) > 0 else None)
-                found_id = found.get('id') if isinstance(found, dict) else (found[0] if found and len(found) > 0 else None)
+                lost_id = _get(lost, 'id', 0)
+                found_id = _get(found, 'id', 0)
                 if lost_id and found_id:
                     matches.append({
                         'lost_item_id': lost_id,
@@ -112,7 +133,7 @@ def generate_matches(threshold=0.75):
                         'score': round(similarity * 100, 2)
                     })
                     print(f"MATCH FOUND: Lost {lost_id} ↔ Found {found_id} (Score: {similarity:.2%})")
-    
+
     return matches
 
 def save_matches(matches):

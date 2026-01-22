@@ -446,16 +446,68 @@
           <div class="mb-3">
             <label class="form-label">Category</label>
             <select name="category" class="form-select">
-              <option value="Accessory">Accessory</option>
-              <option value="Gadgets">Gadgets</option>
-              <option value="Bag">Bag</option>
               <option value="Electronics">Electronics</option>
-              <option value="ID/Card">ID/Card</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bags">Bags</option>
+              <option value="Wallets">Wallets</option>
               <option value="Documents">Documents</option>
-              <option value="Others">Others</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessory">Accessory</option>
+              <option value="ID/Card">ID/Card</option>
+              <option value="Other">Other</option>
             </select>
           </div>
-          <div class="mb-3">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Color</label>
+              <select name="color" class="form-select">
+                <option value="">Select color (optional)</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="Green">Green</option>
+                <option value="Gray">Gray</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Brown">Brown</option>
+                <option value="Pink">Pink</option>
+                <option value="Purple">Purple</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Brand / Model</label>
+              <input type="text" name="brand" class="form-control" placeholder="e.g., Samsung, Apple (optional)">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Shape / Form factor</label>
+              <select name="shape" class="form-select">
+                <option value="">Select shape (optional)</option>
+                <option value="Rectangular">Rectangular</option>
+                <option value="Round">Round</option>
+                <option value="Square">Square</option>
+                <option value="Cylindrical">Cylindrical</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Material</label>
+              <select name="material" class="form-select">
+                <option value="">Select material (optional)</option>
+                <option value="Plastic">Plastic</option>
+                <option value="Metal">Metal</option>
+                <option value="Leather">Leather</option>
+                <option value="Fabric">Fabric</option>
+                <option value="Glass">Glass</option>
+                <option value="Rubber">Rubber</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-3">
             <label class="form-label">Where found</label>
             <input type="text" name="where_found" class="form-control" placeholder="Building, room, area">
           </div>
@@ -464,8 +516,8 @@
             <input type="datetime-local" name="found_at" class="form-control">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control" rows="3" placeholder="Distinctive marks, colors, etc."></textarea>
+            <label class="form-label">Distinctive features</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Scratches, stickers, engravings, cracked screen..."></textarea>
           </div>
           <div class="mb-3">
             <label class="form-label">Photo (optional)</label>
@@ -536,7 +588,23 @@
             </div>
             <div class="mb-3">
               <i class="bi bi-card-text text-purple me-2"></i>
-              <strong>Description:</strong> <span id="foundModalDescription"></span>
+              <strong>Color:</strong> <span id="foundModalColor">—</span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-building text-purple me-2"></i>
+              <strong>Brand:</strong> <span id="foundModalBrand">—</span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-bounding-box text-purple me-2"></i>
+              <strong>Shape:</strong> <span id="foundModalShape">—</span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-box-seam text-purple me-2"></i>
+              <strong>Material:</strong> <span id="foundModalMaterial">—</span>
+            </div>
+            <div class="mb-3">
+              <i class="bi bi-card-text text-purple me-2"></i>
+              <strong>Distinctive features:</strong> <span id="foundModalDescription"></span>
             </div>
             <div class="mb-3">
               <i class="bi bi-geo-alt text-purple me-2"></i>
@@ -592,9 +660,60 @@
           </div>
           <div class="mb-2"><label>Category</label>
             <select name="category" id="editFoundCategory" class="form-select rounded-pill">
-              <option>Accessory</option><option>Bag</option><option>Electronics</option>
-              <option>ID/Card</option><option>Others</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bags">Bags</option>
+              <option value="Wallets">Wallets</option>
+              <option value="Documents">Documents</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Accessory">Accessory</option>
+              <option value="ID/Card">ID/Card</option>
+              <option value="Other">Other</option>
             </select>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6 mb-2"><label>Color</label>
+              <select name="color" id="editFoundColor" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="Green">Green</option>
+                <option value="Gray">Gray</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Brown">Brown</option>
+                <option value="Pink">Pink</option>
+                <option value="Purple">Purple</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2"><label>Brand / Model</label>
+              <input type="text" name="brand" id="editFoundBrand" class="form-control rounded-pill" placeholder="(optional)">
+            </div>
+            <div class="col-md-6 mb-2"><label>Shape</label>
+              <select name="shape" id="editFoundShape" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Rectangular">Rectangular</option>
+                <option value="Round">Round</option>
+                <option value="Square">Square</option>
+                <option value="Cylindrical">Cylindrical</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2"><label>Material</label>
+              <select name="material" id="editFoundMaterial" class="form-select rounded-pill">
+                <option value="">(optional)</option>
+                <option value="Plastic">Plastic</option>
+                <option value="Metal">Metal</option>
+                <option value="Leather">Leather</option>
+                <option value="Fabric">Fabric</option>
+                <option value="Glass">Glass</option>
+                <option value="Rubber">Rubber</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
           <div class="mb-2"><label>Where Found</label>
             <input type="text" name="where_found" id="editFoundWhere" class="form-control rounded-pill">
@@ -668,9 +787,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
           document.getElementById('foundModalName').textContent = data.name || '—';
           document.getElementById('foundModalCategory').textContent = data.category || '—';
-          document.getElementById('foundModalDescription').textContent = data.description || '—';
           document.getElementById('foundModalWhere').textContent = data.where_found || '—';
           document.getElementById('foundModalDate').textContent = data.found_at || '—';
+
+          const colorEl = document.getElementById('foundModalColor');
+          const brandEl = document.getElementById('foundModalBrand');
+          const shapeEl = document.getElementById('foundModalShape');
+          const materialEl = document.getElementById('foundModalMaterial');
+          if (colorEl) colorEl.textContent = data.color || '—';
+          if (brandEl) brandEl.textContent = data.brand || '—';
+          if (shapeEl) shapeEl.textContent = data.shape || '—';
+          if (materialEl) materialEl.textContent = data.material || '—';
+
+          document.getElementById('foundModalDescription').textContent = data.description || '—';
 
           const statusEl = document.getElementById('foundModalStatus');
           if (statusEl) {
@@ -687,7 +816,6 @@ document.addEventListener('DOMContentLoaded', () => {
           if (photoContainer) {
             const rawPhoto = (data.photo || '').trim();
             if (rawPhoto) {
-              // Normalize to the real storage location: /static/uploads/
               const normalized = rawPhoto.replace(/^\/+/, '');
               const fileName = normalized.startsWith('uploads/') ? normalized.slice('uploads/'.length) : normalized;
               const photoUrl = `/static/uploads/${fileName}`;
@@ -697,7 +825,6 @@ document.addEventListener('DOMContentLoaded', () => {
                   src="${photoUrl}"
                   class="img-fluid rounded border"
                   alt="Found item photo"
-                  
                 >
               `;
             } else {
@@ -712,6 +839,10 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn.setAttribute('data-description', data.description);
             editBtn.setAttribute('data-where_found', data.where_found);
             editBtn.setAttribute('data-found_at', data.found_at);
+            editBtn.setAttribute('data-color', data.color || '');
+            editBtn.setAttribute('data-brand', data.brand || '');
+            editBtn.setAttribute('data-shape', data.shape || '');
+            editBtn.setAttribute('data-material', data.material || '');
             editBtn.setAttribute('data-action', `/user/found/${data.id}/update`);
           }
         })
@@ -729,6 +860,10 @@ document.addEventListener('DOMContentLoaded', () => {
         description: button?.getAttribute('data-description'),
         where_found: button?.getAttribute('data-where_found'),
         found_at: button?.getAttribute('data-found_at'),
+        color: button?.getAttribute('data-color'),
+        brand: button?.getAttribute('data-brand'),
+        shape: button?.getAttribute('data-shape'),
+        material: button?.getAttribute('data-material'),
         action: button?.getAttribute('data-action')
       };
 
@@ -737,7 +872,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('editFoundDescription').value = data.description || '';
       document.getElementById('editFoundWhere').value = data.where_found || '';
       document.getElementById('editFoundAt').value = data.found_at || '';
-      
+      const c = document.getElementById('editFoundColor');
+      const b = document.getElementById('editFoundBrand');
+      const s = document.getElementById('editFoundShape');
+      const m = document.getElementById('editFoundMaterial');
+      if (c) c.value = data.color || '';
+      if (b) b.value = data.brand || '';
+      if (s) s.value = data.shape || '';
+      if (m) m.value = data.material || '';
+
       const form = document.getElementById('editFoundItemForm');
       if (form) {
         form.action = data.action || '';

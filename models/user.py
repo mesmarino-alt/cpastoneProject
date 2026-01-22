@@ -78,7 +78,8 @@ class User(UserMixin):
 
 class LostItem:
     def __init__(self, id, user_id, name, category, description,
-                 last_seen, last_seen_at, status, photo, reported_at):
+                 last_seen, last_seen_at, status, photo, reported_at,
+                 color=None, brand=None, shape=None, material=None):
         self.id = id
         self.user_id = user_id
         self.name = name
@@ -89,6 +90,10 @@ class LostItem:
         self.status = status
         self.photo = photo
         self.reported_at = reported_at
+        self.color = color
+        self.brand = brand
+        self.shape = shape
+        self.material = material
 
     @staticmethod
     def from_row(row: dict):
@@ -102,13 +107,18 @@ class LostItem:
             last_seen_at=row.get('last_seen_at'),
             status=row.get('status'),
             photo=row.get('photo'),
-            reported_at=row.get('reported_at')
+            reported_at=row.get('reported_at'),
+            color=row.get('color'),
+            brand=row.get('brand'),
+            shape=row.get('shape'),
+            material=row.get('material'),
         )
 
 
 class FoundItem:
     def __init__(self, id, user_id, name, category, description,
-                 where_found, found_at, status, photo, reported_at):
+                 where_found, found_at, status, photo, reported_at,
+                 color=None, brand=None, shape=None, material=None):
         self.id = id
         self.user_id = user_id
         self.name = name
@@ -119,6 +129,10 @@ class FoundItem:
         self.status = status
         self.photo = photo
         self.reported_at = reported_at
+        self.color = color
+        self.brand = brand
+        self.shape = shape
+        self.material = material
 
     @staticmethod
     def from_row(row: dict):
@@ -132,7 +146,11 @@ class FoundItem:
             found_at=row.get('found_at'),
             status=row.get('status'),
             photo=row.get('photo'),
-            reported_at=row.get('reported_at')
+            reported_at=row.get('reported_at'),
+            color=row.get('color'),
+            brand=row.get('brand'),
+            shape=row.get('shape'),
+            material=row.get('material'),
         )
 
 
