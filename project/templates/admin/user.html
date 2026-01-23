@@ -2,416 +2,355 @@
 {% block content %}
 
 <style>
-  /* ====== PAGE STYLING ====== */
+  :root {
+    --p-teal: #0ABAB5;
+    --p-mint: #56DFCF;
+    --p-soft: #ADEED9;
+    --p-blush: #FFEDF3;
+
+    --primary: var(--p-teal);
+    --primary-2: var(--p-mint);
+
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-500: #64748b;
+    --neutral-700: #334155;
+    --neutral-900: #0f172a;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+    --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    --radius: 14px;
+  }
+
   .users-card {
     background: #ffffff;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     margin: 0;
     width: 100%;
     max-width: none;
   }
 
-  /* ====== HEADER SECTION ====== */
   .users-header {
-    padding: 2.5rem 2.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 1.25rem 1.25rem;
+    border-bottom: 1px solid var(--neutral-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.10), rgba(86, 223, 207, 0.10));
   }
 
   .users-header h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a1a;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--neutral-900);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
 
   .users-header h2 i {
-    color: #8a2be2;
-    font-size: 2.2rem;
+    color: var(--primary);
+    font-size: 1.5rem;
   }
 
   .users-count {
     display: inline-block;
-    padding: 0.5rem 1.1rem;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(13, 110, 253, 0.1));
-    color: #6c1bbd;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--neutral-700);
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-top: 0.35rem;
   }
 
   .users-search {
-    padding: 0.75rem 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #333;
-    background: #fafafa;
-    transition: all 0.3s ease;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    color: var(--neutral-900);
+    background: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     flex: 1;
-    min-width: 250px;
+    min-width: 260px;
   }
 
   .users-search:focus {
     outline: none;
-    border-color: #8a2be2;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+    border-color: rgba(10, 186, 181, 0.55);
+    box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.12);
   }
 
-  /* ====== TABLE SECTION ====== */
-  .table-wrapper {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .table-wrapper.scrollable {
-    max-height: 750px;
-    overflow-y: auto;
-  }
+  .table-wrapper { overflow-x: auto; }
+  .table-wrapper.scrollable { max-height: 750px; overflow-y: auto; }
 
   .users-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
   }
 
   .users-table thead {
-    background: #f8f9fa;
+    background: var(--neutral-50);
     position: sticky;
     top: 0;
     z-index: 10;
   }
 
   .users-table th {
-    padding: 1.25rem 1.25rem;
+    padding: 0.85rem 1rem;
     text-align: left;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 900;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #555;
-    border-bottom: 2px solid #e0e0e0;
-    background: #f8f9fa;
+    letter-spacing: 0.6px;
+    color: var(--neutral-500);
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
   }
 
   .users-table td {
-    padding: 1.4rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
-    color: #333;
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+    color: var(--neutral-700);
+    vertical-align: middle;
   }
 
-  .users-table tbody tr {
-    transition: all 0.2s ease;
-  }
+  .users-table tbody tr:nth-child(even) { background: rgba(241, 245, 249, 0.55); }
+  .users-table tbody tr:hover { background: rgba(10, 186, 181, 0.06); }
 
-  .users-table tbody tr:hover {
-    background: linear-gradient(90deg, rgba(138, 43, 226, 0.02), rgba(13, 110, 253, 0.02));
-  }
-
-  /* ====== AVATAR & USER INFO ====== */
   .user-avatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 999px;
     object-fit: cover;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    box-shadow: 0 4px 12px rgba(2, 6, 23, 0.10);
   }
 
   .user-avatar-placeholder {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #8a2be2, #0d6efd);
-    color: white;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.95), rgba(86, 223, 207, 0.95));
+    color: #083344;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 0.9rem;
+    border: 1px solid rgba(15, 23, 42, 0.10);
   }
 
-  .user-name {
-    font-weight: 600;
-    color: #1a1a1a;
-  }
+  .user-name { font-weight: 900; color: var(--neutral-900); }
+  .user-email { font-size: 0.9rem; color: var(--neutral-500); }
 
-  .user-email {
-    font-size: 0.9rem;
-    color: #666;
-  }
-
-  /* ====== BADGES ====== */
-  .badge-pill {
-    display: inline-block;
-    padding: 0.4rem 0.9rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    border: 1px solid;
     white-space: nowrap;
   }
 
-  .badge-admin {
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(138, 43, 226, 0.1));
-    color: #6c1bbd;
-    border: 1px solid rgba(138, 43, 226, 0.2);
-  }
+  .pill-role { background: rgba(2,6,23,0.04); color: var(--neutral-700); border-color: transparent; }
 
-  .badge-user {
-    background: linear-gradient(135deg, rgba(100, 100, 110, 0.15), rgba(120, 120, 130, 0.1));
-    color: #555;
-    border: 1px solid rgba(100, 100, 110, 0.2);
-  }
+  .pill-active { background: rgba(16, 185, 129, 0.12); color: #065f46; border-color: rgba(16, 185, 129, 0.25); }
+  .pill-inactive { background: rgba(100, 116, 139, 0.12); color: #334155; border-color: rgba(100, 116, 139, 0.22); }
 
-  .badge-faculty {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.15), rgba(32, 201, 151, 0.1));
-    color: #0d5fa8;
-    border: 1px solid rgba(13, 110, 253, 0.2);
-  }
-
-  .badge-active {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(32, 201, 151, 0.1));
-    color: #1b7c3e;
-    border: 1px solid rgba(40, 167, 69, 0.2);
-  }
-
-  .badge-inactive {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(200, 35, 51, 0.1));
-    color: #9b1e2c;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-  }
-
-  /* ====== ACTION BUTTON ====== */
   .btn-action {
-    background: none;
-    border: none;
-    color: #8a2be2;
+    background: transparent;
+    border: 1px solid rgba(10, 186, 181, 0.22);
+    color: #066a67;
     cursor: pointer;
-    font-size: 1.1rem;
-    padding: 0.5rem;
-    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 12px;
+    transition: transform 0.12s ease, background 0.12s ease;
   }
 
-  .btn-action:hover {
-    color: #6c1bbd;
-    transform: scale(1.1);
-  }
+  .btn-action:hover { background: rgba(10, 186, 181, 0.10); transform: translateY(-1px); }
+  .btn-action:active { transform: translateY(0); }
 
-  /* ====== MODAL ====== */
   .modal-content {
     background: #ffffff;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
   }
 
   .modal-header {
-    background: linear-gradient(135deg, #8a2be2 0%, #0d6efd 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.88), rgba(86, 223, 207, 0.88));
+    color: #083344;
     border: none;
-    padding: 1.5rem;
-    border-radius: 12px 12px 0 0;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius) var(--radius) 0 0;
   }
 
-  .modal-title {
-    font-weight: 700;
-    font-size: 1.2rem;
-    letter-spacing: -0.3px;
-  }
+  .modal-title { font-weight: 900; font-size: 1.05rem; }
 
-  .modal-body {
-    padding: 2rem;
-    background: #ffffff;
-  }
+  .modal-body { padding: 1.25rem; }
 
   .modal-footer {
-    background: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
-    padding: 1.5rem;
+    background: var(--neutral-50);
+    border-top: 1px solid var(--neutral-200);
+    padding: 1rem 1.25rem;
   }
 
-  .form-label {
-    font-weight: 600;
-    color: #333;
-    font-size: 0.95rem;
+  .form-label { font-weight: 800; color: var(--neutral-700); font-size: 0.9rem; }
+
+  .form-control, .form-select {
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .form-control,
-  .form-select {
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-  }
-
-  .form-control:focus,
-  .form-select:focus {
+  .form-control:focus, .form-select:focus {
     outline: none;
-    border-color: #8a2be2;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
-  }
-
-  .form-check-input {
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    border-color: rgba(10, 186, 181, 0.55);
+    box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.12);
   }
 
   .form-check-input:checked {
-    background-color: #8a2be2;
-    border-color: #8a2be2;
+    background-color: var(--primary);
+    border-color: var(--primary);
   }
 
-  /* ====== BUTTONS ====== */
   .btn-modal {
-    padding: 0.7rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border: none;
+    padding: 0.65rem 1.05rem;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.88rem;
+    border: 1px solid;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    transition: transform 0.12s ease, background 0.12s ease;
   }
 
   .btn-primary-modal {
-    background: #8a2be2;
-    color: white;
+    background: rgba(10, 186, 181, 0.14);
+    color: #066a67;
+    border-color: rgba(10, 186, 181, 0.28);
   }
 
-  .btn-primary-modal:hover {
-    background: #6c1bbd;
-    transform: translateY(-2px);
-  }
+  .btn-primary-modal:hover { background: rgba(10, 186, 181, 0.18); transform: translateY(-1px); }
 
   .btn-danger-modal {
-    background: #dc3545;
-    color: white;
+    background: rgba(239, 68, 68, 0.10);
+    color: #991b1b;
+    border-color: rgba(239, 68, 68, 0.22);
   }
 
-  .btn-danger-modal:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-  }
+  .btn-danger-modal:hover { background: rgba(239, 68, 68, 0.14); transform: translateY(-1px); }
 
   .btn-secondary-modal {
-    background: white;
-    color: #333;
-    border: 1px solid #e0e0e0;
+    background: #ffffff;
+    color: var(--neutral-700);
+    border-color: var(--neutral-200);
   }
 
   .btn-secondary-modal:hover {
-    border-color: #8a2be2;
-    color: #8a2be2;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(13, 110, 253, 0.05));
+    border-color: rgba(10, 186, 181, 0.35);
+    color: #066a67;
+    background: rgba(10, 186, 181, 0.06);
   }
 
-  /* ====== EMPTY STATE ====== */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .empty-state-icon {
-    font-size: 3.5rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h5 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #666;
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-state p {
-    font-size: 0.95rem;
-    color: #999;
-    margin: 0;
-  }
+  .empty-state { text-align: center; padding: 3rem 1.25rem; }
 
   @media (max-width: 768px) {
-    .users-header {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1.5rem;
-    }
-
-    .users-table th,
-    .users-table td {
-      padding: 0.9rem 0.75rem;
-      font-size: 0.85rem;
-    }
-
-    .col-md-hide {
-      display: none;
-    }
+    .users-header { flex-direction: column; align-items: flex-start; padding: 1rem; }
+    .users-table th, .users-table td { padding: 0.8rem 0.75rem; font-size: 0.88rem; }
+    .col-md-hide { display: none; }
   }
+
+  .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+  }
+
+  .pager-left { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  .pager-right { display: flex; align-items: center; gap: 0.5rem; }
+
+  .pager-select {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    background: #fff;
+  }
+
+  .pager-btn {
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(10, 186, 181, 0.22);
+    background: #fff;
+    color: #066a67;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .pager-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .pager-meta { color: var(--neutral-500); font-weight: 800; font-size: 0.9rem; }
 </style>
 
-<div class="py-4">
+<div class="py-3">
   <div class="container-fluid">
     <div class="users-card">
-      
-      <!-- ====== HEADER SECTION ====== -->
+
       <div class="users-header">
         <div>
-          <h2>
-            <i class="bi bi-people"></i> Users Management
-          </h2>
-          <span class="users-count">{{ users|length }} users</span>
+          <h2><i class="bi bi-people"></i> Users Management</h2>
+          <span class="users-count" id="usersCountBadge">{{ users|length }} users</span>
         </div>
-        <input 
-          type="text" 
-          class="users-search" 
-          id="userSearch" 
-          placeholder="Search users by name or email..." 
-          onkeyup="filterUsers()">
+        <input type="text" class="users-search" id="userSearch" placeholder="Search users by name or email..." onkeyup="filterUsers()">
       </div>
 
-      <!-- ====== TABLE SECTION ====== -->
       {% if users and users|length > 0 %}
       <div class="table-wrapper scrollable">
         <table class="users-table">
           <thead>
             <tr>
-              <th style="width: 60px;">ID</th>
+              <th style="width: 80px;">ID</th>
               <th style="width: 160px;">Profile</th>
-              <th style="width: 180px;">Full Name</th>
-              <th class="col-md-hide" style="width: 220px;">Email</th>
-              <th style="width: 120px;">Role</th>
-              <th style="width: 130px;">Status</th>
-              <th style="width: 60px; text-align: center;">Action</th>
+              <th style="width: 200px;">Full Name</th>
+              <th class="col-md-hide" style="width: 260px;">Email</th>
+              <th style="width: 140px;">Role</th>
+              <th style="width: 140px;">Status</th>
+              <th style="width: 120px; text-align: center;">Action</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
             {% for u in users %}
             <tr class="user-row" data-name="{{ u.name }}" data-email="{{ u.email }}">
-              <td class="fw-bold">#{{ u.id }}</td>
+              <td class="fw-bold" style="color: var(--primary);">#{{ u.id }}</td>
               <td>
-                <div style="display: flex; align-items: center;">
+                <div style="display:flex; align-items:center; gap:0.6rem;">
                   {% if u.profile_photo %}
-                    <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.profile_photo) }}"
-                         class="user-avatar" alt="profile">
+                    <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ u.profile_photo) }}" class="user-avatar" alt="profile">
                   {% else %}
                     <div class="user-avatar-placeholder">{{ u.name[0]|upper }}</div>
                   {% endif %}
@@ -420,29 +359,20 @@
               <td class="user-name">{{ u.name }}</td>
               <td class="col-md-hide user-email">{{ u.email }}</td>
               <td>
-                <span class="badge-pill badge-{{ u.role }}">
-                  {{ u.role|title }}
-                </span>
+                <span class="pill pill-role">{{ u.role|title }}</span>
               </td>
               <td>
-                <span class="badge-pill badge-{{ 'active' if u.active else 'inactive' }}">
-                  {{ 'Active' if u.active else 'Inactive' }}
-                </span>
+                {% if u.active %}
+                  <span class="pill pill-active">Active</span>
+                {% else %}
+                  <span class="pill pill-inactive">Inactive</span>
+                {% endif %}
               </td>
               <td style="text-align: center;">
-                <button 
-                  class="btn-action" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#editUserModal{{ u.id }}"
-                  title="Edit user"
-                  style="margin-right: 0.5rem;">
+                <button class="btn-action" data-bs-toggle="modal" data-bs-target="#editUserModal{{ u.id }}" title="Edit user" style="margin-right: 0.35rem;">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button 
-                  class="btn-action" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#deactivateUserModal{{ u.id }}"
-                  title="Deactivate user">
+                <button class="btn-action" data-bs-toggle="modal" data-bs-target="#deactivateUserModal{{ u.id }}" title="Deactivate user">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
@@ -451,18 +381,37 @@
           </tbody>
         </table>
       </div>
+
+      <div class="pagination-bar">
+        <div class="pager-left">
+          <span class="pager-meta" id="pagerMetaUsers">—</span>
+          <label class="pager-meta" for="usersPageSize" style="margin:0;">Rows:</label>
+          <select id="usersPageSize" class="pager-select" onchange="setUsersPageSize()">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div class="pager-right">
+          <button class="pager-btn" id="prevUsersPageBtn" onclick="changeUsersPage(-1)">Prev</button>
+          <span class="pager-meta" id="usersPageIndicator">Page 1</span>
+          <button class="pager-btn" id="nextUsersPageBtn" onclick="changeUsersPage(1)">Next</button>
+        </div>
+      </div>
+
       {% else %}
-        <div class="empty-state">
-          <i class="bi bi-people empty-state-icon"></i>
-          <h5>No Users Found</h5>
-          <p>There are no users in the system yet.</p>
+        <div class="empty-state" style="color: var(--neutral-500);">
+          <i class="bi bi-people" style="font-size: 2.6rem; opacity:0.6;"></i>
+          <h5 style="font-weight: 900; color: var(--neutral-900); margin-top: 0.75rem;">No Users Found</h5>
+          <p style="margin: 0;">There are no users in the system yet.</p>
         </div>
       {% endif %}
     </div>
   </div>
 </div>
 
-<!-- ...existing modals with updated styling... -->
+<!-- Modals preserved (existing markup below) -->
 {% for u in users %}
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
@@ -542,21 +491,76 @@
 {% endfor %}
 
 <script>
-  function filterUsers() {
+  let usersCurrentPage = 1;
+  let usersPageSize = 20;
+
+  function getFilteredUserRows() {
     const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-    const rows = document.querySelectorAll('.user-row');
+    const rows = Array.from(document.querySelectorAll('.user-row'));
 
-    rows.forEach(row => {
-      const name = row.dataset.name.toLowerCase();
-      const email = row.dataset.email.toLowerCase();
-
-      if (name.includes(searchTerm) || email.includes(searchTerm)) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
+    return rows.filter(row => {
+      const name = (row.dataset.name || '').toLowerCase();
+      const email = (row.dataset.email || '').toLowerCase();
+      return (name.includes(searchTerm) || email.includes(searchTerm));
     });
   }
+
+  function renderUsersPagination() {
+    const allRows = Array.from(document.querySelectorAll('.user-row'));
+    const filteredRows = getFilteredUserRows();
+
+    allRows.forEach(r => r.style.display = 'none');
+
+    const total = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(total / usersPageSize));
+
+    if (usersCurrentPage > totalPages) usersCurrentPage = totalPages;
+    if (usersCurrentPage < 1) usersCurrentPage = 1;
+
+    const start = (usersCurrentPage - 1) * usersPageSize;
+    const end = start + usersPageSize;
+
+    filteredRows.slice(start, end).forEach(r => r.style.display = '');
+
+    const badge = document.getElementById('usersCountBadge');
+    if (badge) badge.textContent = `${total} users`;
+
+    const meta = document.getElementById('pagerMetaUsers');
+    const showingFrom = total === 0 ? 0 : start + 1;
+    const showingTo = Math.min(end, total);
+    if (meta) meta.textContent = `Showing ${showingFrom}-${showingTo} of ${total}`;
+
+    const indicator = document.getElementById('usersPageIndicator');
+    if (indicator) indicator.textContent = `Page ${usersCurrentPage} / ${totalPages}`;
+
+    const prevBtn = document.getElementById('prevUsersPageBtn');
+    const nextBtn = document.getElementById('nextUsersPageBtn');
+    if (prevBtn) prevBtn.disabled = usersCurrentPage <= 1;
+    if (nextBtn) nextBtn.disabled = usersCurrentPage >= totalPages;
+  }
+
+  function filterUsers() {
+    usersCurrentPage = 1;
+    renderUsersPagination();
+  }
+
+  function changeUsersPage(delta) {
+    usersCurrentPage += delta;
+    renderUsersPagination();
+  }
+
+  function setUsersPageSize() {
+    const el = document.getElementById('usersPageSize');
+    usersPageSize = parseInt(el.value, 10) || 20;
+    usersCurrentPage = 1;
+    renderUsersPagination();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const initial = document.getElementById('usersPageSize');
+    if (initial) usersPageSize = parseInt(initial.value, 10) || 20;
+    renderUsersPagination();
+  });
 </script>
 
 {% endblock %}

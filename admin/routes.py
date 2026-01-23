@@ -224,6 +224,7 @@ def items_page():
         search_q = request.args.get('q', '').strip()
         category = request.args.get('category', '').strip()
         item_type = request.args.get('type', '').strip()  # 'lost' or 'found'
+        status = request.args.get('status', '').strip()  # 'pending'|'approved'|'rejected'
         
         # Build dynamic query for lost items
         lost_query = """
@@ -242,6 +243,10 @@ def items_page():
         if category:
             lost_query += " AND li.category = %s"
             lost_params.append(category)
+
+        if status:
+            lost_query += " AND li.status = %s"
+            lost_params.append(status)
         
         if item_type and item_type != 'found':
             # If searching for lost specifically, only use lost_query
@@ -264,6 +269,10 @@ def items_page():
         if category:
             found_query += " AND fi.category = %s"
             found_params.append(category)
+
+        if status:
+            found_query += " AND fi.status = %s"
+            found_params.append(status)
         
         if item_type and item_type != 'lost':
             # If searching for found specifically, only use found_query

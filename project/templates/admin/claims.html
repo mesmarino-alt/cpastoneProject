@@ -2,468 +2,366 @@
 {% block content %}
 
 <style>
-  /* ====== PAGE STYLING ====== */
+  :root {
+    --p-teal: #0ABAB5;
+    --p-mint: #56DFCF;
+    --p-soft: #ADEED9;
+    --p-blush: #FFEDF3;
+
+    --primary: var(--p-teal);
+    --primary-2: var(--p-mint);
+
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-500: #64748b;
+    --neutral-700: #334155;
+    --neutral-900: #0f172a;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+    --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    --radius: 14px;
+  }
+
   .claims-card {
     background: #ffffff;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     margin: 0;
     width: 100%;
     max-width: none;
   }
 
-  /* ====== HEADER SECTION ====== */
   .claims-header {
-    padding: 2.5rem 2.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 1.25rem 1.25rem;
+    border-bottom: 1px solid var(--neutral-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.10), rgba(86, 223, 207, 0.10));
   }
 
   .claims-header h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a1a;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--neutral-900);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
 
   .claims-header h2 i {
-    color: #8a2be2;
-    font-size: 2.2rem;
+    color: var(--primary);
+    font-size: 1.5rem;
   }
 
   .claims-count {
     display: inline-block;
-    padding: 0.5rem 1.1rem;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(13, 110, 253, 0.1));
-    color: #6c1bbd;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--neutral-700);
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-top: 0.35rem;
   }
 
   .claims-filters {
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .claims-select {
-    padding: 0.75rem 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #333;
-    background: #fafafa;
-    transition: all 0.3s ease;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    color: var(--neutral-900);
+    background: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
+    min-width: 200px;
   }
 
   .claims-select:focus {
     outline: none;
-    border-color: #8a2be2;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+    border-color: rgba(10, 186, 181, 0.55);
+    box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.12);
   }
 
-  /* ====== TABLE SECTION ====== */
-  .table-wrapper {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .table-wrapper.scrollable {
-    max-height: 750px;
-    overflow-y: auto;
-  }
+  .table-wrapper { overflow-x: auto; }
+  .table-wrapper.scrollable { max-height: 750px; overflow-y: auto; }
 
   .claims-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
   }
 
   .claims-table thead {
-    background: #f8f9fa;
+    background: var(--neutral-50);
     position: sticky;
     top: 0;
     z-index: 10;
   }
 
   .claims-table th {
-    padding: 1.25rem 1.25rem;
+    padding: 0.85rem 1rem;
     text-align: left;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 900;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #555;
-    border-bottom: 2px solid #e0e0e0;
-    background: #f8f9fa;
+    letter-spacing: 0.6px;
+    color: var(--neutral-500);
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
   }
 
   .claims-table td {
-    padding: 1.4rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
-    color: #333;
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+    color: var(--neutral-700);
+    vertical-align: middle;
   }
 
-  .claims-table tbody tr {
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
+  .claims-table tbody tr:nth-child(even) { background: rgba(241, 245, 249, 0.55); }
+  .claims-table tbody tr { transition: background 0.15s ease; cursor: pointer; }
+  .claims-table tbody tr:hover { background: rgba(10, 186, 181, 0.06); }
 
-  .claims-table tbody tr:hover {
-    background: linear-gradient(90deg, rgba(138, 43, 226, 0.02), rgba(13, 110, 253, 0.02));
-  }
-
-  /* ====== BADGES ====== */
-  .badge-pill {
-    display: inline-block;
-    padding: 0.4rem 0.9rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
+  /* Pills */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 0.78rem;
     border: 1px solid;
+    white-space: nowrap;
   }
 
-  .badge-match {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.15), rgba(13, 110, 253, 0.1));
-    color: #0a5ba8;
-    border-color: rgba(13, 110, 253, 0.2);
-  }
+  .pill-type { border-color: transparent; background: rgba(2,6,23,0.04); color: var(--neutral-700); }
 
-  .badge-direct {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
-    color: #cc7700;
-    border-color: rgba(255, 193, 7, 0.2);
-  }
-
-  .badge-pending {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
-    color: #cc7700;
-    border-color: rgba(255, 193, 7, 0.2);
-  }
-
-  .badge-approved {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(32, 201, 151, 0.1));
-    color: #1b7c3e;
-    border-color: rgba(40, 167, 69, 0.2);
-  }
-
-  .badge-rejected {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(200, 35, 51, 0.1));
-    color: #9b1e2c;
-    border-color: rgba(220, 53, 69, 0.2);
-  }
+  .pill-pending { background: rgba(245, 158, 11, 0.12); color: #92400e; border-color: rgba(245, 158, 11, 0.25); }
+  .pill-approved { background: rgba(16, 185, 129, 0.12); color: #065f46; border-color: rgba(16, 185, 129, 0.25); }
+  .pill-rejected { background: rgba(239, 68, 68, 0.12); color: #991b1b; border-color: rgba(239, 68, 68, 0.22); }
 
   .item-placeholder {
-    color: #999;
+    color: var(--neutral-500);
     font-style: italic;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
   }
 
-  /* ====== MODAL ====== */
+  /* Modal */
   .modal-content {
     background: #ffffff;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
   }
 
   .modal-header {
-    background: linear-gradient(135deg, #8a2be2 0%, #0d6efd 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.88), rgba(86, 223, 207, 0.88));
+    color: #083344;
     border: none;
-    padding: 1.5rem;
-    border-radius: 12px 12px 0 0;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius) var(--radius) 0 0;
   }
 
   .modal-title {
-    font-weight: 700;
-    font-size: 1.2rem;
-    letter-spacing: -0.3px;
+    font-weight: 900;
+    font-size: 1.05rem;
+    letter-spacing: -0.2px;
   }
 
-  .modal-body {
-    padding: 2rem;
-    background: #ffffff;
-  }
+  .modal-body { padding: 1.25rem; }
 
   .modal-footer {
-    background: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
-    padding: 1.5rem;
+    background: var(--neutral-50);
+    border-top: 1px solid var(--neutral-200);
+    padding: 1rem 1.25rem;
   }
 
-  .item-section {
-    padding: 1.25rem;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.06), rgba(13, 110, 253, 0.02));
-    border: 1px solid rgba(138, 43, 226, 0.12);
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-  }
-
-  .item-section:hover {
-    border-color: rgba(138, 43, 226, 0.2);
-    box-shadow: 0 4px 12px rgba(138, 43, 226, 0.08);
-  }
-
-  .item-section h6 {
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: #1a1a1a;
+  .section-title {
+    font-weight: 900;
+    margin-bottom: 0.6rem;
+    color: var(--neutral-900);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.95rem;
   }
 
-  .item-section h6 i {
-    color: #8a2be2;
-    font-size: 1.1rem;
+  .section-title i { color: var(--primary); }
+
+  .item-section {
+    padding: 1rem;
+    border-radius: 14px;
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    margin-bottom: 1rem;
   }
 
-  .item-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 0.5rem;
-  }
-
-  .item-description {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 0.75rem;
-    line-height: 1.5;
-  }
+  .item-name { font-size: 1.0rem; font-weight: 900; color: var(--neutral-900); margin-bottom: 0.35rem; }
+  .item-description { font-size: 0.9rem; color: var(--neutral-500); margin-bottom: 0.65rem; line-height: 1.55; }
 
   .item-section img {
-    max-height: 220px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-top: 0.75rem;
+    width: 100%;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--neutral-200);
+    margin-top: 0.65rem;
   }
 
   .not-linked {
-    padding: 1.25rem;
-    border-radius: 12px;
-    background: #f8f9fa;
-    border-left: 4px solid #ddd;
-    color: #999;
+    padding: 1rem;
+    border-radius: 14px;
+    background: rgba(241, 245, 249, 0.65);
+    border: 1px dashed rgba(100, 116, 139, 0.30);
+    color: var(--neutral-500);
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .not-linked i {
-    font-size: 1.3rem;
-  }
-
-  .not-linked strong {
-    color: #666;
-  }
-
-  .modal-detail-item {
     margin-bottom: 1rem;
   }
 
   .modal-detail-label {
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #999;
-    margin-bottom: 0.3rem;
+    letter-spacing: 0.6px;
+    color: var(--neutral-500);
+    margin-bottom: 0.25rem;
   }
 
-  .modal-detail-value {
-    font-size: 0.95rem;
-    color: #1a1a1a;
-  }
+  .modal-detail-value { font-size: 0.95rem; color: var(--neutral-900); font-weight: 800; }
 
   .claimant-info {
-    padding: 1.25rem;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.06), rgba(13, 110, 253, 0.02));
-    border-radius: 12px;
-    border: 1px solid rgba(138, 43, 226, 0.12);
-    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(10, 186, 181, 0.08);
+    border-radius: 14px;
+    border: 1px solid rgba(10, 186, 181, 0.18);
+    margin-bottom: 1rem;
   }
 
-  .claimant-name {
-    font-weight: 700;
-    color: #1a1a1a;
-    font-size: 1rem;
-  }
-
-  .claimant-email {
-    font-size: 0.9rem;
-    color: #666;
-  }
+  .claimant-name { font-weight: 900; color: var(--neutral-900); font-size: 1rem; }
+  .claimant-email { font-size: 0.9rem; color: var(--neutral-500); }
 
   .info-box {
-    padding: 0.9rem;
-    background: rgba(255, 193, 7, 0.1);
-    border-left: 3px solid #ffc107;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: #856404;
+    padding: 0.9rem 1rem;
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.20);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: #92400e;
     margin-top: 1rem;
+    font-weight: 700;
   }
 
-  .info-box i {
-    margin-right: 0.5rem;
-  }
-
-  /* ====== BUTTONS ====== */
+  /* Buttons */
   .btn-modal {
-    padding: 0.7rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    border: none;
+    padding: 0.65rem 1.05rem;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.88rem;
+    border: 1px solid;
     cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    transition: transform 0.12s ease, background 0.12s ease;
+    white-space: nowrap;
   }
+
+  .btn-modal:active { transform: translateY(1px) scale(0.99); }
 
   .btn-success-modal {
-    background: #28a745;
-    color: white;
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+    border-color: rgba(16, 185, 129, 0.25);
   }
 
-  .btn-success-modal:hover {
-    background: #218838;
-    transform: translateY(-2px);
-  }
+  .btn-success-modal:hover { background: rgba(16, 185, 129, 0.16); transform: translateY(-1px); }
 
   .btn-danger-modal {
-    background: #dc3545;
-    color: white;
+    background: rgba(239, 68, 68, 0.10);
+    color: #991b1b;
+    border-color: rgba(239, 68, 68, 0.22);
   }
 
-  .btn-danger-modal:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-  }
+  .btn-danger-modal:hover { background: rgba(239, 68, 68, 0.14); transform: translateY(-1px); }
 
   .btn-info-modal {
-    background: #17a2b8;
-    color: white;
+    background: rgba(10, 186, 181, 0.14);
+    color: #066a67;
+    border-color: rgba(10, 186, 181, 0.28);
   }
 
-  .btn-info-modal:hover {
-    background: #138496;
-    transform: translateY(-2px);
-  }
+  .btn-info-modal:hover { background: rgba(10, 186, 181, 0.18); transform: translateY(-1px); }
 
   .btn-secondary-modal {
-    background: white;
-    color: #333;
-    border: 1px solid #e0e0e0;
+    background: #ffffff;
+    color: var(--neutral-700);
+    border-color: var(--neutral-200);
   }
 
   .btn-secondary-modal:hover {
-    border-color: #8a2be2;
-    color: #8a2be2;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(13, 110, 253, 0.05));
+    border-color: rgba(10, 186, 181, 0.35);
+    color: #066a67;
+    background: rgba(10, 186, 181, 0.06);
   }
 
   .form-select {
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .form-select:focus {
     outline: none;
-    border-color: #8a2be2;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+    border-color: rgba(10, 186, 181, 0.55);
+    box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.12);
   }
 
-  .form-label {
-    font-weight: 600;
-    color: #333;
-    font-size: 0.95rem;
-  }
+  .form-label { font-weight: 800; color: var(--neutral-700); font-size: 0.9rem; }
 
-  /* ====== EMPTY STATE ====== */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .empty-state-icon {
-    font-size: 3.5rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h5 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #666;
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-state p {
-    font-size: 0.95rem;
-    color: #999;
-    margin: 0;
-  }
+  .empty-state { text-align: center; padding: 3rem 1.25rem; color: var(--neutral-500); }
 
   @media (max-width: 768px) {
-    .claims-header {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1.5rem;
-    }
-
-    .claims-table th,
-    .claims-table td {
-      padding: 0.9rem 0.75rem;
-      font-size: 0.85rem;
-    }
-
-    .col-lg-hide {
-      display: none;
-    }
+    .claims-header { flex-direction: column; align-items: flex-start; padding: 1rem; }
+    .claims-table th, .claims-table td { padding: 0.8rem 0.75rem; font-size: 0.88rem; }
+    .col-lg-hide { display: none; }
   }
 </style>
 
-<div class="py-4">
+<div class="py-3">
   <div class="container-fluid">
     <div class="claims-card">
-      
-      <!-- ====== HEADER SECTION ====== -->
+
       <div class="claims-header">
         <div>
-          <h2>
-            <i class="bi bi-link-45deg"></i> Claims Management
-          </h2>
+          <h2><i class="bi bi-link-45deg"></i> Claims Management</h2>
           <span class="claims-count">{{ claims|length }} claims</span>
         </div>
 
         <div class="claims-filters">
-          <form method="get" style="display: flex; gap: 1rem;">
+          <form method="get" style="display:flex; gap:0.6rem;">
             <select name="status" class="claims-select" onchange="this.form.submit()">
               <option value="">All Claims</option>
               <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
@@ -474,32 +372,31 @@
         </div>
       </div>
 
-      <!-- ====== TABLE SECTION ====== -->
       {% if claims and claims|length > 0 %}
       <div class="table-wrapper scrollable">
         <table class="claims-table">
           <thead>
             <tr>
-              <th style="width: 60px;">ID</th>
-              <th style="width: 120px;">Type</th>
-              <th class="col-lg-hide" style="width: 200px;">Lost Item</th>
-              <th class="col-lg-hide" style="width: 200px;">Found Item</th>
-              <th style="width: 200px;">Claimant</th>
-              <th style="width: 130px;">Status</th>
+              <th style="width: 90px;">ID</th>
+              <th style="width: 140px;">Type</th>
+              <th class="col-lg-hide" style="width: 240px;">Lost Item</th>
+              <th class="col-lg-hide" style="width: 240px;">Found Item</th>
+              <th style="width: 240px;">Claimant</th>
+              <th style="width: 140px;">Status</th>
             </tr>
           </thead>
           <tbody id="claimsTableBody">
             {% for claim in claims %}
             {% set claim_type = 'match' if (claim.lost_name and claim.found_name) else 'direct' %}
-            
-            <tr class="claim-row" 
+
+            <tr class="claim-row"
                 data-bs-toggle="modal"
                 data-bs-target="#viewClaimModal{{ claim.claim_id }}"
                 data-claim-type="{{ claim_type }}"
                 data-status="{{ claim.status }}">
-              <td class="fw-bold">#{{ claim.claim_id }}</td>
+              <td class="fw-bold" style="color: var(--primary);">#{{ claim.claim_id }}</td>
               <td>
-                <span class="badge-pill badge-{{ claim_type }}">
+                <span class="pill pill-type">
                   {% if claim_type == 'match' %}
                     <i class="bi bi-link-45deg"></i> Match
                   {% else %}
@@ -511,28 +408,30 @@
                 {% if claim.lost_name %}
                   {{ claim.lost_name }}
                 {% else %}
-                  <span class="item-placeholder">
-                    <i class="bi bi-dash-circle"></i> Not linked
-                  </span>
+                  <span class="item-placeholder"><i class="bi bi-dash-circle"></i> Not linked</span>
                 {% endif %}
               </td>
               <td class="col-lg-hide">
                 {% if claim.found_name %}
                   {{ claim.found_name }}
                 {% else %}
-                  <span class="item-placeholder">
-                    <i class="bi bi-dash-circle"></i> Not linked
-                  </span>
+                  <span class="item-placeholder"><i class="bi bi-dash-circle"></i> Not linked</span>
                 {% endif %}
               </td>
               <td>
-                <strong class="claimant-name">{{ claim.claimant_name }}</strong><br>
-                <small class="claimant-email">{{ claim.claimant_email }}</small>
+                <div class="claimant-name">{{ claim.claimant_name }}</div>
+                <div class="claimant-email">{{ claim.claimant_email }}</div>
               </td>
               <td>
-                <span class="badge-pill badge-{{ claim.status|lower }}">
-                  {{ claim.status }}
-                </span>
+                {% if claim.status == 'Pending' %}
+                  <span class="pill pill-pending">Pending</span>
+                {% elif claim.status == 'Approved' %}
+                  <span class="pill pill-approved">Approved</span>
+                {% elif claim.status == 'Rejected' %}
+                  <span class="pill pill-rejected">Rejected</span>
+                {% else %}
+                  <span class="pill pill-pending">{{ claim.status }}</span>
+                {% endif %}
               </td>
             </tr>
 
@@ -541,117 +440,107 @@
               <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 700px;">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title">
-                      <i class="bi bi-eye me-2"></i> Claim Details #{{ claim.claim_id }}
-                    </h5>
+                    <h5 class="modal-title"><i class="bi bi-eye me-2"></i> Claim Details #{{ claim.claim_id }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
 
                   <div class="modal-body">
-                    <!-- Claim Type Badge -->
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                      <span class="badge-pill badge-{{ claim_type }}">
+                    <div style="display:flex; gap:0.6rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                      <span class="pill pill-type">
                         {% if claim_type == 'match' %}
                           <i class="bi bi-link-45deg"></i> Match Claim
                         {% else %}
                           <i class="bi bi-file-earmark"></i> Direct Claim
                         {% endif %}
                       </span>
+                      {% if claim.status == 'Pending' %}
+                        <span class="pill pill-pending">Pending</span>
+                      {% elif claim.status == 'Approved' %}
+                        <span class="pill pill-approved">Approved</span>
+                      {% elif claim.status == 'Rejected' %}
+                        <span class="pill pill-rejected">Rejected</span>
+                      {% endif %}
                     </div>
 
-                    <!-- Claimant Info -->
                     <div class="claimant-info">
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Claimant</span>
-                        <span class="claimant-name">{{ claim.claimant_name }}</span>
-                      </div>
+                      <div class="modal-detail-label">Claimant</div>
+                      <div class="claimant-name">{{ claim.claimant_name }}</div>
                       <div class="claimant-email">{{ claim.claimant_email }}</div>
                     </div>
 
-                    <!-- Lost Item Section -->
                     {% if claim.lost_name %}
                       <div class="item-section">
-                        <h6><i class="bi bi-exclamation-circle"></i> Lost Item</h6>
+                        <div class="section-title"><i class="bi bi-exclamation-circle"></i> Lost Item</div>
                         <p class="item-name">{{ claim.lost_name }}</p>
                         <p class="item-description">{{ claim.lost_desc or 'No description provided' }}</p>
                         {% if claim.lost_photo %}
-                          <img src="{{ url_for('static', filename='uploads/' ~ claim.lost_photo) }}" 
-                               alt="Lost item photo">
+                          <img src="{{ url_for('static', filename='uploads/' ~ claim.lost_photo) }}" alt="Lost item photo">
                         {% endif %}
                       </div>
                     {% else %}
                       <div class="not-linked">
-                        <i class="bi bi-dash-circle"></i>
+                        <i class="bi bi-dash-circle" style="font-size: 1.2rem;"></i>
                         <div>
-                          <strong>No Lost Item Linked</strong><br>
-                          <small>This claim was submitted directly from a found item.</small>
+                          <div style="font-weight: 900; color: var(--neutral-900);">No Lost Item Linked</div>
+                          <div style="font-size: 0.9rem;">This claim was submitted directly from a found item.</div>
                         </div>
                       </div>
                     {% endif %}
 
-                    <!-- Found Item Section -->
                     {% if claim.found_name %}
                       <div class="item-section">
-                        <h6><i class="bi bi-search"></i> Found Item</h6>
+                        <div class="section-title"><i class="bi bi-search"></i> Found Item</div>
                         <p class="item-name">{{ claim.found_name }}</p>
                         <p class="item-description">{{ claim.found_desc or 'No description provided' }}</p>
                         {% if claim.found_photo %}
-                          <img src="{{ url_for('static', filename='uploads/' ~ claim.found_photo) }}" 
-                               alt="Found item photo">
+                          <img src="{{ url_for('static', filename='uploads/' ~ claim.found_photo) }}" alt="Found item photo">
                         {% endif %}
                       </div>
                     {% else %}
                       <div class="not-linked">
-                        <i class="bi bi-dash-circle"></i>
+                        <i class="bi bi-dash-circle" style="font-size: 1.2rem;"></i>
                         <div>
-                          <strong>No Found Item Linked</strong><br>
-                          <small>This claim was submitted directly from a lost item.</small>
+                          <div style="font-weight: 900; color: var(--neutral-900);">No Found Item Linked</div>
+                          <div style="font-size: 0.9rem;">This claim was submitted directly from a lost item.</div>
                         </div>
                       </div>
                     {% endif %}
 
-                    <!-- Justification -->
                     {% if claim.justification %}
-                      <div style="margin-bottom: 1.5rem;">
-                        <span class="modal-detail-label">Justification</span>
-                        <p style="margin: 0.5rem 0 0 0; color: #666; line-height: 1.6;">{{ claim.justification }}</p>
+                      <div style="margin-bottom: 1rem;">
+                        <div class="modal-detail-label">Justification</div>
+                        <p style="margin: 0.35rem 0 0 0; color: var(--neutral-500); line-height: 1.6;">{{ claim.justification }}</p>
                       </div>
                     {% endif %}
 
-                    <!-- Metadata -->
-                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e0e0e0; font-size: 0.9rem; color: #999;">
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--neutral-200);">
                       <div class="modal-detail-item">
-                        <span class="modal-detail-label">Status</span>
-                        <span class="modal-detail-value">{{ claim.status }}</span>
+                        <div class="modal-detail-label">Status</div>
+                        <div class="modal-detail-value">{{ claim.status }}</div>
                       </div>
                       <div class="modal-detail-item">
-                        <span class="modal-detail-label">Submitted</span>
-                        <span class="modal-detail-value">{{ claim.created_at.strftime('%d %b %Y at %H:%M') if claim.created_at else '—' }}</span>
+                        <div class="modal-detail-label">Submitted</div>
+                        <div class="modal-detail-value">{{ claim.created_at.strftime('%d %b %Y at %H:%M') if claim.created_at else '—' }}</div>
                       </div>
                     </div>
 
-                    <!-- Info for Direct Claims -->
                     {% if claim_type == 'direct' %}
                       <div class="info-box">
-                        <i class="bi bi-info-circle"></i>
-                        <strong>Tip:</strong> This claim can be linked to a matching item later when one is found.
+                        <i class="bi bi-info-circle" style="margin-right:0.35rem;"></i>
+                        Tip: This claim can be linked to a matching item later when one is found.
                       </div>
                     {% endif %}
                   </div>
 
                   <div class="modal-footer">
                     {% if claim.status == 'Pending' %}
-                      <div style="width: 100%; display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                        <!-- Link item button (only for direct claims) -->
+                      <div style="width:100%; display:flex; gap:0.6rem; flex-wrap: wrap;">
                         {% if claim_type == 'direct' %}
-                          <button type="button" class="btn-modal btn-info-modal" data-bs-toggle="modal" 
-                                  data-bs-target="#linkItemModal{{ claim.claim_id }}"
-                                  style="margin-right: auto;">
+                          <button type="button" class="btn-modal btn-info-modal" data-bs-toggle="modal" data-bs-target="#linkItemModal{{ claim.claim_id }}" style="margin-right:auto;">
                             <i class="bi bi-link-45deg me-1"></i> Link Item
                           </button>
                         {% endif %}
-                        
-                        <!-- Approve/Reject buttons -->
+
                         <form method="post" action="{{ url_for('admin_claims.claim_approve', claim_id=claim.claim_id) }}" class="d-inline">
                           <button type="submit" class="btn-modal btn-success-modal">
                             <i class="bi bi-check-circle me-1"></i> Approve
@@ -662,6 +551,7 @@
                             <i class="bi bi-x-circle me-1"></i> Reject
                           </button>
                         </form>
+                        <button type="button" class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">Close</button>
                       </div>
                     {% else %}
                       <button class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">
@@ -676,22 +566,20 @@
             <!-- ====== LINK ITEM MODAL (for direct claims) ====== -->
             {% if claim_type == 'direct' %}
             <div class="modal fade" id="linkItemModal{{ claim.claim_id }}" tabindex="-1" aria-hidden="true">
-              <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+              <div class="modal-dialog modal-dialog-centered" style="max-width: 520px;">
                 <div class="modal-content">
-                  <div class="modal-header" style="background: linear-gradient(135deg, #17a2b8 0%, #0c5460 100%);">
-                    <h5 class="modal-title">
-                      <i class="bi bi-link-45deg me-2"></i> Link Item to Claim
-                    </h5>
+                  <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-link-45deg me-2"></i> Link Item to Claim</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
                   <div class="modal-body">
-                    <p class="text-muted mb-3">
+                    <p class="text-muted mb-3" style="color: var(--neutral-500) !important; font-weight: 700;">
                       Link this direct claim to a matching {{ 'lost' if claim.found_name else 'found' }} item.
                     </p>
-                    
+
                     <form method="post" action="{{ url_for('admin_claims.link_claim_to_item', claim_id=claim.claim_id) }}">
                       <input type="hidden" name="item_type" value="{{ 'lost' if claim.found_name else 'found' }}">
-                      
+
                       <div class="mb-3">
                         <label class="form-label">Select Item</label>
                         <select name="item_id" class="form-select" required>
@@ -706,15 +594,13 @@
                             {% endfor %}
                           {% endif %}
                         </select>
-                        <small class="text-muted d-block mt-2">
+                        <small class="text-muted d-block mt-2" style="color: var(--neutral-500) !important; font-weight: 700;">
                           Select the matching item to link to this claim.
                         </small>
                       </div>
-                      
+
                       <div class="d-flex gap-2">
-                        <button type="button" class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">
-                          Cancel
-                        </button>
+                        <button type="button" class="btn-modal btn-secondary-modal" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn-modal btn-info-modal ms-auto">
                           <i class="bi bi-link-45deg me-1"></i> Link Item
                         </button>
@@ -725,15 +611,16 @@
               </div>
             </div>
             {% endif %}
+
             {% endfor %}
           </tbody>
         </table>
       </div>
       {% else %}
         <div class="empty-state">
-          <i class="bi bi-inbox empty-state-icon"></i>
-          <h5>No Claims Found</h5>
-          <p>
+          <i class="bi bi-inbox" style="font-size: 2.6rem; opacity:0.6;"></i>
+          <h5 style="font-weight: 900; color: var(--neutral-900); margin-top: 0.75rem;">No Claims Found</h5>
+          <p style="margin: 0;">
             {% if status_filter %}
               No {{ status_filter|lower }} claims at the moment. Try changing the filter.
             {% else %}
@@ -742,9 +629,9 @@
           </p>
         </div>
       {% endif %}
+
     </div>
   </div>
 </div>
 
 {% endblock %}
-``` 

@@ -7,44 +7,52 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard_theme.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      /* Palette */
+      --p-teal: #0ABAB5;
+      --p-mint: #56DFCF;
+      --p-soft: #ADEED9;
+      --p-blush: #FFEDF3;
+
+      /* System tokens */
+      --brand: var(--p-teal);
+      --brand-2: var(--p-mint);
+      --brand-soft: rgba(10, 186, 181, 0.14);
+      --bg: #f7fbfb;
+      --bg2: #f3fbf8;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+      --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+      --radius: 14px;
+    }
+
     html, body {
       height: 100%;
       margin: 0;
       overflow-y: auto;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(10, 186, 181, 0.10), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(86, 223, 207, 0.08), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
     }
 
-    .dashboard-header {
-      background-color: #343a40;
-      color: white;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      padding: 0 1rem;
-      z-index: 1050;
-    }
-
-    .navbar-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      transition: transform 0.2s ease;
-    }
-
-    .navbar-toggle:hover {
-      transform: scale(1.1);
-    }
-
+    /* Sidebar */
     .sidebar {
-      width: 240px;
+      width: 220px; /* reduced */
       min-height: 100vh;
-      background-color: #343a40;
-      color: white;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.92);
       position: fixed;
       top: 0;
       left: 0;
@@ -54,86 +62,128 @@
       overflow-y: auto;
       overflow-x: hidden;
       flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .sidebar.show {
-      transform: translateX(0);
-    }
-
-    .sidebar.mobile-hidden {
-      transform: translateX(-100%);
-    }
-
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      display: block;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      position: relative;
-      word-wrap: break-word;
-      white-space: normal;
-      overflow-wrap: break-word;
-      font-size: 0.95rem;
-    }
-
-    .sidebar a:hover {
-      background-color: #495057;
-    }
-
-    .sidebar a.active {
-      background-color: #8a2be2;
-      color: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      font-weight: 600;
-    }
+    .sidebar.show { transform: translateX(0); }
+    .sidebar.mobile-hidden { transform: translateX(-100%); }
 
     .profile-block {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem 0;
+      padding: 1.25rem 0 0.75rem;
     }
 
     .profile-photo {
-      width: 100px;
-      height: 100px;
+      width: 64px;
+      height: 64px;
       object-fit: cover;
-      border: 3px solid #8a2be2;
+      border: 2px solid rgba(10, 186, 181, 0.85);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
     }
 
     .profile-photo-placeholder {
-      width: 100px;
-      height: 100px;
-      background-color: #8a2be2;
+      width: 64px;
+      height: 64px;
+      background: rgba(10, 186, 181, 0.95);
       color: white;
-      font-weight: bold;
-      font-size: 1.5rem;
-      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1.05rem;
+      border-radius: 999px;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
     }
 
+    .profile-block p { margin-bottom: 0.25rem; }
+    .profile-block .fw-bold { font-weight: 800 !important; }
+    .profile-block .small { color: rgba(255,255,255,0.72); }
+
+    .sidebar hr {
+      border-color: rgba(255,255,255,0.1);
+      opacity: 1;
+    }
+
+    .sidebar a {
+      color: rgba(255, 255, 255, 0.86);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.7rem 0.85rem;
+      border-radius: 12px;
+      position: relative;
+      word-wrap: break-word;
+      white-space: normal;
+      overflow-wrap: break-word;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255,255,255,0.96);
+    }
+
+    .sidebar a.active {
+      background: rgba(10, 186, 181, 0.16);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .sidebar a.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      border-radius: 999px;
+      background: rgba(10, 186, 181, 0.95);
+    }
+
+    /* Overlay */
     .sidebar-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(2, 6, 23, 0.55);
       z-index: 1040;
     }
 
-    .sidebar-overlay.active {
-      display: block;
-    }
+    .sidebar-overlay.active { display: block; }
 
+    /* Main Content */
     .content {
-      margin-left: 240px;
+      margin-left: 220px;
       min-height: 100vh;
-      padding: 2rem;
-      background-color: #f7f8fc;
+      padding: 1.75rem 1.5rem;
+      background: transparent; /* remove competing background */
       overflow-y: auto;
       overflow-x: hidden;
+    }
+
+    /* Alerts: soften */
+    .alert {
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+    }
+
+    /* Improve focus visibility */
+    a:focus-visible, button:focus-visible, .btn:focus-visible {
+      outline: 3px solid rgba(10, 186, 181, 0.32);
+      outline-offset: 2px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 992px) {
+      .content { margin-left: 0; }
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.show { transform: translateX(0); }
     }
   </style>
 </head>
@@ -145,52 +195,48 @@
 <div class="d-flex min-vh-100">
   <!-- Sidebar -->
   <nav class="sidebar p-3" id="sidebar">
-    <div class="profile-block mb-4 text-center">
+    <div class="profile-block mb-3 text-center">
       {% if current_user.is_authenticated and current_user.profile_photo %}
         <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}"
              class="profile-photo rounded-circle mb-3" alt="Profile Photo">
       {% else %}
         <div class="profile-photo-placeholder mb-3">AD</div>
       {% endif %}
-      <p class="fw-bold mb-1">{{ current_user.name }}</p>
-      <p class="small">{{ current_user.email }}</p>
-      <p class="small">Role: {{ current_user.role|title }}</p>
+      <p class="fw-bold mb-0">{{ current_user.name }}</p>
+      <p class="small mb-0">{{ current_user.email }}</p>
+      <p class="small mb-0">Role: {{ current_user.role|title }}</p>
     </div>
 
     <hr />
 
-    <!-- Navigation Links -->
+    <!-- Navigation Links (preserved) -->
     <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2 me-2"></i> Dashboard
+      <i class="bi bi-speedometer2"></i> Dashboard
     </a>
     <a href="{{ url_for('admin.users_page') }}" class="{% if request.endpoint == 'admin.users_page' %}active{% endif %}">
-      <i class="bi bi-people me-2"></i> Users
+      <i class="bi bi-people"></i> Users
     </a>
     <a href="{{ url_for('admin.items_page') }}" class="{% if request.endpoint == 'admin.items_page' %}active{% endif %}">
-      <i class="bi bi-box-seam me-2"></i> Items
+      <i class="bi bi-box-seam"></i> Items
     </a>
 
     <a href="{{ url_for('admin_claims.claims_page') }}" 
     class="{% if request.endpoint == 'admin_claims.claims_page' %}active{% endif %}">
-    <i class="bi bi-file-earmark-check me-2"></i> Claims
+    <i class="bi bi-file-earmark-check"></i> Claims
     {% if pending_count is defined and pending_count > 0 and not session.get('claims_seen') %}
       <span class="notification-badge">{{ pending_count }}</span>
     {% endif %}
  </a>
  
- 
- 
     <a href="{{ url_for('admin.reports_page') }}" class="{% if request.endpoint == 'admin.reports_page' %}active{% endif %}">
-      <i class="bi bi-journal-text me-2"></i> Reports
+      <i class="bi bi-journal-text"></i> Reports
     </a>
-    <!-- <a href="{{ url_for('admin.settings_page') }}" class="{% if request.endpoint == 'admin.settings_page' %}active{% endif %}">
-      <i class="bi bi-gear me-2"></i> Settings
-    </a> -->
+
     <a href="#" 
     data-bs-toggle="modal" 
     data-bs-target="#logoutConfirmModal"
     class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
-    <i class="bi bi-box-arrow-right me-2"></i> Logout
+    <i class="bi bi-box-arrow-right"></i> Logout
  </a>
  
   </nav>
@@ -210,36 +256,29 @@
 
     {% block content %}{% endblock %}
   </main>
-  <!-- Logout Confirmation Modal -->
-<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow-lg border-0 rounded-3">
-      
-      <!-- Header -->
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title fw-bold">
-          <i class="bi bi-box-arrow-right me-2"></i> Confirm Logout
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      
-      <!-- Body -->
-      <div class="modal-body">
-        <p>Are you sure you want to log out?</p>
-      </div>
-      
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cancel
-        </button>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
-          <i class="bi bi-box-arrow-right me-1"></i> Logout
-        </a>
+
+  <!-- Logout Confirmation Modal (preserved) -->
+  <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0 rounded-3">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-box-arrow-right me-2"></i> Confirm Logout
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to log out?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+            <i class="bi bi-box-arrow-right me-1"></i> Logout
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 </div>
 
@@ -249,12 +288,6 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Random animation delay for walker
-    const walker = document.querySelector('.walker');
-    if (walker) {
-      walker.style.animationDelay = `${Math.random() * 3}s`;
-    }
-
     // Sidebar toggle logic
     const sidebar = document.getElementById("sidebar");
     const toggle = document.getElementById("sidebarToggle");

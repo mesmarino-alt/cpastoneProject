@@ -2,443 +2,247 @@
 {% block content %}
 
 <style>
-  /* ====== PAGE STYLING ====== */
-  .items-container {
-    background: linear-gradient(90deg, #8d8991, #d8b5d8);
-    min-height: 100vh;
-    padding: 2rem 0;
+  :root {
+    --p-teal: #0ABAB5;
+    --p-mint: #56DFCF;
+    --p-soft: #ADEED9;
+    --p-blush: #FFEDF3;
+
+    --primary: var(--p-teal);
+    --primary-2: var(--p-mint);
+
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-500: #64748b;
+    --neutral-700: #334155;
+    --neutral-900: #0f172a;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+    --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    --radius: 14px;
   }
 
+  /* Replace noisy page background with clean surfaces */
   .items-card {
     background: #ffffff;
-    border-radius: 0;
-    box-shadow: none;
-    border: none;
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
-    margin: 0;
     width: 100%;
-    max-width: none;
   }
 
-  /* ====== HEADER SECTION ====== */
   .items-header {
-    padding: 2.5rem 2.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 1.25rem 1.25rem;
+    border-bottom: 1px solid var(--neutral-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.10), rgba(86, 223, 207, 0.10));
   }
 
   .items-header-left h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a1a;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--neutral-900);
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.7rem;
   }
 
   .items-header-left h2 i {
-    color: #8a2be2;
-    font-size: 2.2rem;
+    color: var(--primary);
+    font-size: 1.5rem;
   }
 
   .items-count {
     display: inline-block;
-    padding: 0.5rem 1.1rem;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(13, 110, 253, 0.1));
-    color: #6c1bbd;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--neutral-700);
+    border: 1px solid rgba(15, 23, 42, 0.10);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin-top: 0.35rem;
   }
 
   .items-controls {
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
+    align-items: center;
   }
 
-  .items-search {
-    padding: 0.75rem 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #333;
-    background: #fafafa;
-    transition: all 0.3s ease;
-    flex: 1;
-    min-width: 250px;
-  }
-
-  .items-search:focus {
-    outline: none;
-    border-color: #8a2be2;
+  .items-search, .items-select {
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--neutral-200);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    color: var(--neutral-900);
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 200px;
   }
 
-  .items-select {
-    padding: 0.75rem 1.25rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #333;
-    background: #fafafa;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .items-select:focus {
+  .items-search:focus, .items-select:focus {
     outline: none;
-    border-color: #8a2be2;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.08);
+    border-color: rgba(10, 186, 181, 0.55);
+    box-shadow: 0 0 0 4px rgba(10, 186, 181, 0.12);
   }
 
-  /* ====== TABLE SECTION ====== */
-  .table-wrapper {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .table-wrapper.scrollable {
-    max-height: 750px;
-    overflow-y: auto;
-  }
+  .table-wrapper { overflow-x: auto; }
+  .table-wrapper.scrollable { max-height: 720px; overflow-y: auto; }
 
   .items-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
   }
 
   .items-table thead {
-    background: #f8f9fa;
     position: sticky;
     top: 0;
     z-index: 10;
+    background: var(--neutral-50);
   }
 
   .items-table th {
-    padding: 1.25rem 1.25rem;
+    padding: 0.85rem 1rem;
     text-align: left;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 900;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #555;
-    border-bottom: 2px solid #e0e0e0;
-    background: #f8f9fa;
+    letter-spacing: 0.6px;
+    color: var(--neutral-500);
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
   }
 
   .items-table td {
-    padding: 1.4rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
-    color: #333;
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+    color: var(--neutral-700);
+    vertical-align: middle;
   }
 
-  .items-table tbody tr {
-    transition: all 0.2s ease;
+  .items-table tbody tr:nth-child(even) { background: rgba(241, 245, 249, 0.55); }
+  .items-table tbody tr:hover { background: rgba(10, 186, 181, 0.06); }
+
+  .item-id { font-weight: 900; color: var(--primary); font-size: 0.9rem; }
+  .item-name { font-weight: 900; color: var(--neutral-900); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item-category { color: var(--neutral-500); }
+
+  /* Consistent pill badges */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 0.78rem;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  .pill-type { border-color: transparent; background: rgba(2,6,23,0.04); color: var(--neutral-700); }
+
+  .pill-pending { background: rgba(245, 158, 11, 0.12); color: #92400e; border-color: rgba(245, 158, 11, 0.25); }
+  .pill-approved { background: rgba(16, 185, 129, 0.12); color: #065f46; border-color: rgba(16, 185, 129, 0.25); }
+  .pill-rejected { background: rgba(239, 68, 68, 0.12); color: #991b1b; border-color: rgba(239, 68, 68, 0.22); }
+  .pill-closed { background: rgba(100, 116, 139, 0.12); color: #334155; border-color: rgba(100, 116, 139, 0.22); }
+  .pill-matched { background: rgba(86, 223, 207, 0.18); color: #066a67; border-color: rgba(10, 186, 181, 0.26); }
+
+  .btn-action {
+    background: transparent;
+    border: 1px solid rgba(10, 186, 181, 0.22);
+    color: #066a67;
     cursor: pointer;
-  }
-
-  .items-table tbody tr:hover {
-    background: linear-gradient(90deg, rgba(138, 43, 226, 0.02), rgba(13, 110, 253, 0.02));
-  }
-
-  /* ====== COLUMN STYLING ====== */
-  .item-id {
-    font-weight: 700;
-    color: #8a2be2;
     font-size: 0.95rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 12px;
+    transition: transform 0.12s ease, background 0.12s ease;
   }
 
-  .item-name {
-    font-weight: 600;
-    color: #1a1a1a;
-    font-size: 1rem;
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  .btn-action:hover { background: rgba(10, 186, 181, 0.10); transform: translateY(-1px); }
+  .btn-action:active { transform: translateY(0); }
 
-  .item-category {
-    color: #666;
-    font-size: 0.95rem;
-  }
-
-  /* ====== BADGES ====== */
-  .badge-pill {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-  }
-
-  .badge-lost {
-    background: linear-gradient(135deg, rgba(100, 100, 110, 0.15), rgba(120, 120, 130, 0.1));
-    color: #555;
-    border: 1px solid rgba(100, 100, 110, 0.2);
-  }
-
-  .badge-found {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15), rgba(32, 201, 151, 0.1));
-    color: #1b7c3e;
-    border: 1px solid rgba(40, 167, 69, 0.2);
-  }
-
-  .badge-approved {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.15), rgba(32, 201, 151, 0.1));
-    color: #0a5ba8;
-    border: 1px solid rgba(13, 110, 253, 0.2);
-  }
-
-  .badge-pending {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
-    color: #cc7700;
-    border: 1px solid rgba(255, 193, 7, 0.2);
-  }
-
-  .badge-rejected {
-    background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(200, 35, 51, 0.1));
-    color: #9b1e2c;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-  }
-
-  .badge-matched {
-    background: linear-gradient(135deg, rgba(75, 192, 192, 0.15), rgba(54, 162, 235, 0.1));
-    color: #0f7f7f;
-    border: 1px solid rgba(75, 192, 192, 0.2);
-  }
-
-  .badge-closed {
-    background: linear-gradient(135deg, rgba(100, 100, 110, 0.15), rgba(120, 120, 130, 0.1));
-    color: #555;
-    border: 1px solid rgba(100, 100, 110, 0.2);
-  }
-
-  /* ====== RESPONSIVE HIDE ====== */
-  @media (max-width: 1400px) {
-    .col-xl-hide {
-      display: none;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .col-lg-hide {
-      display: none;
-    }
+  /* Modal: soften header */
+  .modal-header {
+    background: linear-gradient(135deg, rgba(10, 186, 181, 0.88), rgba(86, 223, 207, 0.88));
+    color: #083344;
   }
 
   @media (max-width: 768px) {
-    .col-md-hide {
-      display: none;
-    }
-
-    .items-header {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1.5rem;
-    }
-
-    .items-controls {
-      width: 100%;
-      gap: 0.75rem;
-    }
-
-    .items-search {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .items-table {
-      font-size: 0.9rem;
-    }
-
-    .items-table th,
-    .items-table td {
-      padding: 0.9rem 0.75rem;
-    }
+    .items-header { padding: 1rem; }
+    .items-search, .items-select { min-width: 160px; }
   }
 
-  /* ====== MODAL ====== */
-  .modal-content {
-    background: #ffffff;
-    border: none;
+  .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+  }
+
+  .pager-left { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  .pager-right { display: flex; align-items: center; gap: 0.5rem; }
+
+  .pager-select {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--neutral-200);
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem;
+    background: #fff;
   }
 
-  .modal-header {
-    background: linear-gradient(135deg, #8a2be2 0%, #0d6efd 100%);
-    color: #ffffff;
-    border: none;
-    padding: 1.5rem;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .modal-title {
-    font-weight: 700;
-    font-size: 1.2rem;
-    letter-spacing: -0.3px;
-  }
-
-  .modal-body {
-    padding: 2rem;
-    background: #ffffff;
-  }
-
-  .modal-footer {
-    background: #f8f9fa;
-    border-top: 1px solid #e0e0e0;
-    padding: 1.5rem;
-  }
-
-  .modal-detail-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .modal-detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .modal-detail-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #999;
-  }
-
-  .modal-detail-value {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #1a1a1a;
-  }
-
-  .modal-photo-container {
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e0e0e0;
-    background: #f8f9fa;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-photo-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .modal-no-photo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #ccc;
-    gap: 0.5rem;
-  }
-
-  .modal-no-photo i {
-    font-size: 3rem;
-  }
-
-  /* ====== EMPTY STATE ====== */
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-  }
-
-  .empty-state-icon {
-    font-size: 3.5rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h5 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #666;
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-state p {
-    font-size: 0.95rem;
-    color: #999;
-    margin: 0;
-  }
-
-  /* ====== BUTTON STYLING ====== */
-  .btn-close-icon {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 1.5rem;
+  .pager-btn {
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(10, 186, 181, 0.22);
+    background: #fff;
+    color: #066a67;
+    font-weight: 900;
     cursor: pointer;
-    padding: 0;
-    transition: transform 0.2s ease;
   }
 
-  .btn-close-icon:hover {
-    transform: rotate(90deg);
+  .pager-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  .btn-modal-close {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    background: #ffffff;
-    color: #333;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .btn-modal-close:hover {
-    border-color: #8a2be2;
-    color: #8a2be2;
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(13, 110, 253, 0.05));
+  .pager-meta {
+    color: var(--neutral-500);
+    font-weight: 800;
+    font-size: 0.9rem;
   }
 </style>
 
-<div class="py-4">
+<div class="py-3">
   <div class="container-fluid">
     <div class="items-card">
-      
-      <!-- ====== HEADER SECTION ====== -->
+
       <div class="items-header">
         <div class="items-header-left">
-          <h2>
-            <i class="bi bi-box-seam"></i> Items Overview
-          </h2>
+          <h2><i class="bi bi-box-seam"></i> Items Overview</h2>
           <span class="items-count" id="itemsCountBadge">{{ items|length }} items</span>
         </div>
 
         <div class="items-controls">
-          <input 
-            type="text" 
-            class="items-search" 
-            id="itemSearch" 
-            placeholder="Search by name, category..." 
-            onkeyup="filterItems()">
+          <input type="text" class="items-search" id="itemSearch" placeholder="Search by name, category..." onkeyup="filterItems()">
           <select class="items-select" id="typeFilter" onchange="filterItems()">
             <option value="">All Types</option>
             <option value="lost">Lost</option>
@@ -454,21 +258,20 @@
         </div>
       </div>
 
-      <!-- ====== TABLE SECTION ====== -->
       {% if items and items|length > 0 %}
       <div class="table-wrapper scrollable">
         <table class="items-table">
           <thead>
             <tr>
-              <th style="width: 60px;">ID</th>
-              <th style="width: 220px;">Item Name</th>
-              <th class="col-md-hide" style="width: 130px;">Category</th>
-              <th class="col-lg-hide" style="width: 100px;">Type</th>
-              <th style="width: 130px;">Status</th>
-              <th class="col-lg-hide" style="width: 120px;">Date</th>
-              <th class="col-xl-hide" style="width: 140px;">Reporter</th>
-              <th class="col-md-hide" style="width: 130px;">Location</th>
-              <th style="width: 60px; text-align: center;">Action</th>
+              <th style="width: 80px;">ID</th>
+              <th style="width: 240px;">Item Name</th>
+              <th class="col-md-hide" style="width: 140px;">Category</th>
+              <th class="col-lg-hide" style="width: 120px;">Type</th>
+              <th style="width: 140px;">Status</th>
+              <th class="col-lg-hide" style="width: 130px;">Date</th>
+              <th class="col-xl-hide" style="width: 200px;">Reporter</th>
+              <th class="col-md-hide" style="width: 160px;">Location</th>
+              <th style="width: 86px; text-align: center;">Action</th>
             </tr>
           </thead>
           <tbody id="itemsTableBody">
@@ -478,106 +281,115 @@
               <td class="item-name">{{ item.name }}</td>
               <td class="col-md-hide item-category">{{ item.category }}</td>
               <td class="col-lg-hide">
-                <span class="badge-pill badge-{{ item.type }}">
-                  {{ item.type|title }}
-                </span>
+                <span class="pill pill-type">{{ item.type|title }}</span>
               </td>
               <td>
-                <span class="badge-pill badge-{{ item.status }}">
-                  {{ item.status|capitalize }}
-                </span>
+                {% set st = (item.status or 'pending')|lower %}
+                {% if st == 'pending' %}
+                  <span class="pill pill-pending">Pending</span>
+                {% elif st == 'approved' %}
+                  <span class="pill pill-approved">Approved</span>
+                {% elif st == 'rejected' %}
+                  <span class="pill pill-rejected">Rejected</span>
+                {% elif st == 'closed' %}
+                  <span class="pill pill-closed">Closed</span>
+                {% elif st == 'matched' %}
+                  <span class="pill pill-matched">Matched</span>
+                {% else %}
+                  <span class="pill pill-pending">{{ st|title }}</span>
+                {% endif %}
               </td>
-              <td class="col-lg-hide" style="font-size: 0.9rem; color: #666;">
+              <td class="col-lg-hide" style="color: var(--neutral-500);">
                 {{ item.reported_at.strftime('%d %b %Y') if item.reported_at else '—' }}
               </td>
-              <td class="col-xl-hide" style="font-size: 0.9rem; color: #666;">
-                {{ item.reporter_name[:20] }}
+              <td class="col-xl-hide" style="color: var(--neutral-500);">
+                {{ item.reporter_name[:24] }}
               </td>
-              <td class="col-md-hide" style="font-size: 0.9rem; color: #666;">
-                {{ item.location[:20] if item.location else '—' }}
+              <td class="col-md-hide" style="color: var(--neutral-500);">
+                {{ item.location[:22] if item.location else '—' }}
               </td>
-              <td style="text-align: center;">
-                <button 
-                  class="btn-action" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#viewItemModal{{ item.id }}"
-                  title="View details"
-                  style="background: none; border: none; color: #8a2be2; cursor: pointer; font-size: 1.1rem; padding: 0.5rem;">
+              <td style="text-align:center;">
+                <button class="btn-action" data-bs-toggle="modal" data-bs-target="#viewItemModal{{ item.id }}" title="View details">
                   <i class="bi bi-eye"></i>
                 </button>
               </td>
             </tr>
 
-            <!-- ====== ITEM MODAL ====== -->
+            <!-- ====== ITEM MODAL (preserved) ====== -->
             <div class="modal fade" id="viewItemModal{{ item.id }}" tabindex="-1" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
+                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--neutral-200); box-shadow: var(--shadow);">
                   <div class="modal-header">
                     <h5 class="modal-title">
                       <i class="bi bi-info-circle me-2"></i> Item Details
                     </h5>
-                    <button type="button" class="btn-close-icon" data-bs-dismiss="modal">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
-                  <div class="modal-body">
-                    <div class="modal-detail-row">
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">ID</span>
-                        <span class="modal-detail-value">#{{ item.id }}</span>
+                  <div class="modal-body" style="padding: 1.25rem;">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">ID</div>
+                        <div style="font-weight: 900; color: var(--neutral-900);">#{{ item.id }}</div>
                       </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Item Name</span>
-                        <span class="modal-detail-value">{{ item.name }}</span>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Item Name</div>
+                        <div style="font-weight: 900; color: var(--neutral-900);">{{ item.name }}</div>
                       </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Category</span>
-                        <span class="modal-detail-value">{{ item.category }}</span>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Category</div>
+                        <div style="font-weight: 800; color: var(--neutral-700);">{{ item.category }}</div>
                       </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Type</span>
-                        <span class="badge-pill badge-{{ item.type }}" style="width: fit-content;">
-                          {{ item.type|title }}
-                        </span>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Type</div>
+                        <span class="pill pill-type">{{ item.type|title }}</span>
                       </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Status</span>
-                        <span class="badge-pill badge-{{ item.status }}" style="width: fit-content;">
-                          {{ item.status|capitalize }}
-                        </span>
-                      </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Date Reported</span>
-                        <span class="modal-detail-value">{{ item.reported_at.strftime('%d %b %Y') if item.reported_at else '—' }}</span>
-                      </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Reporter</span>
-                        <span class="modal-detail-value">{{ item.reporter_name }}</span>
-                      </div>
-                      <div class="modal-detail-item">
-                        <span class="modal-detail-label">Location</span>
-                        <span class="modal-detail-value">{{ item.location if item.location else '—' }}</span>
-                      </div>
-                    </div>
-
-                    <div class="modal-detail-item" style="grid-column: 1 / -1; margin-bottom: 0;">
-                      <span class="modal-detail-label">Photo</span>
-                      <div class="modal-photo-container">
-                        {% if item.photo %}
-                          <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" alt="Item photo">
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Status</div>
+                        {% set st2 = (item.status or 'pending')|lower %}
+                        {% if st2 == 'pending' %}
+                          <span class="pill pill-pending">Pending</span>
+                        {% elif st2 == 'approved' %}
+                          <span class="pill pill-approved">Approved</span>
+                        {% elif st2 == 'rejected' %}
+                          <span class="pill pill-rejected">Rejected</span>
+                        {% elif st2 == 'closed' %}
+                          <span class="pill pill-closed">Closed</span>
+                        {% elif st2 == 'matched' %}
+                          <span class="pill pill-matched">Matched</span>
                         {% else %}
-                          <div class="modal-no-photo">
-                            <i class="bi bi-image"></i>
-                            <span>No photo available</span>
-                          </div>
+                          <span class="pill pill-pending">{{ st2|title }}</span>
                         {% endif %}
                       </div>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Date Reported</div>
+                        <div style="font-weight: 800; color: var(--neutral-700);">{{ item.reported_at.strftime('%d %b %Y') if item.reported_at else '—' }}</div>
+                      </div>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Reporter</div>
+                        <div style="font-weight: 800; color: var(--neutral-700);">{{ item.reporter_name }}</div>
+                      </div>
+                      <div class="col-md-6">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Location</div>
+                        <div style="font-weight: 800; color: var(--neutral-700);">{{ item.location if item.location else '—' }}</div>
+                      </div>
+
+                      <div class="col-12">
+                        <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Photo</div>
+                        <div style="border-radius: 12px; overflow:hidden; border: 1px solid var(--neutral-200); background: var(--neutral-50); min-height: 220px; display:flex; align-items:center; justify-content:center;">
+                          {% if item.photo %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" alt="Item photo" style="width:100%; height:100%; object-fit:cover;">
+                          {% else %}
+                            <div style="color:#94a3b8; display:flex; flex-direction:column; align-items:center; gap:0.5rem; padding: 2rem;">
+                              <i class="bi bi-image" style="font-size:2rem;"></i>
+                              <span style="font-weight:800;">No photo available</span>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn-modal-close" data-bs-dismiss="modal">
-                      <i class="bi bi-x-circle me-2"></i> Close
-                    </button>
+                  <div class="modal-footer" style="border-top: 1px solid var(--neutral-200); background: var(--neutral-50);">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 12px; font-weight: 800;">Close</button>
                   </div>
                 </div>
               </div>
@@ -586,55 +398,118 @@
           </tbody>
         </table>
       </div>
+
+      <div class="pagination-bar">
+        <div class="pager-left">
+          <span class="pager-meta" id="pagerMeta">—</span>
+          <label class="pager-meta" for="pageSize" style="margin:0;">Rows:</label>
+          <select id="pageSize" class="pager-select" onchange="setPageSize()">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+        <div class="pager-right">
+          <button class="pager-btn" id="prevPageBtn" onclick="changePage(-1)">Prev</button>
+          <span class="pager-meta" id="pageIndicator">Page 1</span>
+          <button class="pager-btn" id="nextPageBtn" onclick="changePage(1)">Next</button>
+        </div>
+      </div>
+
       {% else %}
-        <div class="empty-state">
-          <i class="bi bi-inbox empty-state-icon"></i>
-          <h5>No Items Found</h5>
-          <p>There are no items to review yet.</p>
+        <div class="empty-state" style="text-align:center; padding: 3rem 1.25rem; color: var(--neutral-500);">
+          <i class="bi bi-inbox" style="font-size: 2.6rem; opacity:0.6;"></i>
+          <h5 style="font-weight: 900; color: var(--neutral-900); margin-top: 0.75rem;">No Items Found</h5>
+          <p style="margin: 0;">There are no items to review yet.</p>
         </div>
       {% endif %}
+
     </div>
   </div>
 </div>
 
 <script>
-  function filterItems() {
+  let currentPage = 1;
+  let pageSize = 20;
+
+  function getFilteredRows() {
     const searchTerm = document.getElementById('itemSearch').value.toLowerCase();
     const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
     const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
 
-    const rows = document.querySelectorAll('.item-row');
-    let visibleCount = 0;
+    const rows = Array.from(document.querySelectorAll('.item-row'));
 
-    rows.forEach(row => {
-      const name = row.dataset.name.toLowerCase();
-      const type = row.dataset.type.toLowerCase();
-      const status = row.dataset.status.toLowerCase();
+    return rows.filter(row => {
+      const name = (row.dataset.name || '').toLowerCase();
+      const type = (row.dataset.type || '').toLowerCase();
+      const status = (row.dataset.status || '').toLowerCase();
 
       const matchesSearch = name.includes(searchTerm);
       const matchesType = !typeFilter || type === typeFilter;
       const matchesStatus = !statusFilter || status === statusFilter;
 
-      if (matchesSearch && matchesType && matchesStatus) {
-        row.style.display = '';
-        visibleCount++;
-      } else {
-        row.style.display = 'none';
-      }
+      return matchesSearch && matchesType && matchesStatus;
     });
-
-    // Update empty state if no matches
-    const tableBody = document.getElementById('itemsTableBody');
-    const emptyState = tableBody.parentElement.nextElementSibling;
-    
-    if (visibleCount === 0) {
-      tableBody.parentElement.style.display = 'none';
-      if (emptyState) emptyState.style.display = 'block';
-    } else {
-      tableBody.parentElement.style.display = '';
-      if (emptyState) emptyState.style.display = 'none';
-    }
   }
+
+  function renderPagination() {
+    const allRows = Array.from(document.querySelectorAll('.item-row'));
+    const filteredRows = getFilteredRows();
+
+    // hide everything first
+    allRows.forEach(r => r.style.display = 'none');
+
+    const total = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+
+    filteredRows.slice(start, end).forEach(r => r.style.display = '');
+
+    const badge = document.getElementById('itemsCountBadge');
+    if (badge) badge.textContent = `${total} items`;
+
+    const meta = document.getElementById('pagerMeta');
+    const showingFrom = total === 0 ? 0 : start + 1;
+    const showingTo = Math.min(end, total);
+    if (meta) meta.textContent = `Showing ${showingFrom}-${showingTo} of ${total}`;
+
+    const indicator = document.getElementById('pageIndicator');
+    if (indicator) indicator.textContent = `Page ${currentPage} / ${totalPages}`;
+
+    const prevBtn = document.getElementById('prevPageBtn');
+    const nextBtn = document.getElementById('nextPageBtn');
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+  }
+
+  function filterItems() {
+    currentPage = 1;
+    renderPagination();
+  }
+
+  function changePage(delta) {
+    currentPage += delta;
+    renderPagination();
+  }
+
+  function setPageSize() {
+    const el = document.getElementById('pageSize');
+    pageSize = parseInt(el.value, 10) || 20;
+    currentPage = 1;
+    renderPagination();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const initial = document.getElementById('pageSize');
+    if (initial) pageSize = parseInt(initial.value, 10) || 20;
+    renderPagination();
+  });
 </script>
 
 {% endblock %}
