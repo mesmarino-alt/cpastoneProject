@@ -785,11 +785,9 @@ def change_password():
     return redirect(url_for('user.dashboard'))
 
 
-
-
-@user_bp.route('/notifications')
-def notifications():
-    return render_template('user/notifications.html')
+# NOTE: Notifications are served by the dedicated blueprint in
+# services/notifications_routes.py under the "/notifications" prefix.
+# Keeping a duplicate route here can cause confusion and inconsistent behaviour.
 
 @user_bp.route('/debug-user')
 @login_required

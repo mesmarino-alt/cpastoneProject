@@ -546,7 +546,8 @@
                             <i class="bi bi-check-circle me-1"></i> Approve
                           </button>
                         </form>
-                        <form method="post" action="{{ url_for('admin_claims.claim_reject', claim_id=claim.claim_id) }}" class="d-inline">
+                        <form method="post" action="{{ url_for('admin_claims.claim_reject', claim_id=claim.claim_id) }}" class="d-inline" style="display:flex; gap:0.5rem; align-items:center;">
+                          <input type="text" name="reason" placeholder="Reason (optional)" class="form-control" style="max-width: 220px; border-radius: 12px; font-weight: 800;" />
                           <button type="submit" class="btn-modal btn-danger-modal">
                             <i class="bi bi-x-circle me-1"></i> Reject
                           </button>

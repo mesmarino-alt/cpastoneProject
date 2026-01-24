@@ -18,7 +18,7 @@ def get_unmatched_lost_items():
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, name, category, color, brand, description, last_seen, last_seen_at, embedding
+            SELECT id, user_id, name, category, color, brand, description, last_seen, last_seen_at, embedding
             FROM lost_items
             WHERE status='approved'
             AND embedding IS NOT NULL
@@ -38,7 +38,7 @@ def get_all_found_items():
     cur = conn.cursor()
     try:
         cur.execute("""
-            SELECT id, name, category, color, brand, description, where_found, found_at, embedding
+            SELECT id, user_id, name, category, color, brand, description, where_found, found_at, embedding
             FROM found_items
             WHERE status='approved'
             AND embedding IS NOT NULL
@@ -68,21 +68,21 @@ def _prefilter_found_items(lost_row, found_items):
     - Always filter by category if present.
     - Optionally filter by color and brand if present.
     """
-    lost_category = (_get(lost_row, 'category', 2) or '').strip()
-    lost_color = (_get(lost_row, 'color', 3) or '').strip()
-    lost_brand = (_get(lost_row, 'brand', 4) or '').strip()
+    lost_category = (_get(lost_row, 'category', 3) or '').strip()
+    lost_color = (_get(lost_row, 'color', 4) or '').strip()
+    lost_brand = (_get(lost_row, 'brand', 5) or '').strip()
 
     candidates = found_items
 
     if lost_category:
-        candidates = [f for f in candidates if (_get(f, 'category', 2) or '').strip() == lost_category]
+        candidates = [f for f in candidates if (_get(f, 'category', 3) or '').strip() == lost_category]
 
     if lost_color:
-        candidates = [f for f in candidates if (_get(f, 'color', 3) or '').strip() == lost_color]
+        candidates = [f for f in candidates if (_get(f, 'color', 4) or '').strip() == lost_color]
 
     # brand can be sparse/typo-prone; only apply if it doesn't eliminate everything
     if lost_brand:
-        brand_filtered = [f for f in candidates if (_get(f, 'brand', 4) or '').strip().lower() == lost_brand.lower()]
+        brand_filtered = [f for f in candidates if (_get(f, 'brand', 5) or '').strip().lower() == lost_brand.lower()]
         if brand_filtered:
             candidates = brand_filtered
 
@@ -96,7 +96,7 @@ def generate_matches(threshold=0.72):
     matches = []
 
     for lost in lost_items:
-        lost_embedding = _get(lost, 'embedding', 8)
+        lost_embedding = _get(lost, 'embedding', 9)
         if not lost_embedding:
             continue
 
@@ -107,10 +107,18 @@ def generate_matches(threshold=0.72):
             print(f"ERROR: Could not deserialize embedding for lost item {lost_id}")
             continue
 
+        lost_user_id = _get(lost, 'user_id', 1)
+
         candidates = _prefilter_found_items(lost, found_items)
 
         for found in candidates:
-            found_embedding = _get(found, 'embedding', 8)
+            found_user_id = _get(found, 'user_id', 1)
+
+            # Block self-matching (same reporter for lost and found)
+            if lost_user_id is not None and found_user_id is not None and lost_user_id == found_user_id:
+                continue
+
+            found_embedding = _get(found, 'embedding', 9)
             if not found_embedding:
                 continue
 
@@ -146,6 +154,14 @@ def save_matches(matches):
     cur = conn.cursor()
     try:
         for match in matches:
+            # Defense-in-depth: ensure this pair isn't a self-match
+            cur.execute("SELECT user_id FROM lost_items WHERE id=%s", (match['lost_item_id'],))
+            lost_owner = (cur.fetchone() or [None])[0]
+            cur.execute("SELECT user_id FROM found_items WHERE id=%s", (match['found_item_id'],))
+            found_owner = (cur.fetchone() or [None])[0]
+            if lost_owner is not None and found_owner is not None and lost_owner == found_owner:
+                continue
+
             # Check if match already exists
             cur.execute("""
                 SELECT id FROM matches 

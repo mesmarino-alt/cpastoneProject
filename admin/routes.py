@@ -7,6 +7,7 @@ from db import get_db
 from models.user import User
 from .init import admin_bp
 from services.matching import run_matching_pipeline
+from services.notifications import notify
 
 
 @admin_bp.route('/dashboard')
@@ -341,19 +342,19 @@ def api_get_reports():
     try:
         # Fetch all reports (lost and found items) with reporter info
         cur.execute("""
-            SELECT li.id, li.name, li.category, 'lost' AS type, li.reported_at, 
+            SELECT li.id, li.user_id, li.name, li.category, 'lost' AS type, li.reported_at, 
                    li.last_seen AS location, li.status, u.name AS reporter_name
             FROM lost_items li
             JOIN users u ON li.user_id = u.id
             UNION ALL
-            SELECT fi.id, fi.name, fi.category, 'found' AS type, fi.reported_at, 
+            SELECT fi.id, fi.user_id, fi.name, fi.category, 'found' AS type, fi.reported_at, 
                    fi.where_found AS location, fi.status, u.name AS reporter_name
             FROM found_items fi
             JOIN users u ON fi.user_id = u.id
             ORDER BY reported_at DESC
         """)
         reports = cur.fetchall()
-        
+
         return jsonify({
             'success': True,
             'reports': reports
@@ -402,7 +403,7 @@ def api_review_report():
     cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
         # Get current item details
-        cur.execute(f"SELECT id, name, status FROM {table_name} WHERE id=%s", (item_id,))
+        cur.execute(f"SELECT id, name, status, user_id FROM {table_name} WHERE id=%s", (item_id,))
         item = cur.fetchone()
         
         if not item:
@@ -410,6 +411,9 @@ def api_review_report():
                 'success': False,
                 'message': f'{item_type} item not found'
             }), 404
+
+        reporter_user_id = item.get('user_id')
+        item_name = item.get('name') or 'item'
         
         print(f"[ADMIN] Updating {item_type} item {item_id} ('{item.get('name')}') from '{item.get('status')}' to '{status}'")
         
@@ -446,6 +450,32 @@ def api_review_report():
         else:
             print(f"[ADMIN] Verification: Item {item_id} NOT FOUND after update!")
             actual_status = None
+
+        # Notify the reporting user (owner of the report)
+        try:
+            if reporter_user_id:
+                if status == 'approved':
+                    notify(
+                        user_id=reporter_user_id,
+                        notification_type='report_approved',
+                        title='Report Approved ✅',
+                        message=f'Your {item_type} item report for "{item_name}" has been approved and is now visible for matching.',
+                        related_id=item_id
+                    )
+                elif status == 'rejected':
+                    msg = f'Your {item_type} item report for "{item_name}" has been rejected.'
+                    if reason:
+                        msg += f' Reason: {reason}'
+                    notify(
+                        user_id=reporter_user_id,
+                        notification_type='report_rejected',
+                        title='Report Rejected ❌',
+                        message=msg,
+                        related_id=item_id
+                    )
+        except Exception as e:
+            # Never fail the main action just because notification insert failed
+            print(f"[ADMIN] Warning: failed to send report notification: {e}")
         
         # If approved, trigger matching pipeline
         if status == 'approved':
@@ -458,7 +488,10 @@ def api_review_report():
         return jsonify({
             'success': True,
             'message': f'Report {status} successfully',
-            'actual_status': actual_status
+            'actual_status': (actual_status or '').strip().lower() if isinstance(actual_status, str) else actual_status,
+            'id': item_id,
+            'type': item_type,
+            'status': status
         })
     except Exception as e:
         conn.rollback()

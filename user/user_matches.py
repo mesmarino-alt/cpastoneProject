@@ -31,7 +31,8 @@ def matches():
                     GROUP BY match_id
                 ) cx ON cx.match_id = c1.match_id AND cx.latest = c1.created_at
             ) c ON c.match_id = m.id
-            WHERE li.user_id = %s OR fi.user_id = %s
+            WHERE (li.user_id = %s OR fi.user_id = %s)
+              AND li.user_id <> fi.user_id
             ORDER BY m.score DESC, m.created_at DESC
         """, (current_user.id, current_user.id))
         raw_rows = cur.fetchall()
@@ -81,9 +82,6 @@ def matches():
         found_matches=found_matches,
         matches_count=matches_count   # <-- pass to template
     )
-
-
-
 
 @user_bp.route('/claim', methods=['POST'])
 @login_required

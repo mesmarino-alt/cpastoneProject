@@ -168,6 +168,23 @@
   .pill-rejected { background: rgba(239, 68, 68, 0.12); color: #991b1b; border-color: rgba(239, 68, 68, 0.22); }
   .pill-closed { background: rgba(100, 116, 139, 0.12); color: #334155; border-color: rgba(100, 116, 139, 0.22); }
 
+  .pill-duplicate {
+    background: rgba(239, 68, 68, 0.10);
+    color: #991b1b;
+    border-color: rgba(239, 68, 68, 0.22);
+  }
+
+  .dup-note {
+    margin-top: 0.6rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    border: 1px dashed rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.06);
+    color: #7f1d1d;
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
   .report-detail {
     margin-bottom: 0.55rem;
     font-size: 0.9rem;
@@ -421,6 +438,39 @@ let reportsCurrentPage = 1;
 let reportsPageSize = 12;
 let lastFilteredReports = [];
 
+function normalizeReportKeyText(text) {
+  return (text || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function annotateDuplicateSelfReports(reports) {
+  // Mark reports where the SAME user has BOTH a lost and found report with the same (normalized) name.
+  // These should not be matchable.
+  const map = new Map();
+
+  for (const r of reports) {
+    const uid = r.user_id;
+    const keyName = normalizeReportKeyText(r.name);
+    if (uid == null || !keyName) continue;
+
+    const key = `${uid}::${keyName}`;
+    const entry = map.get(key) || { hasLost: false, hasFound: false, idx: [] };
+    if ((r.type || '').toLowerCase() === 'lost') entry.hasLost = true;
+    if ((r.type || '').toLowerCase() === 'found') entry.hasFound = true;
+    entry.idx.push(r);
+    map.set(key, entry);
+  }
+
+  for (const entry of map.values()) {
+    if (entry.hasLost && entry.hasFound) {
+      for (const r of entry.idx) {
+        r.duplicate_self = true;
+      }
+    }
+  }
+
+  return reports;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadReports();
 
@@ -442,7 +492,8 @@ function loadReports() {
   fetch('/admin/api/reports')
     .then(response => response.json())
     .then(data => {
-      allReports = data.reports || [];
+      const reports = data.reports || [];
+      allReports = annotateDuplicateSelfReports(reports);
       updateKPIs();
       filterReports(); // will render + paginate
     })
@@ -485,6 +536,8 @@ function renderReports(reports) {
           ? 'pill-rejected'
           : 'pill-closed';
 
+    const isDuplicateSelf = !!report.duplicate_self;
+
     return `
       <div class="report-card" data-id="${report.id}" data-type="${report.type}">
         <div class="report-header">
@@ -492,14 +545,27 @@ function renderReports(reports) {
           <span class="pill pill-type">${report.type.charAt(0).toUpperCase() + report.type.slice(1)}</span>
         </div>
 
-        <span class="pill ${statusPillClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom: 0.6rem;">
+          <span class="pill ${statusPillClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+          ${isDuplicateSelf ? `
+            <span class="pill pill-duplicate" title="Same user reported both lost and found for this item; it will not be matched.">
+              <i class=\"bi bi-exclamation-triangle-fill\" style=\"margin-right:6px;\"></i> Duplicate (Self)
+            </span>
+          ` : ``}
+        </div>
 
         <div class="report-detail"><strong>Reporter:</strong> ${escapeHtml(report.reporter_name)}</div>
         <div class="report-detail"><strong>Category:</strong> ${escapeHtml(report.category || '—')}</div>
         <div class="report-detail"><strong>Location:</strong> ${escapeHtml(report.location || '—')}</div>
         <div class="report-detail"><strong>Reported:</strong> ${new Date(report.reported_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
 
-        ${status === 'pending' ? `
+        ${isDuplicateSelf ? `
+          <div class="dup-note">
+            This looks like a duplicate report by the same user (lost & found). It cannot be matched.
+          </div>
+        ` : ``}
+
+        ${(status === 'pending' && !isDuplicateSelf) ? `
           <div class="report-footer">
             <button class="btn-small btn-approve" onclick="showApproveModal('${report.id}', '${report.type}', '${escapeHtml(report.name)}')">
               <i class=\"bi bi-check-circle\"></i> Approve
@@ -595,8 +661,30 @@ function reviewReport(id, type, status, reason = '') {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById(status === 'approved' ? 'approveModal' : 'rejectModal')).hide();
-        loadReports();
+        // Close the right modal (defensive: instance can be null)
+        const modalEl = document.getElementById(status === 'approved' ? 'approveModal' : 'rejectModal');
+        const modalInstance = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+        if (modalInstance) modalInstance.hide();
+
+        // Update local dataset immediately so UI changes even if reload fails/caches.
+        const normalizedStatus = (data.actual_status || data.status || status || '').toString().trim().toLowerCase();
+        const updatedId = (data.id ?? id).toString();
+        const updatedType = (data.type ?? type).toString().trim().toLowerCase();
+
+        const idx = allReports.findIndex(r => (r.id != null && r.type != null) && (r.id.toString() === updatedId) && ((r.type || '').toString().trim().toLowerCase() === updatedType));
+        if (idx !== -1) {
+          allReports[idx].status = normalizedStatus;
+
+          // Ensure status is always a normalized string so render logic works.
+          allReports[idx].status = (allReports[idx].status || '').toString().trim().toLowerCase();
+        }
+
+        updateKPIs();
+        filterReports();
+
+        // NOTE: Do not immediately reload from server here; it can overwrite the
+        // optimistic UI update if the list endpoint returns stale status.
+        // loadReports();
       } else {
         alert('Error: ' + (data.message || 'Unknown error'));
       }

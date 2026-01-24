@@ -162,6 +162,7 @@
   .pill-rejected { background: rgba(239, 68, 68, 0.12); color: #991b1b; border-color: rgba(239, 68, 68, 0.22); }
   .pill-closed { background: rgba(100, 116, 139, 0.12); color: #334155; border-color: rgba(100, 116, 139, 0.22); }
   .pill-matched { background: rgba(86, 223, 207, 0.18); color: #066a67; border-color: rgba(10, 186, 181, 0.26); }
+  .pill-dup-self { background: rgba(239, 68, 68, 0.12); color: #991b1b; border-color: rgba(239, 68, 68, 0.22); }
 
   .btn-action {
     background: transparent;
@@ -229,6 +230,14 @@
     font-weight: 800;
     font-size: 0.9rem;
   }
+
+  .dup-note {
+    margin-top: 0.4rem;
+    color: #991b1b;
+    font-weight: 800;
+    font-size: 0.78rem;
+    display: none;
+  }
 </style>
 
 <div class="py-3">
@@ -253,6 +262,7 @@
             <option value="approved">Approved</option>
             <option value="pending">Pending</option>
             <option value="matched">Matched</option>
+            <option value="rejected">Rejected</option>
             <option value="closed">Closed</option>
           </select>
         </div>
@@ -276,12 +286,20 @@
           </thead>
           <tbody id="itemsTableBody">
             {% for item in items %}
-            <tr class="item-row" data-name="{{ item.name }}" data-type="{{ item.type }}" data-status="{{ item.status }}">
+            <tr class="item-row" data-name="{{ item.name }}" data-type="{{ item.type }}" data-status="{{ item.status }}" data-user-id="{{ item.user_id }}" data-item-id="{{ item.id }}">
               <td class="item-id">#{{ item.id }}</td>
-              <td class="item-name">{{ item.name }}</td>
+              <td class="item-name">
+                {{ item.name }}
+                <div class="dup-note" data-dup-for="{{ item.id }}">
+                  <i class="bi bi-exclamation-triangle-fill"></i> Duplicate (self) — cannot be matched
+                </div>
+              </td>
               <td class="col-md-hide item-category">{{ item.category }}</td>
               <td class="col-lg-hide">
                 <span class="pill pill-type">{{ item.type|title }}</span>
+                <span class="pill pill-dup-self" data-dup-pill="{{ item.id }}" style="display:none; margin-left:0.35rem;">
+                  <i class="bi bi-exclamation-triangle-fill"></i> Duplicate (Self)
+                </span>
               </td>
               <td>
                 {% set st = (item.status or 'pending')|lower %}
@@ -322,6 +340,9 @@
                   <div class="modal-header">
                     <h5 class="modal-title">
                       <i class="bi bi-info-circle me-2"></i> Item Details
+                      <span class="pill pill-dup-self" data-dup-pill-modal="{{ item.id }}" style="display:none; margin-left:0.5rem;">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Duplicate (Self)
+                      </span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
@@ -370,7 +391,7 @@
                       </div>
                       <div class="col-md-6">
                         <div style="color: var(--neutral-500); font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.6px;">Location</div>
-                        <div style="font-weight: 800; color: var(--neutral-700);">{{ item.location if item.location else '—' }}</div>
+                        <div style="font-weight: 800; color: var (--neutral-700);">{{ item.location if item.location else '—' }}</div>
                       </div>
 
                       <div class="col-12">
@@ -432,6 +453,46 @@
 <script>
   let currentPage = 1;
   let pageSize = 20;
+
+  function normalizeKeyText(text) {
+    return (text || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function applyDuplicateSelfWarnings() {
+    // Same rule as elsewhere:
+    // If the same user has both Lost and Found with the same normalized item name, mark both as duplicate_self.
+    const rows = Array.from(document.querySelectorAll('.item-row'));
+
+    const map = new Map();
+    for (const row of rows) {
+      const userId = row.dataset.userId;
+      const type = (row.dataset.type || '').toLowerCase();
+      const name = normalizeKeyText(row.dataset.name);
+      const itemId = row.dataset.itemId;
+      if (!userId || !name || !itemId) continue;
+
+      const key = `${userId}::${name}`;
+      const entry = map.get(key) || { hasLost: false, hasFound: false, ids: [] };
+      if (type === 'lost') entry.hasLost = true;
+      if (type === 'found') entry.hasFound = true;
+      entry.ids.push(itemId);
+      map.set(key, entry);
+    }
+
+    for (const entry of map.values()) {
+      if (entry.hasLost && entry.hasFound) {
+        for (const id of entry.ids) {
+          const pill = document.querySelector(`[data-dup-pill="${CSS.escape(id)}"]`);
+          const pillModal = document.querySelector(`[data-dup-pill-modal="${CSS.escape(id)}"]`);
+          const note = document.querySelector(`[data-dup-for="${CSS.escape(id)}"]`);
+
+          if (pill) pill.style.display = 'inline-flex';
+          if (pillModal) pillModal.style.display = 'inline-flex';
+          if (note) note.style.display = 'block';
+        }
+      }
+    }
+  }
 
   function getFilteredRows() {
     const searchTerm = document.getElementById('itemSearch').value.toLowerCase();
@@ -508,6 +569,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     const initial = document.getElementById('pageSize');
     if (initial) pageSize = parseInt(initial.value, 10) || 20;
+
+    applyDuplicateSelfWarnings();
     renderPagination();
   });
 </script>

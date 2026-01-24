@@ -357,6 +357,22 @@
     margin-top: 0.5rem;
   }
 
+  .badge-dup-self {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    background: rgba(239, 68, 68, 0.10);
+    color: #991b1b;
+    border: 1px solid rgba(239, 68, 68, 0.22);
+    margin-top: 0.5rem;
+  }
+
   /* ===== VIEW BUTTON ===== */
   .btn-view {
     background: var(--primary-teal);
@@ -739,7 +755,7 @@
             <tbody>
               {% if items %}
               {% for item in items %}
-              <tr>
+              <tr data-item-name="{{ (item.name or '')|lower|trim }}" data-item-type="{{ (item.type or '')|lower|trim }}" data-item-user-id="{{ item.user_id }}">
                 <td>
                   <div>
                     <strong>{{ item.name }}</strong>
@@ -748,6 +764,9 @@
                       <i class="bi bi-check2-circle"></i> Your Report
                     </div>
                     {% endif %}
+                    <div class="badge-dup-self" style="display:none;" title="You reported this item as both Lost and Found. It will not be matched.">
+                      <i class="bi bi-exclamation-triangle-fill"></i> Can't be matched
+                    </div>
                   </div>
                 </td>
                 <td>{{ item.category or 'General' }}</td>
@@ -896,8 +915,43 @@
 <script>
   let categoryChartInstance = null;
 
+  function normalizeKeyText(text) {
+    return (text || '').toString().trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function applySelfDuplicateWarnings() {
+    // Detect duplicates for the CURRENT USER in the dashboard table:
+    // same normalized name appears once as 'lost' and once as 'found'.
+    const rows = Array.from(document.querySelectorAll('#itemsTable tbody tr'));
+
+    const map = new Map();
+    for (const row of rows) {
+      const userId = row.getAttribute('data-item-user-id');
+      const type = (row.getAttribute('data-item-type') || '').toLowerCase();
+      const name = normalizeKeyText(row.getAttribute('data-item-name'));
+      if (!userId || !name) continue;
+
+      const key = `${userId}::${name}`;
+      const entry = map.get(key) || { hasLost: false, hasFound: false, rows: [] };
+      if (type === 'lost') entry.hasLost = true;
+      if (type === 'found') entry.hasFound = true;
+      entry.rows.push(row);
+      map.set(key, entry);
+    }
+
+    for (const entry of map.values()) {
+      if (entry.hasLost && entry.hasFound) {
+        for (const row of entry.rows) {
+          const badge = row.querySelector('.badge-dup-self');
+          if (badge) badge.style.display = 'inline-flex';
+        }
+      }
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initCategoryChart();
+    applySelfDuplicateWarnings();
 
     // Handle modal data population
     const viewModal = document.getElementById('viewItemModal');
