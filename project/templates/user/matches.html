@@ -613,11 +613,8 @@
 
     <div class="match-controls">
       <div class="match-count">
-        {% if lost_matches %}
-          {{ lost_matches|length }} Matches Found
-        {% else %}
-          0 Matches Found
-        {% endif %}
+        {% set total_matches = (lost_matches|length if lost_matches else 0) + (found_matches|length if found_matches else 0) %}
+        {{ total_matches }} Matches Found
       </div>
 
       <!-- Client-side sort only; does not affect backend and keeps functions intact -->

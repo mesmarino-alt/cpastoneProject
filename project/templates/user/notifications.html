@@ -2,7 +2,6 @@
 
 {% block content %}
 <style>
-  /* Use the dashboard theme tokens; provide light defaults + dark overrides */
   :root {
     --page-bg: var(--neutral-bg);
     --card-bg: var(--neutral-white);
@@ -10,21 +9,13 @@
     --text-primary: var(--neutral-900);
     --text-secondary: var(--neutral-600);
     --border-color: var(--neutral-200);
-
     --accent-primary: var(--primary-purple);
-    --accent-hover: #3b1f7f;
-
+    --accent-teal: var(--primary-teal);
     --success: #10b981;
     --danger: #ef4444;
     --warning: #f59e0b;
-    --info: var(--primary-teal);
-    --neutral: var(--neutral-600);
-
-    --shadow: var(--shadow-lg);
-    --shadow-sm: var(--shadow-md);
   }
 
-  /* Dark mode (enabled by setting <html data-theme="dark">) */
   html[data-theme="dark"] {
     --page-bg: #0b1020;
     --card-bg: #111a33;
@@ -32,596 +23,266 @@
     --text-primary: #eef2ff;
     --text-secondary: #b8c0e0;
     --border-color: rgba(255,255,255,0.12);
-
     --accent-primary: #b18cff;
-    --accent-hover: #9a70ff;
-
-    --success: #34d399;
-    --danger: #fb7185;
-    --warning: #fbbf24;
-    --info: #2dd4bf;
-    --neutral: #94a3b8;
-
-    --shadow: 0 12px 28px rgba(0,0,0,0.45);
-    --shadow-sm: 0 6px 18px rgba(0,0,0,0.35);
+    --accent-teal: #2dd4bf;
   }
 
-  body {
-    background-color: var(--page-bg);
-    color: var(--text-primary);
-  }
+  body { background: var(--page-bg); }
 
-  .container-fluid {
-    background-color: var(--page-bg);
-  }
-
-  /* ===== HEADER SECTION ===== */
-  .notifications-header {
+  .page-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 0 0.5rem;
-  }
-
-  .notifications-header h1 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .notifications-header h1 i {
-    color: var(--accent-primary);
-  }
-
-  .notifications-header .badge-count {
-    background: linear-gradient(135deg, var(--accent-primary), var(--info));
-    color: #fff;
-    font-size: 0.85rem;
-    padding: 0.4rem 0.7rem;
-    border-radius: 20px;
-    font-weight: 700;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .header-actions .btn {
-    font-size: 0.9rem;
-    padding: 0.6rem 1.2rem;
-    border-radius: 999px;
-    transition: all 0.25s ease;
-  }
-
-  /* ===== TAB FILTER SECTION ===== */
-  .filter-tabs {
-    display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
-    border-bottom: 2px solid var(--border-color);
-    overflow-x: auto;
-    padding-bottom: 0;
+    margin-bottom: 1.25rem;
   }
 
-  .filter-tabs .tab-btn {
-    padding: 1rem 1.25rem;
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.25s ease;
-    white-space: nowrap;
-    position: relative;
-  }
-
-  .filter-tabs .tab-btn:hover {
+  .page-title {
+    margin: 0;
+    font-weight: 900;
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
   }
 
-  .filter-tabs .tab-btn.active {
-    color: var(--accent-primary);
-    border-bottom-color: var(--accent-primary);
-  }
-
-  .filter-tabs .tab-badge {
-    display: inline-block;
-    background-color: color-mix(in oklab, var(--border-color) 55%, transparent);
-    color: var(--text-primary);
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    margin-left: 0.5rem;
-    font-weight: 700;
-  }
-
-  .filter-tabs .tab-btn.active .tab-badge {
-    background: linear-gradient(135deg, var(--accent-primary), var(--info));
+  .count-pill {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-teal));
     color: #fff;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: .35rem .7rem;
+    font-size: .85rem;
   }
 
-  /* ===== NOTIFICATION CARD ===== */
-  .notification-card {
-    background-color: var(--card-bg);
+  .actions {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+  }
+
+  .btn-pill {
+    border-radius: 999px;
+    font-weight: 800;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: .5rem .9rem;
+  }
+
+  .btn-pill.primary {
+    border: none;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-teal));
+  }
+
+  .btn-pill:hover { filter: brightness(0.98); }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+  }
+
+  .notif {
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 14px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.25s ease;
-    cursor: pointer;
-    position: relative;
-    box-shadow: var(--shadow-sm);
+    padding: 1rem 1.1rem;
+    transition: .2s ease;
   }
 
-  .notification-card:hover {
-    background-color: var(--card-hover);
-    border-color: color-mix(in oklab, var(--accent-primary) 55%, var(--border-color));
-    box-shadow: var(--shadow);
-    transform: translateY(-2px);
+  .notif:hover {
+    background: var(--card-hover);
+    border-color: color-mix(in oklab, var(--accent-teal) 35%, var(--border-color));
   }
 
-  .notification-card.unread {
-    border-left: 4px solid var(--accent-primary);
-    background-color: color-mix(in oklab, var(--accent-primary) 8%, var(--card-bg));
-  }
+  .notif.unread { border-left: 4px solid var(--accent-primary); }
 
-  .notification-card.unread:hover {
-    background-color: color-mix(in oklab, var(--accent-primary) 12%, var(--card-hover));
-  }
-
-  /* Card Header with Status and Title */
-  .card-header-row {
+  .notif-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
     gap: 1rem;
   }
 
-  .card-header-content { flex: 1; }
+  .notif-title {
+    margin: 0;
+    font-weight: 900;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+  }
 
-  .status-badge {
+  .notif-message {
+    margin: .35rem 0 .75rem 0;
+    color: var(--text-secondary);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: .85rem;
+  }
+
+  .badge-type {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 800;
-    padding: 0.4rem 0.75rem;
+    gap: .4rem;
+    padding: .25rem .6rem;
     border-radius: 999px;
-    margin-bottom: 0.5rem;
+    font-weight: 900;
+    font-size: .75rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .4px;
   }
 
-  .status-badge.approved { background-color: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
-  .status-badge.rejected { background-color: color-mix(in oklab, var(--danger) 14%, transparent); color: var(--danger); }
-  .status-badge.pending { background-color: color-mix(in oklab, var(--warning) 14%, transparent); color: var(--warning); }
-  .status-badge.claim { background-color: color-mix(in oklab, var(--info) 14%, transparent); color: var(--info); }
-  .status-badge.match { background-color: color-mix(in oklab, var(--accent-primary) 14%, transparent); color: var(--accent-primary); }
+  .badge-approved { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+  .badge-rejected { background: color-mix(in oklab, var(--danger) 14%, transparent); color: var(--danger); }
+  .badge-pending { background: color-mix(in oklab, var(--warning) 14%, transparent); color: var(--warning); }
+  .badge-info { background: color-mix(in oklab, var(--accent-teal) 14%, transparent); color: var(--accent-teal); }
 
-  .card-title {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
-  .card-message {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.55;
-    margin-bottom: 1rem;
-  }
-
-  .card-meta {
+  .notif-actions {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding-top: 1rem;
+    gap: .5rem;
+    margin-top: .85rem;
+    padding-top: .85rem;
     border-top: 1px solid var(--border-color);
   }
 
-  .meta-timestamp {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
+  .notif-actions form { margin: 0; }
 
-  .meta-read-status {
-    font-size: 0.8rem;
-    color: var(--success);
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-weight: 700;
-  }
-
-  .guidance-box {
-    background-color: color-mix(in oklab, var(--accent-primary) 10%, transparent);
-    border-left: 3px solid var(--accent-primary);
-    padding: 0.75rem 1rem;
+  .link-btn {
     border-radius: 10px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin: 1rem 0 0 0;
-  }
-
-  .guidance-box strong { color: var(--text-primary); }
-
-  .card-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-  }
-
-  .action-btn {
-    flex: 1;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    white-space: nowrap;
-    text-decoration: none;
-  }
-
-  .action-btn.primary {
-    background: linear-gradient(135deg, var(--accent-primary), var(--info));
-    color: #fff;
-    font-weight: 800;
-  }
-
-  .action-btn.primary:hover {
-    filter: brightness(1.05);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .action-btn.secondary {
-    background-color: transparent;
-    color: var(--text-secondary);
+    padding: .55rem .8rem;
     border: 1px solid var(--border-color);
-  }
-
-  .action-btn.secondary:hover {
-    background-color: var(--card-hover);
+    background: transparent;
+    font-weight: 800;
     color: var(--text-primary);
-    border-color: color-mix(in oklab, var(--accent-primary) 45%, var(--border-color));
   }
 
-  .action-btn.danger {
-    background-color: color-mix(in oklab, var(--danger) 10%, transparent);
+  .link-btn.danger {
+    border-color: color-mix(in oklab, var(--danger) 40%, var(--border-color));
     color: var(--danger);
-    border: 1px solid color-mix(in oklab, var(--danger) 30%, transparent);
+    background: color-mix(in oklab, var(--danger) 10%, transparent);
   }
 
-  .action-btn.danger:hover {
-    background-color: color-mix(in oklab, var(--danger) 16%, transparent);
-  }
-
-  .empty-state {
+  .empty {
+    padding: 3rem 1.5rem;
     text-align: center;
-    padding: 4rem 2rem;
     background: color-mix(in oklab, var(--accent-primary) 6%, var(--card-bg));
     border-radius: 16px;
     border: 1px dashed var(--border-color);
-  }
-
-  .empty-icon {
-    font-size: 4rem;
     color: var(--text-secondary);
-    margin-bottom: 1rem;
-    opacity: 0.6;
   }
-
-  .empty-title {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-subtitle {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .notifications-list { display: flex; flex-direction: column; }
-
-  @media (max-width: 768px) {
-    .notifications-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-    .notifications-header h1 { font-size: 1.5rem; }
-    .header-actions { width: 100%; }
-    .header-actions .btn { flex: 1; padding: 0.5rem 1rem; font-size: 0.8rem; }
-    .filter-tabs { gap: 0.5rem; margin-bottom: 1.5rem; }
-    .filter-tabs .tab-btn { padding: 0.75rem 1rem; font-size: 0.85rem; }
-    .notification-card { padding: 1rem; }
-    .card-header-row { flex-direction: column; gap: 0.5rem; }
-    .card-title { font-size: 1rem; }
-    .card-message { font-size: 0.9rem; }
-    .card-meta { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-    .card-actions { flex-direction: column; }
-    .action-btn { width: 100%; }
-  }
-
-  .notification-card:focus-visible,
-  .action-btn:focus-visible,
-  .filter-tabs .tab-btn:focus-visible {
-    outline: 3px solid color-mix(in oklab, var(--accent-primary) 55%, transparent);
-    outline-offset: 2px;
-  }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .notification-card { animation: fadeIn 0.3s ease-out; }
-
-  .d-none { display: none !important; }
 </style>
 
-<div class="container-fluid py-5">
-  <!-- Header Section -->
-  <div class="notifications-header">
-    <h1>
-      <i class="bi bi-bell-fill"></i>
+<div class="container-fluid py-4">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fa-solid fa-bell" style="color: var(--accent-primary);"></i>
       Notifications
-      {% if unread_count > 0 %}
-        <span class="badge-count">{{ unread_count }}</span>
-      {% endif %}
+      <span class="count-pill">{{ notifications|length }}</span>
     </h1>
-    <div class="header-actions">
-      {% if unread_count > 0 %}
-        <form method="post" action="{{ url_for('notifications.mark_all_notifications_read') }}" style="display: inline;">
-          <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, var(--accent-primary), var(--info)); color: #fff; font-weight: 800; border: none;">
-            <i class="bi bi-check-all"></i> Mark all as read
+
+    <div class="actions">
+      {% if unread_count and unread_count > 0 %}
+        <form method="post" action="{{ url_for('notifications.mark_all_notifications_read') }}">
+          <button class="btn-pill primary" type="submit">
+            <i class="fa-solid fa-check-double me-1"></i> Mark all read
           </button>
         </form>
       {% endif %}
     </div>
   </div>
 
-  <!-- Filter Tabs -->
-  <div class="filter-tabs">
-    <button class="tab-btn active" data-filter="all">
-      All
-      <span class="tab-badge">{{ notifications|length }}</span>
-    </button>
-    <button class="tab-btn" data-filter="unread">
-      Unread
-      <span class="tab-badge">{{ unread_count }}</span>
-    </button>
-    <button class="tab-btn" data-filter="approved">
-      <i class="bi bi-check-circle"></i> Approved
-      <span class="tab-badge">{{ approved_count }}</span>
-    </button>
-    <button class="tab-btn" data-filter="rejected">
-      <i class="bi bi-x-circle"></i> Rejected
-      <span class="tab-badge">{{ rejected_count }}</span>
-    </button>
-    <button class="tab-btn" data-filter="pending">
-      <i class="bi bi-clock"></i> Pending
-      <span class="tab-badge">{{ pending_count }}</span>
-    </button>
-  </div>
-
-  <!-- Notifications List -->
-  <div class="notifications-list" id="notificationsList">
-    {% if notifications and notifications|length > 0 %}
+  {% if notifications and notifications|length > 0 %}
+    <div class="list">
       {% for notif in notifications %}
-      <div class="notification-card {% if not notif.read_at %}unread{% endif %}" 
-           data-type="{{ notif.type }}"
-           data-filter="{% if not notif.read_at %}unread{% endif %} 
-                        {% if notif.type == 'claim_approved' %}approved{% elif notif.type == 'claim_rejected' %}rejected{% elif notif.type == 'new_claim' %}pending{% endif %}">
-        
-        <!-- Card Header: Status Badge & Title -->
-        <div class="card-header-row">
-          <div class="card-header-content">
-            {% if notif.type == 'claim_approved' %}
-              <div class="status-badge approved">
-                <i class="bi bi-check-circle-fill"></i> Approved
-              </div>
-            {% elif notif.type == 'claim_rejected' %}
-              <div class="status-badge rejected">
-                <i class="bi bi-x-circle-fill"></i> Rejected
-              </div>
-            {% elif notif.type == 'new_claim' %}
-              <div class="status-badge claim">
-                <i class="bi bi-file-earmark-check"></i> New Claim
-              </div>
-            {% elif notif.type == 'item_match' %}
-              <div class="status-badge match">
-                <i class="bi bi-link-45deg"></i> New Match
-              </div>
-            {% else %}
-              <div class="status-badge">
-                <i class="bi bi-info-circle"></i> Info
-              </div>
-            {% endif %}
-            
-            <h3 class="card-title">{{ notif.title }}</h3>
-          </div>
+        {% set is_unread = (not notif.read_at) %}
 
-          <!-- Read Indicator -->
-          {% if notif.read_at %}
-            <div style="text-align: right;">
-              <span class="meta-read-status">
-                <i class="bi bi-check2-all"></i> Read
-              </span>
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Card Message -->
-        <p class="card-message">{{ notif.message }}</p>
-
-        <!-- Contextual Guidance -->
+        {# map types for badges #}
+        {% set badge_class = 'badge-info' %}
+        {% set badge_text = 'Info' %}
         {% if notif.type == 'claim_approved' %}
-          <div class="guidance-box">
-            <strong>📍 Next Step:</strong> Please proceed to the Lost & Found Office during office hours to claim your item.
-          </div>
+          {% set badge_class = 'badge-approved' %}
+          {% set badge_text = 'Approved' %}
         {% elif notif.type == 'claim_rejected' %}
-          <div class="guidance-box">
-            <strong>ℹ️ Note:</strong> Your claim was rejected due to insufficient verification. You may submit a new claim with additional details.
-          </div>
+          {% set badge_class = 'badge-rejected' %}
+          {% set badge_text = 'Rejected' %}
         {% elif notif.type == 'new_claim' %}
-          <div class="guidance-box">
-            <strong>📋 Action:</strong> Review the claim details and respond to help reunite the item with its owner.
-          </div>
+          {% set badge_class = 'badge-pending' %}
+          {% set badge_text = 'Pending' %}
         {% elif notif.type == 'item_match' %}
-          <div class="guidance-box">
-            <strong>🔗 Opportunity:</strong> A found item may match your lost item. View the details to confirm or claim it.
-          </div>
+          {% set badge_class = 'badge-info' %}
+          {% set badge_text = 'Match' %}
         {% endif %}
 
-        <!-- Card Meta: Timestamp & Status -->
-        <div class="card-meta">
-          <div>
-            <span class="meta-timestamp">
-              <i class="bi bi-calendar-event"></i>
-              <time datetime="{{ notif.created_at.isoformat() if notif.created_at else '' }}">
-                {{ notif.created_at.strftime('%B %d, %Y at %I:%M %p') if notif.created_at else 'N/A' }}
-              </time>
+        <div class="notif {% if is_unread %}unread{% endif %}">
+          <div class="notif-top">
+            <div>
+              <span class="badge-type {{ badge_class }}">
+                <i class="fa-solid fa-circle-info"></i> {{ badge_text }}
+              </span>
+              <h3 class="notif-title" style="margin-top:.5rem;">{{ notif.title }}</h3>
+            </div>
+            <div class="text-end" style="min-width: 140px;">
+              {% if is_unread %}
+                <span class="badge-type badge-info"><i class="fa-solid fa-envelope"></i> Unread</span>
+              {% else %}
+                <span class="badge-type" style="background: rgba(16,185,129,.12); color: var(--success);">
+                  <i class="fa-solid fa-check"></i> Read
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="notif-message">{{ notif.message }}</div>
+
+          <div class="meta">
+            <span><i class="fa-regular fa-clock me-1"></i>
+              {{ notif.created_at.strftime('%B %d, %Y %I:%M %p') if notif.created_at else 'N/A' }}
             </span>
             {% if notif.read_at %}
-              <span class="meta-timestamp" style="margin-left: 1rem; color: var(--success); font-weight: 700;">
-                <i class="bi bi-check-all"></i>
-                <time datetime="{{ notif.read_at.isoformat() }}">
-                  Read {{ notif.read_at.strftime('%b %d') }}
-                </time>
+              <span style="color: var(--success); font-weight: 800;">
+                <i class="fa-solid fa-check-double me-1"></i>
+                Read {{ notif.read_at.strftime('%b %d') }}
               </span>
             {% endif %}
           </div>
-        </div>
 
-        <!-- Card Actions -->
-        <div class="card-actions">
-          {% if notif.type == 'claim_approved' or notif.type == 'claim_rejected' or notif.type == 'new_claim' %}
-            <a href="{{ url_for('user.dashboard') }}#claims" class="action-btn primary">
-              <i class="bi bi-arrow-right"></i> View Details
-            </a>
-          {% elif notif.type == 'item_match' %}
-            <a href="{{ url_for('user.dashboard') }}#matches" class="action-btn primary">
-              <i class="bi bi-arrow-right"></i> View Match
-            </a>
-          {% endif %}
+          <div class="notif-actions">
+            {% if is_unread %}
+              <form method="post" action="{{ url_for('notifications.mark_notification_read', notification_id=notif.id) }}">
+                <button class="link-btn" type="submit">
+                  <i class="fa-solid fa-check me-1"></i> Mark read
+                </button>
+              </form>
+            {% endif %}
 
-          {% if not notif.read_at %}
-            <form method="post" action="{{ url_for('notifications.mark_notification_read', notification_id=notif.id) }}" 
-                  style="flex: 1;">
-              <button type="submit" class="action-btn secondary" style="width: 100%;">
-                <i class="bi bi-check2"></i> Mark as read
+            <form method="post" action="{{ url_for('notifications.delete_user_notification', notification_id=notif.id) }}" onsubmit="return confirm('Delete this notification?');">
+              <button class="link-btn danger" type="submit">
+                <i class="fa-solid fa-trash me-1"></i> Delete
               </button>
             </form>
-          {% endif %}
 
-          <form method="post" action="{{ url_for('notifications.delete_user_notification', notification_id=notif.id) }}" 
-                style="flex: 1;"
-                onsubmit="return confirm('Are you sure you want to delete this notification?');">
-            <button type="submit" class="action-btn danger" style="width: 100%;">
-              <i class="bi bi-trash"></i> Delete
-            </button>
-          </form>
+            <a class="link-btn" href="{{ url_for('user.dashboard') }}">
+              <i class="fa-solid fa-arrow-right me-1"></i> Go to dashboard
+            </a>
+          </div>
         </div>
-      </div>
       {% endfor %}
-    {% else %}
-      <!-- Empty State -->
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="bi bi-inbox"></i>
-        </div>
-        <h3 class="empty-title">You're all caught up!</h3>
-        <p class="empty-subtitle">
-          No notifications at the moment.<br>
-          Check back soon for updates about your claims and lost items.
-        </p>
+    </div>
+  {% else %}
+    <div class="empty">
+      <div style="font-size: 2.25rem; margin-bottom: .75rem; color: var(--text-secondary);">
+        <i class="fa-regular fa-bell"></i>
       </div>
-    {% endif %}
-  </div>
+      <div style="font-weight: 900; color: var(--text-primary); font-size: 1.2rem;">No notifications yet</div>
+      <div style="margin-top:.35rem;">When something happens (matches, claim decisions, etc.), you’ll see it here.</div>
+    </div>
+  {% endif %}
 </div>
-
-<!-- JavaScript for Tab Filtering -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const filterButtons = document.querySelectorAll('.tab-btn');
-    const notificationCards = document.querySelectorAll('.notification-card');
-
-    filterButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const filter = this.dataset.filter;
-
-        // Update active tab
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        this.classList.add('active');
-
-        // Filter notifications
-        notificationCards.forEach(card => {
-          if (filter === 'all') {
-            card.classList.remove('d-none');
-          } else {
-            const cardFilters = card.dataset.filter.split(/\s+/);
-            if (cardFilters.includes(filter)) {
-              card.classList.remove('d-none');
-            } else {
-              card.classList.add('d-none');
-            }
-          }
-        });
-
-        // Show empty state if no cards visible
-        const visibleCards = Array.from(notificationCards).filter(card => !card.classList.contains('d-none'));
-        const emptyState = document.querySelector('.empty-state');
-        if (visibleCards.length === 0 && emptyState) {
-          emptyState.classList.remove('d-none');
-        } else if (emptyState) {
-          emptyState.classList.add('d-none');
-        }
-      });
-    });
-
-    // Calculate and update badge counts (dynamic)
-    function updateBadgeCounts() {
-      const allCards = Array.from(notificationCards);
-      const unreadCards = allCards.filter(card => card.classList.contains('unread'));
-      const approvedCards = allCards.filter(card => card.dataset.filter.includes('approved'));
-      const rejectedCards = allCards.filter(card => card.dataset.filter.includes('rejected'));
-      const pendingCards = allCards.filter(card => card.dataset.filter.includes('pending'));
-
-      // Update tab badges
-      document.querySelectorAll('.tab-badge')[0].textContent = allCards.length;
-      document.querySelectorAll('.tab-badge')[1].textContent = unreadCards.length;
-      document.querySelectorAll('.tab-badge')[2].textContent = approvedCards.length;
-      document.querySelectorAll('.tab-badge')[3].textContent = rejectedCards.length;
-      document.querySelectorAll('.tab-badge')[4].textContent = pendingCards.length;
-    }
-
-    // Auto-update counts after actions
-    const deleteForms = document.querySelectorAll('form[action*="delete"]');
-    deleteForms.forEach(form => {
-      form.addEventListener('submit', function() {
-        setTimeout(updateBadgeCounts, 500);
-      });
-    });
-  });
-</script>
-
 {% endblock %}

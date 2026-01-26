@@ -481,7 +481,8 @@ def api_review_report():
         if status == 'approved':
             print(f"[ADMIN] Report approved for {item_type} item {item_id}. Triggering matching pipeline...")
             try:
-                run_matching_pipeline(threshold=0.75)
+                created = run_matching_pipeline(threshold=0.75)
+                print(f"[ADMIN] Matching pipeline completed. Generated {len(created or [])} match candidate(s).")
             except Exception as e:
                 print(f"[ADMIN] Warning: Matching pipeline error: {str(e)}")
         

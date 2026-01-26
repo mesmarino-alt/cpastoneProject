@@ -461,33 +461,150 @@
 const bellBtn = document.getElementById('notificationBellBtn');
 const dropdown = document.getElementById('notificationDropdown');
 
-bellBtn.addEventListener('click', e => {
+// Elements inside dropdown
+const notificationsListEl = document.getElementById('notificationsList');
+const bellBadgeEl = document.getElementById('bellNotificationBadge');
+const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function setBellBadge(count) {
+  const c = Number(count || 0);
+  if (!bellBadgeEl) return;
+  if (c > 0) {
+    bellBadgeEl.textContent = String(c);
+    bellBadgeEl.style.display = 'flex';
+  } else {
+    bellBadgeEl.textContent = '0';
+    bellBadgeEl.style.display = 'none';
+  }
+}
+
+function renderNewestUnread(notifications) {
+  if (!notificationsListEl) return;
+
+  const newestUnread = (notifications || []).find(n => !n.is_read);
+
+  if (!newestUnread) {
+    notificationsListEl.innerHTML = `
+      <div class="notification-item" style="cursor: default;">
+        <div class="fw-semibold">No unread notifications</div>
+        <div class="small text-muted">You're all caught up.</div>
+      </div>`;
+    return;
+  }
+
+  // Minimal, single-item dropdown as requested
+  notificationsListEl.innerHTML = `
+    <div class="notification-item unread" data-notif-id="${newestUnread.id}">
+      <div class="fw-semibold">${escapeHtml(newestUnread.title)}</div>
+      <div class="small text-muted">${escapeHtml(newestUnread.message)}</div>
+      <div class="small" style="margin-top:.35rem; color: var(--primary-teal);">Tap to mark as read</div>
+    </div>`;
+
+  const item = notificationsListEl.querySelector('[data-notif-id]');
+  if (item) {
+    item.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const id = item.getAttribute('data-notif-id');
+      try {
+        const res = await fetch(`/notifications/${id}/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        if (res.ok) {
+          // Refresh to show next newest unread
+          await refreshNotificationDropdown();
+        }
+      } catch (_) {
+        // no-op
+      }
+    });
+  }
+}
+
+async function refreshNotificationDropdown() {
+  try {
+    // Ask for a handful so we can find the newest unread
+    const res = await fetch('/notifications/api/recent?limit=15', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return;
+    const data = await res.json();
+
+    setBellBadge(data.unread_count);
+    renderNewestUnread(data.notifications);
+  } catch (_) {
+    // no-op
+  }
+}
+
+bellBtn.addEventListener('click', async e => {
   e.stopPropagation();
   const rect = bellBtn.getBoundingClientRect();
-  
+
   // Calculate position
   let top = rect.bottom + 10;
   let left = rect.right - 360;
-  
+
   // Ensure dropdown doesn't go off-screen horizontally
   if (left < 10) {
     left = 10;
   } else if (left + 360 > window.innerWidth) {
     left = window.innerWidth - 370;
   }
-  
+
   // Ensure dropdown doesn't go off-screen vertically
   const dropdownHeight = 500;
   if (top + dropdownHeight > window.innerHeight) {
     top = rect.top - dropdownHeight - 10;
   }
-  
+
   dropdown.style.top = top + 'px';
   dropdown.style.left = left + 'px';
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+  const willOpen = dropdown.style.display !== 'block';
+  dropdown.style.display = willOpen ? 'block' : 'none';
+
+  if (willOpen) {
+    await refreshNotificationDropdown();
+  }
 });
 
 document.addEventListener('click', () => dropdown.style.display = 'none');
+
+if (dropdown) {
+  dropdown.addEventListener('click', (e) => e.stopPropagation());
+}
+
+if (markAllReadBtn) {
+  markAllReadBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/notifications/mark-all-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      if (res.ok) {
+        await refreshNotificationDropdown();
+      }
+    } catch (_) {
+      // no-op
+    }
+  });
+}
+
+// Keep badge updated even if user never opens dropdown
+document.addEventListener('DOMContentLoaded', () => {
+  refreshNotificationDropdown();
+});
 
 /* ===================== PROFILE PHOTO PREVIEW ===================== */
 function previewProfilePhoto(event) {
