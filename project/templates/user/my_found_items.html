@@ -3,29 +3,19 @@
 
 {% block content %}
 <style>
-  /* Use shared dashboard palette (primary purple/teal, neutrals, shadows)
-     and follow the same light/dark variable approach as dashboard.html */
+  /* Use shared dashboard palette tokens so dark mode comes from base_user_dashboard.html */
   :root {
-    --page-bg: var(--neutral-50, #f7f8fc);
-    --card: var(--neutral-0, #ffffff);
-    --text: var(--neutral-900, #2b2d42);
-    --muted: var(--neutral-600, #6c757d);
-    --shadow: var(--shadow-md, 0 8px 24px rgba(18, 38, 63, 0.06));
-    --border-color: var(--neutral-200, #e9ecef);
+    --page-bg: var(--neutral-bg);
+    --card: var(--neutral-white);
+    --text: var(--neutral-900);
+    --muted: var(--neutral-600);
+    --shadow: var(--shadow-md);
+    --border-color: var(--neutral-200);
 
     /* Theme accents */
-    --primary-accent: var(--primary-purple, #6f42c1);
-    --primary-accent-2: var(--primary-teal, #20c997);
-    --primary-accent-hover: var(--primary-purple-700, #5a35a0);
-  }
-
-  body.dark-mode {
-    --page-bg: var(--neutral-950, #1b1b1b);
-    --card: var(--neutral-900, #292929);
-    --text: var(--neutral-0, #ffffff);
-    --muted: var(--neutral-400, #808080);
-    --shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.3));
-    --border-color: var(--neutral-800, #404040);
+    --primary-accent: var(--primary-purple);
+    --primary-accent-2: var(--primary-teal);
+    --primary-accent-hover: color-mix(in srgb, var(--primary-purple) 85%, #000);
   }
 
   body, .container-fluid {
@@ -82,13 +72,6 @@
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
-  }
-
-  body.dark-mode .table-controls input,
-  body.dark-mode .table-controls select,
-  body.dark-mode .form-control,
-  body.dark-mode .form-select {
-    background-color: #343a40;
   }
 
   .table-controls input:focus,
@@ -151,21 +134,10 @@
     color: #b78103;
   }
 
-  body.dark-mode .badge-pending {
-    color: #ffc107;
-    background-color: rgba(255, 193, 7, 0.25);
-  }
-
   .badge-approved,
   .badge-matched {
     background-color: rgba(40, 167, 69, 0.18);
     color: #1f7a34;
-  }
-
-  body.dark-mode .badge-approved,
-  body.dark-mode .badge-matched {
-    background-color: rgba(40, 167, 69, 0.25);
-    color: #28a745;
   }
 
   .badge-rejected,
@@ -174,22 +146,10 @@
     color: #a61f2f;
   }
 
-  body.dark-mode .badge-rejected {
-    background-color: rgba(220, 53, 69, 0.25);
-    color: #dc3545;
-  }
-
   .badge-closed {
     background: rgba(108, 117, 125, 0.14);
     border-color: rgba(108, 117, 125, 0.18);
     color: #555b61;
-  }
-
-  body.dark-mode .badge-closed {
-    background: rgba(108, 117, 125, 0.22);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
   }
 
   .btn-view:hover {
@@ -233,7 +193,7 @@
   }
 
   .modal-body strong {
-    color: var(--primary-accent);
+    color: var (--primary-accent);
   }
 
   .modal-footer {
@@ -243,10 +203,6 @@
 
   .btn-close {
     filter: none;
-  }
-
-  body.dark-mode .btn-close {
-    filter: invert(1) grayscale(100%);
   }
 
   .text-purple {
@@ -549,6 +505,11 @@
     background: #eef1f6;
   }
 
+  body.dark-mode .found-image-frame,
+  body.dark-mode .found-image-empty {
+    background: color-mix(in srgb, var(--neutral-white) 88%, #0000) !important;
+  }
+
   .found-modal-footer {
     padding: .9rem 1.25rem;
     border-top: 1px solid var(--border-color);
@@ -586,11 +547,6 @@
     .found-modal-footer .btn {
       width: 100%;
     }
-  }
-
-  body.dark-mode .found-image-frame,
-  body.dark-mode .found-image-empty {
-    background: #20242a;
   }
 
   /* ---------------------------------------------
@@ -666,45 +622,84 @@
     background: color-mix(in srgb, var(--card) 92%, rgba(138, 43, 226, 0.05) 8%);
     border: 1px solid var(--border-color);
     margin-bottom: 1rem;
+    justify-content: flex-end;
+    gap: .5rem;
   }
 
   .found-filter {
     position: relative;
-    flex: 1 1 220px;
-    min-width: 200px;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
   }
 
   .found-filter i {
-    position: absolute;
-    left: .8rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    pointer-events: none;
+    position: static;
+    transform: none;
+    pointer-events: auto;
   }
 
   .found-filter input,
   .found-filter select {
-    width: 100%;
-    padding: .65rem .85rem .65rem 2.25rem;
+    width: min(320px, 85vw);
+    padding: .65rem .85rem;
+    border-radius: 12px;
+  }
+
+  .found-filter-btn {
+    width: 44px;
+    height: 44px;
     border-radius: 999px;
-    border: 1px solid var(--border-color);
+    border: 1px solid transparent;
     background: var(--card);
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+    transition: transform .12s ease, background-color .12s ease, color .12s ease, border-color .12s ease;
+  }
+
+  .found-filter-btn:hover {
+    background: color-mix(in srgb, var(--primary-accent) 8%, transparent);
+    border-color: transparent;
     color: var(--text);
-    font-weight: 700;
-    font-size: .9rem;
-    transition: box-shadow .2s ease, border-color .2s ease;
+    box-shadow: none;
   }
 
-  .found-filter select {
-    padding-left: 2.1rem;
-  }
+  .found-filter-btn:active { transform: scale(0.97); }
 
-  .found-filter input:focus,
-  .found-filter select:focus {
+  .found-filter-btn:focus,
+  .found-filter-btn:focus-visible {
     outline: none;
-    border-color: var(--primary-accent);
-    box-shadow: 0 0 0 .2rem rgba(138, 43, 226, .18);
+    box-shadow: none;
+  }
+
+  .found-filter-pop {
+    position: absolute;
+    top: calc(100% + .55rem);
+    right: 0;
+    z-index: 30;
+    display: none;
+    padding: .75rem;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    max-width: calc(100vw - 24px);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 24px));
+  }
+
+  .found-filter-pop.show { display: block; }
+
+  @media (max-width: 768px) {
+    .found-filter-pop {
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+    }
   }
 
   .found-table-card {
@@ -814,7 +809,7 @@
     font-weight: 900;
   }
 
-  /* Responsive: table -> stacked cards */
+  /* Mobile header layout tweaks (kept) */
   @media (max-width: 768px) {
     .found-page-header {
       flex-direction: column;
@@ -829,10 +824,22 @@
     .found-table-wrapper {
       max-height: none;
     }
+  }
 
-    #itemsTable thead {
-      display: none;
-    }
+  /* Legacy layout containers are no longer used by the redesigned page */
+  .content-panel { background: transparent; border: 0; box-shadow: none; padding: 0; }
+  .panel-header, .table-controls, .table-wrapper { display: none; }
+
+  /* =========================
+     Mobile app-style list (Found)
+     - Mobile only
+     - Entire row is tappable
+     - No View button
+     ========================= */
+  @media (max-width: 768px) {
+    .found-table-wrapper { overflow: visible; }
+
+    #itemsTable thead { display: none; }
 
     #itemsTable,
     #itemsTable tbody,
@@ -843,53 +850,135 @@
     }
 
     #itemsTable tbody tr {
+      position: relative;
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: .85rem;
+      border-radius: 16px;
+      padding: 0;
       margin: .75rem .75rem 0 .75rem;
       background: var(--card);
-      box-shadow: 0 10px 20px rgba(18, 38, 63, 0.06);
+      box-shadow: 0 10px 24px rgba(18, 38, 63, 0.08);
+      overflow: hidden;
+      transition: transform .12s ease, background-color .12s ease, box-shadow .12s ease;
     }
 
-    #itemsTable td {
-      border: 0;
-      padding: .35rem 0;
-      display: flex;
-      justify-content: space-between;
-      gap: .75rem;
-      align-items: baseline;
+    #itemsTable tbody tr:active {
+      transform: scale(0.99);
+      box-shadow: 0 8px 18px rgba(18, 38, 63, 0.10);
     }
 
-    #itemsTable td::before {
-      content: attr(data-label);
-      color: var(--muted);
-      font-weight: 800;
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      flex: 0 0 38%;
+    .found-mobile-card {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: .85rem;
+      padding: .85rem;
+      align-items: center;
     }
 
-    #itemsTable td:last-child {
-      justify-content: flex-end;
-      padding-top: .6rem;
+    .found-thumb {
+      width: 92px;
+      height: 92px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #eef1f6;
+      border: 1px solid color-mix(in srgb, var(--border-color) 70%, #0000 30%);
+      flex: 0 0 auto;
     }
 
-    #itemsTable td:last-child::before {
-      content: '';
-      display: none;
-    }
-
-    .btn-view {
+    .found-thumb img {
       width: 100%;
-      justify-content: center;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
+
+    .found-thumb .placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .found-info {
+      min-width: 0;
+      display: grid;
+      gap: .28rem;
+    }
+
+    .found-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+
+    .found-name {
+      margin: 0;
+      font-weight: 900;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .found-meta {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .found-subrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem .75rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 700;
+    }
+
+    .found-subrow .pin {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    #itemsTable tbody tr .badge-status {
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      font-size: .78rem;
+      font-weight: 900;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    /* Hide the action button/cell on mobile */
+    #itemsTable td[data-label="Action"],
+    #itemsTable .btn-view {
+      display: none !important;
+    }
+
+    .found-row-link {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .found-mobile-card { position: relative; z-index: 1; }
   }
-
-  /* Legacy layout containers are no longer used by the redesigned page */
-  .content-panel { background: transparent; border: 0; box-shadow: none; padding: 0; }
-  .panel-header, .table-controls, .table-wrapper { display: none; }
-
 </style>
 
 <div class="py-4">
@@ -912,35 +1001,50 @@
 
     <!-- Filters -->
     <div class="found-filter-bar" aria-label="Filters">
-      <div class="found-filter" style="flex: 2 1 320px; min-width: 240px;">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search items…" id="tableSearch" onkeyup="filterTable()" aria-label="Search items">
+      <!-- Search (icon-only) -->
+      <div class="found-filter">
+        <button type="button" class="found-filter-btn" data-filter-pop="foundSearchPop" aria-label="Search">
+          <i class="bi bi-search"></i>
+        </button>
+        <div class="found-filter-pop" id="foundSearchPop">
+          <input type="text" placeholder="Search items…" id="tableSearch" onkeyup="filterTable()" aria-label="Search items">
+        </div>
       </div>
 
-      <div class="found-filter" style="flex: 1 1 220px;">
-        <i class="bi bi-grid"></i>
-        <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Gadgets">Gadgets</option>
-          <option value="Bags">Bags</option>
-          <option value="Wallets">Wallets</option>
-          <option value="Documents">Documents</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Accessory">Accessory</option>
-          <option value="ID/Card">ID/Card</option>
-          <option value="Other">Other</option>
-        </select>
+      <!-- Category (icon-only) -->
+      <div class="found-filter">
+        <button type="button" class="found-filter-btn" data-filter-pop="foundCategoryPop" aria-label="Filter by category">
+          <i class="bi bi-grid"></i>
+        </button>
+        <div class="found-filter-pop" id="foundCategoryPop">
+          <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
+            <option value="">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Gadgets">Gadgets</option>
+            <option value="Bags">Bags</option>
+            <option value="Wallets">Wallets</option>
+            <option value="Documents">Documents</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Accessory">Accessory</option>
+            <option value="ID/Card">ID/Card</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
       </div>
 
-      <div class="found-filter" style="flex: 1 1 220px;">
-        <i class="bi bi-flag"></i>
-        <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="matched">Matched</option>
-          <option value="closed">Closed</option>
-        </select>
+      <!-- Status (icon-only) -->
+      <div class="found-filter">
+        <button type="button" class="found-filter-btn" data-filter-pop="foundStatusPop" aria-label="Filter by status">
+          <i class="bi bi-flag"></i>
+        </button>
+        <div class="found-filter-pop" id="foundStatusPop">
+          <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="matched">Matched</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -964,10 +1068,11 @@
           <tbody>
             {% if items %}
               {% for item in items %}
-              <tr>
-                <td data-label="Item">{{ item.name }}</td>
-                <td data-label="Category">{{ item.category or 'General' }}</td>
-                <td data-label="Date">
+              <tr data-item-id="{{ item.id }}">
+                {# Desktop table cells (keep existing layout) #}
+                <td data-label="Item" class="d-none d-md-table-cell">{{ item.name }}</td>
+                <td data-label="Category" class="d-none d-md-table-cell">{{ item.category or 'General' }}</td>
+                <td data-label="Date" class="d-none d-md-table-cell">
                   {% if item.found_at %}
                     {% if item.found_at.__class__.__name__ == 'datetime' %}
                       {{ item.found_at.strftime('%b %d, %Y') }}
@@ -978,7 +1083,7 @@
                     N/A
                   {% endif %}
                 </td>
-                <td data-label="Status">
+                <td data-label="Status" class="d-none d-md-table-cell">
                   {% if item.claim_status == 'Approved' %}
                     <span class="badge-status badge-approved">Resolved - Claimed</span>
                   {% elif item.claim_status == 'Pending' %}
@@ -995,10 +1100,66 @@
                     {% endif %}
                   {% endif %}
                 </td>
-                <td data-label="Action">
+                <td data-label="Action" class="d-none d-md-table-cell">
                   <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewFoundItemModal" data-id="{{ item.id }}" type="button">
                     <i class="bi bi-eye"></i> View
                   </button>
+                </td>
+
+                {# Mobile full-width card row #}
+                <td class="d-md-none" style="border:0; padding:0;">
+                  <a href="#" class="found-row-link" data-bs-toggle="modal" data-bs-target="#viewFoundItemModal" data-id="{{ item.id }}" aria-label="View {{ item.name }}"></a>
+                  <div class="found-mobile-card">
+                    <div class="found-thumb" aria-hidden="true">
+                      {% if item.photo %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" alt="{{ item.name }}">
+                      {% else %}
+                        <div class="placeholder"><i class="bi bi-image"></i></div>
+                      {% endif %}
+                    </div>
+
+                    <div class="found-info">
+                      <div class="found-topline">
+                        <h4 class="found-name">{{ item.name }}</h4>
+                        {# Status pill (simplified for scanability) #}
+                        {% if item.claim_status == 'Approved' %}
+                          <span class="badge-status badge-approved">Claimed</span>
+                        {% elif item.claim_status == 'Pending' %}
+                          <span class="badge-status badge-pending">Pending</span>
+                        {% elif item.claim_status == 'Rejected' %}
+                          <span class="badge-status badge-closed">Rejected</span>
+                        {% else %}
+                          {% if item.status and item.status|lower == 'matched' %}
+                            <span class="badge-status badge-approved">Matched</span>
+                          {% elif item.status and item.status|lower == 'closed' %}
+                            <span class="badge-status badge-closed">Closed</span>
+                          {% else %}
+                            <span class="badge-status badge-pending">Pending</span>
+                          {% endif %}
+                        {% endif %}
+                      </div>
+
+                      <div class="found-meta">{{ item.category or 'General' }}</div>
+
+                      <div class="found-subrow">
+                        <span class="pin" title="Where found">
+                          <span aria-hidden="true">📍</span>
+                          <span>{{ item.where_found or '—' }}</span>
+                        </span>
+                        <span title="Date found">
+                          {% if item.found_at %}
+                            {% if item.found_at.__class__.__name__ == 'datetime' %}
+                              {{ item.found_at.strftime('%b %d, %Y') }}
+                            {% else %}
+                              {{ item.found_at }}
+                            {% endif %}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
               {% endfor %}
@@ -1023,7 +1184,7 @@
 
 <!-- Report Found Item Modal -->
 <div class="modal fade" id="reportFoundModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width: 700px;">
+  <div class="modal-dialog modal-dialog-scrollable modal-compact" style="max-width: 700px;">
     <form class="modal-content" id="reportFoundForm" method="post" action="{{ url_for('user.report_found') }}" enctype="multipart/form-data">
       <div class="modal-header">
         <h5 class="modal-title">Report found item</h5>
@@ -1167,7 +1328,7 @@
 
 <!-- View Found Item Modal -->
 <div class="modal fade" id="viewFoundItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered found-modal-dialog">
+  <div class="modal-dialog modal-dialog-centered found-modal-dialog modal-compact">
     <div class="modal-content found-modal-content">
       <div class="modal-header found-modal-header">
         <div>
@@ -1551,6 +1712,76 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Minimal filters: toggle popovers
+  (function initFoundFilterPops() {
+    const bar = document.querySelector('.found-filter-bar');
+    if (!bar) return;
+
+    const clampPopoverToViewport = (pop) => {
+      if (!pop) return;
+
+      const padding = 12;
+
+      // reset to centered default
+      pop.style.left = '50%';
+      pop.style.right = 'auto';
+      pop.style.transform = 'translateX(-50%)';
+
+      const rect = pop.getBoundingClientRect();
+
+      if (rect.right > window.innerWidth - padding) {
+        const shift = rect.right - (window.innerWidth - padding);
+        pop.style.transform = `translateX(calc(-50% - ${shift}px))`;
+      }
+
+      const rect2 = pop.getBoundingClientRect();
+      if (rect2.left < padding) {
+        const shift = padding - rect2.left;
+        pop.style.transform = `translateX(calc(-50% + ${shift}px))`;
+      }
+    };
+
+    const closeAll = () => {
+      bar.querySelectorAll('.found-filter-pop.show').forEach(p => {
+        p.classList.remove('show');
+        p.style.left = '';
+        p.style.right = '';
+        p.style.transform = '';
+      });
+    };
+
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-filter-pop]');
+      if (!btn) return;
+      e.preventDefault();
+
+      const id = btn.getAttribute('data-filter-pop');
+      const pop = document.getElementById(id);
+      if (!pop) return;
+
+      const isOpen = pop.classList.contains('show');
+      closeAll();
+      if (!isOpen) {
+        pop.classList.add('show');
+        requestAnimationFrame(() => clampPopoverToViewport(pop));
+        const focusEl = pop.querySelector('input, select');
+        focusEl?.focus();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      bar.querySelectorAll('.found-filter-pop.show').forEach(clampPopoverToViewport);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!bar.contains(e.target)) closeAll();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAll();
+    });
+  })();
 });
 
 function filterTable() {

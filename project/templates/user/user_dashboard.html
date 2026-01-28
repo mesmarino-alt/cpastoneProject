@@ -2,37 +2,22 @@
 
 {% block content %}
 <style>
-  /* ===== NEW COLOR PALETTE ===== */
+  /* ===== THEME TOKENS (use shared tokens from base layout) ===== */
   :root {
-    --primary-purple: #4A249D;
-    --primary-teal: #009FBD;
-    --accent-gold: #F9E2AF;
-    --neutral-bg: #F6F5F5;
-    --neutral-white: #ffffff;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
-    --accent-yellow: #f59e0b;
-    --neutral-100: #f3f4f6;
-    --neutral-200: #e5e7eb;
-    --neutral-300: #d1d5db;
-    --neutral-400: #9ca3af;
-    --neutral-600: #4b5563;
-    --neutral-700: #374151;
-    --neutral-900: #111827;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  * {
-    box-sizing: border-box;
+    /* Do not re-declare tokens here; base_user_dashboard.html is the source of truth. */
   }
 
   body, .container-fluid {
-    background: linear-gradient(135deg, var(--neutral-bg) 0%, rgba(240, 226, 175, 0.2) 100%);
+    background: linear-gradient(135deg, var(--neutral-bg) 0%, color-mix(in srgb, var(--accent-gold) 20%, transparent) 100%);
     color: var(--neutral-900);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     min-height: 100vh;
+  }
+
+  /* Keep all dashboard sections aligned to the same content width */
+  .dash-container {
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   /* ===== PAGE HEADER ===== */
@@ -61,6 +46,27 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .summary-cards-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .summary-card {
+      padding: 1.25rem;
+    }
+
+    .card-value {
+      font-size: 2.1rem;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 768px) {
+    .summary-cards-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .summary-card {
@@ -129,6 +135,16 @@
   }
 
   /* ===== MAIN CONTENT WRAPPER ===== */
+  .main-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: .25rem;
+  }
+
+  .main-scroll .main-content-wrapper {
+    min-width: 980px; /* enough to keep the 2 columns visible, adjust as needed */
+  }
+
   .main-content-wrapper {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
@@ -138,14 +154,20 @@
 
   @media (max-width: 1200px) {
     .main-content-wrapper {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1.5fr 1fr;
     }
+  }
+
+  .main-scroll::-webkit-scrollbar { height: 8px; }
+  .main-scroll::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--accent-gold) 85%, transparent);
+    border-radius: 999px;
   }
 
   .content-panel {
     background: var(--neutral-white);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 1.35rem;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--accent-gold);
     transition: box-shadow 0.3s ease;
@@ -159,13 +181,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--accent-gold);
   }
 
   .panel-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--neutral-900);
     margin: 0;
@@ -182,20 +204,20 @@
   /* ===== TABLE CONTROLS ===== */
   .table-controls {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
     align-items: center;
   }
 
   .table-controls input,
   .table-controls select {
-    padding: 0.7rem 1rem;
+    padding: 0.55rem 0.85rem;
     border-radius: 10px;
     border: 1.5px solid var(--accent-gold);
     background-color: var(--neutral-white);
     color: var(--neutral-900);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-family: inherit;
     transition: all 0.3s ease;
   }
@@ -213,7 +235,7 @@
 
   /* ===== TABLE SECTION ===== */
   .table-wrapper {
-    max-height: 450px;
+    max-height: 420px;
     overflow-y: auto;
     border-radius: 12px;
     border: 1px solid var(--accent-gold);
@@ -250,21 +272,21 @@
   }
 
   .data-table th {
-    padding: 1rem;
+    padding: 0.8rem 0.85rem;
     text-align: left;
     font-weight: 700;
     color: var(--primary-purple);
     border-bottom: 2px solid var(--accent-gold);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.45px;
   }
 
   .data-table td {
-    padding: 1rem;
+    padding: 0.75rem 0.85rem;
     border-bottom: 1px solid var(--accent-gold);
     color: var(--neutral-700);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .data-table tbody tr {
@@ -286,9 +308,9 @@
   /* ===== BADGES ===== */
   .badge-status {
     display: inline-block;
-    padding: 0.4rem 0.9rem;
+    padding: 0.32rem 0.7rem;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -322,9 +344,9 @@
 
   .badge-type {
     display: inline-block;
-    padding: 0.4rem 0.9rem;
+    padding: 0.32rem 0.7rem;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -378,9 +400,9 @@
     background: var(--primary-teal);
     color: var(--neutral-white);
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
+    padding: 0.42rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.74rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -405,14 +427,14 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    min-height: 400px;
+    min-height: 320px;
   }
 
   .chart-canvas-wrapper {
     position: relative;
-    width: 220px;
-    height: 220px;
-    margin: 0 auto 1.5rem auto;
+    width: 190px;
+    height: 190px;
+    margin: 0 auto 1rem auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -422,14 +444,14 @@
     width: 100%;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.9rem;
+    gap: 0.6rem;
+    font-size: 0.86rem;
     color: var(--neutral-700);
   }
 
@@ -610,47 +632,39 @@
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 768px) {
+    /* keep summary cards 2-up on mobile */
     .summary-cards-container {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .table-wrapper {
       max-height: 350px;
     }
 
+    .content-panel {
+      padding: 1rem;
+    }
+
     .data-table th,
     .data-table td {
-      padding: 0.75rem 0.5rem;
-      font-size: 0.85rem;
+      padding: 0.7rem 0.65rem;
     }
 
-    .item-details-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+    .btn-view {
+      padding: 0.5rem 0.8rem;
+      font-size: 0.78rem;
     }
 
-    .modal-content {
-      border-radius: 14px;
-    }
-
-    .modern-modal-header {
-      padding: 1.5rem;
-      border-radius: 14px 14px 0 0;
-    }
-
-    .modern-modal-body {
-      padding: 1.5rem;
-    }
-
-    .modal-footer {
-      padding: 1.25rem 1.5rem;
-      border-radius: 0 0 14px 14px;
+    .chart-canvas-wrapper {
+      width: 170px;
+      height: 170px;
     }
   }
 
   @media (max-width: 480px) {
+    /* keep summary cards 2-up on small phones as well */
     .summary-cards-container {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .table-wrapper {
@@ -658,15 +672,15 @@
     }
 
     .chart-canvas-wrapper {
-      width: 180px;
-      height: 180px;
+      width: 170px;
+      height: 170px;
     }
   }
 
 </style>
 
 <div class="py-4">
-  <div class="container-fluid">
+  <div class="container-fluid dash-container">
     
     <!-- PAGE HEADER -->
     <!-- <div class="page-header mb-4">
@@ -714,137 +728,131 @@
     </div>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="main-content-wrapper">
-      
-      <!-- LEFT PANEL: Items Table -->
-      <div class="content-panel">
-        <div class="panel-header">
-          <h3 class="panel-title">
-            <i class="bi bi-inbox"></i> Lost & Found Items
-          </h3>
-        </div>
+    <div class="main-scroll" role="region" aria-label="Dashboard details">
+      <div class="main-content-wrapper">
+       
+        <!-- LEFT PANEL: Items Table -->
+        <div class="content-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">
+              <i class="bi bi-inbox"></i> Lost & Found Items
+            </h3>
+          </div>
 
-        <!-- Controls -->
-        <div class="table-controls">
-          <input type="text" placeholder="Search items..." id="tableSearch" onkeyup="filterTable()" style="flex: 1; min-width: 200px;">
-          <select id="categoryFilter" onchange="filterTable()">
-            <option value="">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Gadgets">Gadgets</option>
-            <option value="Bags">Bags</option>
-            <option value="Wallets">Wallets</option>
-            <option value="Documents">Documents</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Others">Others</option>
-          </select>
-        </div>
+          <!-- Controls -->
+          <div class="table-controls">
+            <input type="text" placeholder="Search items..." id="tableSearch" onkeyup="filterTable()" style="flex: 1; min-width: 200px;">
+            <select id="categoryFilter" onchange="filterTable()">
+              <option value="">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Gadgets">Gadgets</option>
+              <option value="Bags">Bags</option>
+              <option value="Wallets">Wallets</option>
+              <option value="Documents">Documents</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
 
-        <!-- Table -->
-        <div class="table-wrapper">
-          <table class="data-table" id="itemsTable">
-            <thead>
-              <tr>
-                <th>Item Name</th>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if items %}
-              {% for item in items %}
-              <tr data-item-name="{{ (item.name or '')|lower|trim }}" data-item-type="{{ (item.type or '')|lower|trim }}" data-item-user-id="{{ item.user_id }}">
-                <td>
-                  <div>
-                    <strong>{{ item.name }}</strong>
-                    {% if item.user_id == current_user.id %}
-                    <div class="badge-reporter">
-                      <i class="bi bi-check2-circle"></i> Your Report
+          <!-- Table -->
+          <div class="table-wrapper">
+            <table class="data-table" id="itemsTable">
+              <thead>
+                <tr>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if items %}
+                {% for item in items %}
+                <tr data-item-name="{{ (item.name or '')|lower|trim }}" data-item-type="{{ (item.type or '')|lower|trim }}" data-item-user-id="{{ item.user_id }}">
+                  <td>
+                    <div>
+                      <strong>{{ item.name }}</strong>
+                      {% if item.user_id == current_user.id %}
+                      <div class="badge-reporter">
+                        <i class="bi bi-check2-circle"></i> Your Report
+                      </div>
+                      {% endif %}
+                      <div class="badge-dup-self" style="display:none;" title="You reported this item as both Lost and Found. It will not be matched.">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Can't be matched
+                      </div>
                     </div>
+                  </td>
+                  <td>{{ item.category or 'General' }}</td>
+                  <td>
+                    <span class="badge-type {% if item.type|lower == 'lost' %}badge-lost{% else %}badge-found{% endif %}">
+                      {{ item.type|title }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if item.status == 'Claimed' %}
+                      <span class="badge-status badge-claimed"><i class="bi bi-check-lg"></i> Claimed</span>
+                    {% elif item.status == 'Pending Claim' %}
+                      <span class="badge-status badge-pending-claim"><i class="bi bi-hourglass-split"></i> Pending</span>
+                    {% elif item.status == 'Matched' %}
+                      <span class="badge-status badge-matched"><i class="bi bi-link-45deg"></i> Matched</span>
+                    {% elif item.status == 'Rejected' %}
+                      <span class="badge-status badge-rejected"><i class="bi bi-x-lg"></i> Rejected</span>
+                    {% else %}
+                      <span class="badge-status" style="background: rgba(16, 185, 129, 0.12); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3);"><i class="bi bi-check-circle"></i> Available</span>
                     {% endif %}
-                    <div class="badge-dup-self" style="display:none;" title="You reported this item as both Lost and Found. It will not be matched.">
-                      <i class="bi bi-exclamation-triangle-fill"></i> Can't be matched
+                  </td>
+                  <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="5">
+                    <div class="empty-state">
+                      <i class="bi bi-inbox"></i>
+                      <h5>No items found</h5>
+                      <p>Start reporting items to see them here.</p>
                     </div>
-                  </div>
-                </td>
-                <td>{{ item.category or 'General' }}</td>
-                <td>
-                  <span class="badge-type {% if item.type|lower == 'lost' %}badge-lost{% else %}badge-found{% endif %}">
-                    {{ item.type|title }}
-                  </span>
-                </td>
-                <td>
-                  {% if item.status == 'Claimed' %}
-                    <span class="badge-status badge-claimed"><i class="bi bi-check-lg"></i> Claimed</span>
-                  {% elif item.status == 'Pending Claim' %}
-                    <span class="badge-status badge-pending-claim"><i class="bi bi-hourglass-split"></i> Pending</span>
-                  {% elif item.status == 'Matched' %}
-                    <span class="badge-status badge-matched"><i class="bi bi-link-45deg"></i> Matched</span>
-                  {% elif item.status == 'Rejected' %}
-                    <span class="badge-status badge-rejected"><i class="bi bi-x-lg"></i> Rejected</span>
-                  {% else %}
-                    <span class="badge-status" style="background: rgba(16, 185, 129, 0.12); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3);"><i class="bi bi-check-circle"></i> Available</span>
-                  {% endif %}
-                </td>
-                <td>{{ item.created_at.strftime('%b %d, %Y') if item.created_at else '—' }}</td>
-                <td>
-                  <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewItemModal" 
-                          data-item-id="{{ item.id }}" 
-                          data-item-type="{{ item.type }}">
-                    <i class="bi bi-eye"></i> View
-                  </button>
-                </td>
-              </tr>
-              {% endfor %}
-              {% else %}
-              <tr>
-                <td colspan="6">
-                  <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h5>No items found</h5>
-                    <p>Start reporting items to see them here.</p>
-                  </div>
-                </td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- RIGHT PANEL: Chart -->
-      <div class="content-panel">
-        <div class="panel-header">
-          <h3 class="panel-title">
-            <i class="bi bi-pie-chart"></i> Category Breakdown
-          </h3>
-        </div>
-
-        {% if category_data %}
-        <div class="chart-container">
-          <div class="chart-canvas-wrapper">
-            <canvas id="categoryChart"></canvas>
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
-          <div class="chart-legend">
-            {% for category, data in category_data.items() %}
-            <div class="legend-item">
-              <div class="legend-color" style="background-color: {{ data.color }};"></div>
-              <span><strong>{{ category }}</strong> {{ data.count }}%</span>
+        </div>
+
+        <!-- RIGHT PANEL: Chart -->
+        <div class="content-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">
+              <i class="bi bi-pie-chart"></i> Category Breakdown
+            </h3>
+          </div>
+
+          {% if category_data %}
+          <div class="chart-container">
+            <div class="chart-canvas-wrapper">
+              <canvas id="categoryChart"></canvas>
             </div>
-            {% endfor %}
+            <div class="chart-legend">
+              {% for category, data in category_data.items() %}
+              <div class="legend-item">
+                <div class="legend-color" style="background-color: {{ data.color }};"></div>
+                <span><strong>{{ category }}</strong> {{ data.count }}%</span>
+              </div>
+              {% endfor %}
+            </div>
           </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="bi bi-pie-chart"></i>
+            <h5>No Data Available</h5>
+            <p>Start reporting items to see the breakdown.</p>
+          </div>
+          {% endif %}
         </div>
-        {% else %}
-        <div class="empty-state">
-          <i class="bi bi-pie-chart"></i>
-          <h5>No Data Available</h5>
-          <p>Start reporting items to see the breakdown.</p>
-        </div>
-        {% endif %}
-      </div>
 
+      </div>
     </div>
 
     <!-- FOOTER -->
@@ -852,62 +860,6 @@
       <p>© 2025 Find It Fast - User Dashboard</p>
     </div>
 
-  </div>
-</div>
-
-<!-- VIEW ITEM MODAL -->
-<div class="modal fade" id="viewItemModal" tabindex="-1" aria-labelledby="viewItemModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 550px;">
-    <div class="modal-content">
-      <div class="modal-header modern-modal-header">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <i class="bi bi-box-seam" style="font-size: 1.5rem;"></i>
-          <h5 class="modal-title" id="viewItemModalLabel">Item Details</h5>
-        </div>
-        <button type="button" class="btn-close-modern" data-bs-dismiss="modal">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-
-      <div class="modern-modal-body">
-        <div class="item-details-grid">
-          <div class="detail-item">
-            <span class="detail-label"><i class="bi bi-tag"></i> Item Name</span>
-            <p class="detail-value" id="modalItemName">—</p>
-          </div>
-
-          <div class="detail-item">
-            <span class="detail-label"><i class="bi bi-list-ul"></i> Category</span>
-            <p class="detail-value" id="modalItemCategory">—</p>
-          </div>
-
-          <div class="detail-item">
-            <span class="detail-label"><i class="bi bi-tag-fill"></i> Type</span>
-            <p class="detail-value" id="modalItemType">—</p>
-          </div>
-
-          <div class="detail-item">
-            <span class="detail-label"><i class="bi bi-calendar-event"></i> Date</span>
-            <p class="detail-value" id="modalItemDate">—</p>
-          </div>
-
-          <div class="detail-item full-width">
-            <span class="detail-label"><i class="bi bi-card-text"></i> Description</span>
-            <p class="detail-value description-text" id="modalItemDescription">—</p>
-          </div>
-        </div>
-
-        <div class="modal-divider"></div>
-
-        <div style="text-align: center;">
-          <div id="modalPhotoContainer" style="max-width: 320px; margin: 0 auto;"></div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-close-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -952,37 +904,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     initCategoryChart();
     applySelfDuplicateWarnings();
-
-    // Handle modal data population
-    const viewModal = document.getElementById('viewItemModal');
-    if (viewModal) {
-      viewModal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget;
-        if (!button) return;
-
-        const itemId = button.getAttribute('data-item-id');
-        const itemType = (button.getAttribute('data-item-type') || 'Lost').toLowerCase();
-        const endpoint = itemType === 'found' ? `/user/api/found_items/${itemId}` : `/user/api/lost_items/${itemId}`;
-
-        fetch(endpoint, { credentials: 'include' })
-          .then(r => r.json())
-          .then(data => {
-            document.getElementById('modalItemName').textContent = data.name || '—';
-            document.getElementById('modalItemCategory').textContent = data.category || '—';
-            document.getElementById('modalItemType').textContent = itemType.charAt(0).toUpperCase() + itemType.slice(1);
-            document.getElementById('modalItemDate').textContent = data.reported_at || data.found_at || data.last_seen_at || '—';
-            document.getElementById('modalItemDescription').textContent = data.description || '—';
-
-            const photoContainer = document.getElementById('modalPhotoContainer');
-            if (data.photo) {
-              photoContainer.innerHTML = `<img src="/static/uploads/${data.photo}" class="img-fluid rounded" style="border: 1px solid var(--neutral-200);" alt="Item photo">`;
-            } else {
-              photoContainer.innerHTML = `<div style="padding: 2rem; background: var(--neutral-100); border-radius: 12px; color: var(--neutral-600); text-align: center;">No photo available</div>`;
-            }
-          })
-          .catch(err => console.error('Failed to load item:', err));
-      });
-    }
   });
 
   function initCategoryChart() {

@@ -7,30 +7,18 @@
 <style>
   /* Match palette used by dashboard.html */
   :root {
-    --page-bg: #f7f8fc;
-    --card: #ffffff;
-    --text: #2b2d42;
-    --muted: #6c757d;
-    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
-    --border-color: #e9ecef;
+    /* Use shared theme tokens so dark mode comes from base_user_dashboard.html */
+    --page-bg: var(--neutral-bg);
+    --card: var(--neutral-white);
+    --text: var(--neutral-900);
+    --muted: var(--neutral-600);
+    --shadow: var(--shadow-md);
+    --border-color: var(--neutral-200);
 
     /* Accent used across user dashboard */
-    --primary-accent: #8A2BE2;
-    --primary-accent-hover: #6f22b5;
-    --primary-accent-2: #20c997; /* match my_found_items view modal secondary accent */
-  }
-
-  body.dark-mode {
-    --page-bg: #1b1b1b;
-    --card: #292929;
-    --text: #ffffff;
-    --muted: #808080;
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --border-color: #404040;
-
-    --primary-accent: #8A2BE2;
-    --primary-accent-hover: #6f22b5;
-    --primary-accent-2: #20c997;
+    --primary-accent: var(--primary-purple);
+    --primary-accent-hover: color-mix(in srgb, var(--primary-purple) 85%, #000);
+    --primary-accent-2: var(--primary-teal);
   }
 
   body, .container-fluid {
@@ -86,13 +74,6 @@
     color: var(--text);
     font-size: 0.9rem;
     transition: all 0.3s ease;
-  }
-
-  body.dark-mode .table-controls input,
-  body.dark-mode .table-controls select {
-    background-color: #343a40;
-    border-color: var(--border-color);
-    color: var(--text);
   }
 
   .table-controls input:focus,
@@ -232,11 +213,17 @@
   }
 
   .bg-light {
-    background-color: #f8f9fa;
+    background-color: var(--card) !important;
   }
 
-  body.dark-mode .bg-light {
-    background-color: #343a40;
+  .bg-light.rounded-4 {
+    background-color: var(--card) !important;
+  }
+
+  /* Ensure edit modal body that uses bg-white follows theme */
+  .modal-body.p-3.bg-white {
+    background-color: var(--card) !important;
+    color: var(--text);
   }
 
   /* Modal body dark mode support */
@@ -247,11 +234,7 @@
 
   /* Modal photo container */
   .bg-light.rounded-4 {
-    background-color: #f8f9fa;
-  }
-
-  body.dark-mode .bg-light.rounded-4 {
-    background-color: #343a40;
+    background-color: var(--card);
   }
 
   /* Modal footer */
@@ -277,13 +260,6 @@
     border-color: var(--border-color);
     color: var(--text);
     transition: all 0.3s ease;
-  }
-
-  body.dark-mode .form-control,
-  body.dark-mode .form-select {
-    background-color: #343a40;
-    border-color: var(--border-color);
-    color: var(--text);
   }
 
   .form-control:focus,
@@ -658,7 +634,7 @@
   /* Make sure icons look crisp even in dark mode */
   body.dark-mode .lost-image-frame,
   body.dark-mode .lost-image-empty {
-    background: #20242a;
+    background: color-mix(in srgb, var(--neutral-white) 88%, #0000) !important;
   }
 
   /* ---------------------------------------------
@@ -735,48 +711,89 @@
     background: color-mix(in srgb, var(--card) 92%, rgba(138, 43, 226, 0.05) 8%);
     border: 1px solid var(--border-color);
     margin-bottom: 1rem;
+    justify-content: flex-end;
+    gap: .5rem;
   }
 
   .lost-filter {
     position: relative;
-    flex: 1 1 220px;
-    min-width: 200px;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
   }
 
   .lost-filter i {
-    position: absolute;
-    left: .8rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    pointer-events: none;
+    position: static;
+    transform: none;
+    pointer-events: auto;
   }
 
   .lost-filter input,
   .lost-filter select {
-    width: 100%;
-    padding: .65rem .85rem .65rem 2.25rem;
+    width: min(320px, 85vw);
+    padding: .65rem .85rem;
+    border-radius: 12px;
+  }
+
+  .lost-filter-btn {
+    width: 44px;
+    height: 44px;
     border-radius: 999px;
-    border: 1px solid var(--border-color);
+    border: 1px solid transparent;
     background: var(--card);
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform .12s ease, background-color .12s ease, color .12s ease, border-color .12s ease;
+  }
+
+  .lost-filter-btn:hover {
+    background: color-mix(in srgb, var(--primary-accent) 8%, transparent);
+    border-color: transparent;
     color: var(--text);
-    font-weight: 700;
-    font-size: .9rem;
-    transition: box-shadow .2s ease, border-color .2s ease, transform .12s ease;
+    box-shadow: none;
   }
 
-  .lost-filter select {
-    padding-left: 2.1rem;
-  }
-
-  .lost-filter input:focus,
-  .lost-filter select:focus {
+  .lost-filter-btn:focus,
+  .lost-filter-btn:focus-visible {
     outline: none;
-    border-color: var(--primary-accent);
-    box-shadow: 0 0 0 .2rem rgba(138, 43, 226, .18);
+    box-shadow: none;
   }
 
-  /* Table card */
+  .lost-filter-btn:active { transform: scale(0.97); }
+
+  .lost-filter-pop {
+    position: absolute;
+    top: calc(100% + .55rem);
+    right: 0;
+    z-index: 30;
+    display: none;
+    padding: .75rem;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    max-width: calc(100vw - 24px);
+    /* Center under the icon by default */
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(320px, calc(100vw - 24px));
+  }
+
+  .lost-filter-pop.show { display: block; }
+
+  /* Make dropdowns open nicely on mobile */
+  @media (max-width: 768px) {
+    .lost-filter-pop {
+      /* still centered, but keep within viewport */
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+    }
+  }
+
   .lost-table-card {
     background: var(--card);
     border-radius: 16px;
@@ -909,7 +926,7 @@
     font-weight: 900;
   }
 
-  /* Mobile: table -> stacked cards */
+  /* Mobile header layout tweaks (kept) */
   @media (max-width: 768px) {
     .lost-page-header {
       flex-direction: column;
@@ -924,11 +941,19 @@
     .lost-table-wrapper {
       max-height: none;
     }
+  }
 
-    /* turn table into cards */
-    #itemsTable thead {
-      display: none;
-    }
+  /* =========================
+     Mobile app-style list (Lost)
+     - Mobile only
+     - Entire row is tappable
+     - No View button
+     ========================= */
+  @media (max-width: 768px) {
+    /* Use list-cards instead of stacked table cells */
+    .lost-table-wrapper { overflow: visible; }
+
+    #itemsTable thead { display: none; }
 
     #itemsTable,
     #itemsTable tbody,
@@ -939,47 +964,140 @@
     }
 
     #itemsTable tbody tr {
+      position: relative;
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: .85rem;
+      border-radius: 16px;
+      padding: 0;
       margin: .75rem .75rem 0 .75rem;
       background: var(--card);
-      box-shadow: 0 10px 20px rgba(18, 38, 63, 0.06);
+      box-shadow: 0 10px 24px rgba(18, 38, 63, 0.08);
+      overflow: hidden;
+      transition: transform .12s ease, background-color .12s ease, box-shadow .12s ease;
     }
 
-    #itemsTable td {
-      border: 0;
-      padding: .35rem 0;
-      display: flex;
-      justify-content: space-between;
-      gap: .75rem;
-      align-items: baseline;
+    /* Tap feedback */
+    #itemsTable tbody tr:active {
+      transform: scale(0.99);
+      box-shadow: 0 8px 18px rgba(18, 38, 63, 0.10);
     }
 
-    #itemsTable td::before {
-      content: attr(data-label);
-      color: var(--muted);
-      font-weight: 800;
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      flex: 0 0 38%;
+    /* New row layout */
+    .lost-mobile-card {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: .85rem;
+      padding: .85rem;
+      align-items: center;
     }
 
-    #itemsTable td:last-child {
-      justify-content: flex-end;
-      padding-top: .6rem;
+    .lost-thumb {
+      width: 92px;
+      height: 92px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #eef1f6;
+      border: 1px solid color-mix(in srgb, var(--border-color) 70%, #0000 30%);
+      flex: 0 0 auto;
     }
 
-    #itemsTable td:last-child::before {
-      content: '';
-      display: none;
-    }
-
-    .btn-view {
+    .lost-thumb img {
       width: 100%;
-      justify-content: center;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
+
+    .lost-thumb .placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .lost-info {
+      min-width: 0;
+      display: grid;
+      gap: .28rem;
+    }
+
+    .lost-topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+
+    .lost-name {
+      margin: 0;
+      font-weight: 900;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lost-meta {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lost-subrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem .75rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 700;
+    }
+
+    .lost-subrow .pin {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Status badge placement */
+    #itemsTable tbody tr .badge-status {
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      font-size: .78rem;
+      font-weight: 900;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    /* Mobile: hide action cell/button entirely */
+    #itemsTable td[data-label="Action"],
+    #itemsTable .btn-view {
+      display: none !important;
+    }
+
+    /* Full-card link overlay */
+    .lost-row-link {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Keep inner elements above the overlay for selection? No; overlay should capture taps.
+       But we still want badge visible, so set content z-index. */
+    .lost-mobile-card { position: relative; z-index: 1; }
   }
 </style>
 
@@ -1003,42 +1121,57 @@
 
     <!-- Filters -->
     <div class="lost-filter-bar" aria-label="Filters">
-      <div class="lost-filter" style="flex: 2 1 320px; min-width: 240px;">
-        <i class="bi bi-search"></i>
-        <input
-          type="text"
-          placeholder="Search items…"
-          id="tableSearch"
-          onkeyup="filterTable()"
-          aria-label="Search items"
-        >
+      <!-- Search (icon-only) -->
+      <div class="lost-filter">
+        <button type="button" class="lost-filter-btn" data-filter-pop="lostSearchPop" aria-label="Search">
+          <i class="bi bi-search"></i>
+        </button>
+        <div class="lost-filter-pop" id="lostSearchPop">
+          <input
+            type="text"
+            placeholder="Search items…"
+            id="tableSearch"
+            onkeyup="filterTable()"
+            aria-label="Search items"
+          >
+        </div>
       </div>
 
-      <div class="lost-filter" style="flex: 1 1 220px;">
-        <i class="bi bi-grid"></i>
-        <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Gadgets">Gadgets</option>
-          <option value="Bags">Bags</option>
-          <option value="Wallets">Wallets</option>
-          <option value="Documents">Documents</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Accessory">Accessory</option>
-          <option value="ID/Card">ID/Card</option>
-          <option value="Other">Other</option>
-        </select>
+      <!-- Category (icon-only) -->
+      <div class="lost-filter">
+        <button type="button" class="lost-filter-btn" data-filter-pop="lostCategoryPop" aria-label="Filter by category">
+          <i class="bi bi-grid"></i>
+        </button>
+        <div class="lost-filter-pop" id="lostCategoryPop">
+          <select id="categoryFilter" onchange="filterTable()" aria-label="Filter by category">
+            <option value="">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Gadgets">Gadgets</option>
+            <option value="Bags">Bags</option>
+            <option value="Wallets">Wallets</option>
+            <option value="Documents">Documents</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Accessory">Accessory</option>
+            <option value="ID/Card">ID/Card</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
       </div>
 
-      <div class="lost-filter" style="flex: 1 1 220px;">
-        <i class="bi bi-flag"></i>
-        <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="closed">Closed</option>
-          <option value="rejected">Rejected</option>
-        </select>
+      <!-- Status (icon-only) -->
+      <div class="lost-filter">
+        <button type="button" class="lost-filter-btn" data-filter-pop="lostStatusPop" aria-label="Filter by status">
+          <i class="bi bi-flag"></i>
+        </button>
+        <div class="lost-filter-pop" id="lostStatusPop">
+          <select id="statusFilter" onchange="filterTable()" aria-label="Filter by status">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="closed">Closed</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -1062,10 +1195,11 @@
           <tbody>
             {% if items %}
               {% for item in items %}
-              <tr>
-                <td data-label="Item">{{ item.name }}</td>
-                <td data-label="Category">{{ item.category or 'General' }}</td>
-                <td data-label="Date">
+              <tr data-item-id="{{ item.id }}">
+                {# Desktop cells (keep existing layout) #}
+                <td data-label="Item" class="d-none d-md-table-cell">{{ item.name }}</td>
+                <td data-label="Category" class="d-none d-md-table-cell">{{ item.category or 'General' }}</td>
+                <td data-label="Date" class="d-none d-md-table-cell">
                   {% if item.reported_at %}
                     {% if item.reported_at.__class__.__name__ == 'datetime' %}
                       {{ item.reported_at.strftime('%b %d, %Y') }}
@@ -1076,7 +1210,7 @@
                     N/A
                   {% endif %}
                 </td>
-                <td data-label="Status">
+                <td data-label="Status" class="d-none d-md-table-cell">
                   {% if item.status|lower == 'pending' %}
                     <span class="badge-status badge-pending">Pending</span>
                   {% elif item.status|lower == 'approved' %}
@@ -1087,10 +1221,61 @@
                     <span class="badge-status badge-closed">Closed</span>
                   {% endif %}
                 </td>
-                <td data-label="Action">
+                <td data-label="Action" class="d-none d-md-table-cell">
                   <button class="btn-view" data-bs-toggle="modal" data-bs-target="#viewLostItemModal" data-id="{{ item.id }}" type="button">
                     <i class="bi bi-eye"></i> View
                   </button>
+                </td>
+
+                {# Mobile full-width card row #}
+                <td class="d-md-none" style="border:0; padding:0;">
+                  <a href="#" class="lost-row-link" data-bs-toggle="modal" data-bs-target="#viewLostItemModal" data-id="{{ item.id }}" aria-label="View {{ item.name }}"></a>
+                  <div class="lost-mobile-card">
+                    <div class="lost-thumb" aria-hidden="true">
+                      {% if item.photo %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" alt="{{ item.name }}">
+                      {% else %}
+                        <div class="placeholder"><i class="bi bi-image"></i></div>
+                      {% endif %}
+                    </div>
+
+                    <div class="lost-info">
+                      <div class="lost-topline">
+                        <h4 class="lost-name">{{ item.name }}</h4>
+                        {% if item.status|lower == 'pending' %}
+                          <span class="badge-status badge-pending">Pending</span>
+                        {% elif item.status|lower == 'approved' %}
+                          <span class="badge-status badge-approved">Approved</span>
+                        {% elif item.status|lower == 'rejected' %}
+                          <span class="badge-status badge-closed">Rejected</span>
+                        {% else %}
+                          <span class="badge-status badge-closed">Closed</span>
+                        {% endif %}
+                      </div>
+
+                      <div class="lost-meta">{{ item.category or 'General' }}</div>
+
+                      <div class="lost-subrow">
+                        <span class="pin" title="Last seen location">
+                          <span aria-hidden="true">📍</span>
+                          <span>
+                            {{ item.last_seen or '—' }}
+                          </span>
+                        </span>
+                        <span title="Date reported">
+                          {% if item.reported_at %}
+                            {% if item.reported_at.__class__.__name__ == 'datetime' %}
+                              {{ item.reported_at.strftime('%b %d, %Y') }}
+                            {% else %}
+                              {{ item.reported_at }}
+                            {% endif %}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
               {% endfor %}
@@ -1115,7 +1300,7 @@
 
 <!-- Report Lost Item Modal -->
 <div class="modal fade" id="reportLostModal" tabindex="-1" aria-labelledby="reportLostModalLabel">
-  <div class="modal-dialog modal-dialog-scrollable" style="max-width: 700px;">
+  <div class="modal-dialog modal-dialog-scrollable modal-compact" style="max-width: 700px;">
     <form class="modal-content" id="reportLostForm" method="post" action="{{ url_for('user.report_lost') }}" enctype="multipart/form-data">
       <div class="modal-header">
         <h5 class="modal-title" id="reportLostModalLabel">Report lost item</h5>
@@ -1265,7 +1450,7 @@
 
 <!-- View Lost Item Modal -->
 <div class="modal fade" id="viewLostItemModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered lost-modal-dialog">
+  <div class="modal-dialog modal-dialog-centered lost-modal-dialog modal-compact">
     <div class="modal-content lost-modal-content">
       <div class="modal-header lost-modal-header">
         <div>
@@ -1633,5 +1818,77 @@ function filterTable() {
     row.style.display = searchMatch && categoryMatch && statusMatch ? '' : 'none';
   });
 }
+
+// Minimal filters: toggle popovers
+(function initLostFilterPops() {
+  const bar = document.querySelector('.lost-filter-bar');
+  if (!bar) return;
+
+  const clampPopoverToViewport = (pop) => {
+    if (!pop) return;
+
+    const padding = 12;
+
+    // reset to centered default
+    pop.style.left = '50%';
+    pop.style.right = 'auto';
+    pop.style.transform = 'translateX(-50%)';
+
+    const rect = pop.getBoundingClientRect();
+
+    // if overflow right, shift left by setting a translateX calc
+    if (rect.right > window.innerWidth - padding) {
+      const shift = rect.right - (window.innerWidth - padding);
+      pop.style.transform = `translateX(calc(-50% - ${shift}px))`;
+    }
+
+    // if overflow left, shift right
+    const rect2 = pop.getBoundingClientRect();
+    if (rect2.left < padding) {
+      const shift = padding - rect2.left;
+      pop.style.transform = `translateX(calc(-50% + ${shift}px))`;
+    }
+  };
+
+  const closeAll = () => {
+    bar.querySelectorAll('.lost-filter-pop.show').forEach(p => {
+      p.classList.remove('show');
+      p.style.left = '';
+      p.style.right = '';
+      p.style.transform = '';
+    });
+  };
+
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-filter-pop]');
+    if (!btn) return;
+    e.preventDefault();
+
+    const id = btn.getAttribute('data-filter-pop');
+    const pop = document.getElementById(id);
+    if (!pop) return;
+
+    const isOpen = pop.classList.contains('show');
+    closeAll();
+    if (!isOpen) {
+      pop.classList.add('show');
+      requestAnimationFrame(() => clampPopoverToViewport(pop));
+      const focusEl = pop.querySelector('input, select');
+      focusEl?.focus();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    bar.querySelectorAll('.lost-filter-pop.show').forEach(clampPopoverToViewport);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!bar.contains(e.target)) closeAll();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAll();
+  });
+})();
 </script>
 {% endblock %}

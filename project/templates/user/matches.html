@@ -4,26 +4,26 @@
 <style>
   /* Modern, clean “Matched Items” dashboard (FindIT)
      - Keeps existing Jinja variables and claim/pagination behavior
-     - Works with the app's light/dark mode variables
+     - Uses global light/dark mode variables from base_user_dashboard.html
   */
   :root {
-    --page-bg: var(--neutral-50, #f7f8fc);
-    --card-bg: var(--neutral-0, #ffffff);
-    --text: var(--neutral-900, #0f172a);
-    --muted: var(--neutral-600, #64748b);
-    --border-color: var(--neutral-200, rgba(15, 23, 42, 0.10));
+    --page-bg: var(--neutral-bg);
+    --card-bg: var(--neutral-white);
+    --text: var(--neutral-900);
+    --muted: var(--neutral-600);
+    --border-color: var(--neutral-200);
 
     /* Requested palette emphasis */
     --primary: #0b2a5b; /* Navy */
-    --secondary: var(--primary-purple, #6f42c1); /* Soft purple */
-    --secondary-2: var(--primary-teal, #20c997); /* Teal */
+    --secondary: var(--primary-purple); /* Soft purple */
+    --secondary-2: var(--primary-teal); /* Teal */
 
     --success: #2f855a;
     --warning: #b45309;
     --danger: #b91c1c;
 
-    --shadow-sm: var(--shadow-md, 0 8px 24px rgba(18, 38, 63, 0.06));
-    --shadow-md: var(--shadow-lg, 0 16px 40px rgba(18, 38, 63, 0.14));
+    --shadow-sm: var(--shadow-md);
+    --shadow-md: var(--shadow-lg);
 
     --radius: 16px;
 
@@ -31,17 +31,6 @@
     --spacing-sm: 1rem;
     --spacing-md: 1.5rem;
     --spacing-lg: 2rem;
-  }
-
-  body.dark-mode {
-    --page-bg: var(--neutral-950, #0b1220);
-    --card-bg: var(--neutral-900, #0f172a);
-    --text: var(--neutral-0, #e5e7eb);
-    --muted: var(--neutral-400, #94a3b8);
-    --border-color: var(--neutral-800, rgba(255, 255, 255, 0.10));
-
-    --shadow-sm: var(--shadow-md, 0 10px 22px rgba(0, 0, 0, 0.35));
-    --shadow-md: var(--shadow-lg, 0 20px 44px rgba(0, 0, 0, 0.45));
   }
 
   body {
@@ -203,10 +192,6 @@
     border-radius: 14px;
     border: 1px solid var(--border-color);
     background: color-mix(in srgb, var(--secondary) 6%, var(--card-bg));
-  }
-
-  body.dark-mode .item-block {
-    background: color-mix(in srgb, var(--card-bg) 88%, #000);
   }
 
   .item-icon {
@@ -435,10 +420,6 @@
     resize: none;
     min-height: 86px;
     transition: all 0.2s ease;
-  }
-
-  body.dark-mode .claim-textarea {
-    background-color: color-mix(in srgb, var(--card-bg) 92%, #000);
   }
 
   .claim-textarea:focus {

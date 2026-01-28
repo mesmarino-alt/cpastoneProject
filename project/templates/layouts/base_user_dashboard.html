@@ -8,6 +8,9 @@
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+  <!-- Bootstrap Icons (used by child templates + new bottom nav) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
 
@@ -43,57 +46,57 @@
       color: var(--neutral-900);
     }
 
-    /* ===================== SIDEBAR ===================== */
+    /* ===================== SIDEBAR (FIXED / CLEAN) ===================== */
     .sidebar {
       width: 260px;
       height: 100vh;
+      position: sticky;
+      top: 0;
       background: var(--neutral-white);
-      border-right: 2px solid var(--primary-purple);
+      border-right: 1px solid color-mix(in srgb, var(--primary-purple) 35%, var(--neutral-200));
       box-shadow: var(--shadow-sm);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden;
     }
 
-    .sidebar a {
-      display: block;
-      padding: .8rem 1rem;
-      margin: .25rem .5rem;
-      border-radius: 10px;
-      color: var(--neutral-700);
-      font-weight: 500;
-      text-decoration: none;
-      transition: .25s;
-    }
+    .sidebar::-webkit-scrollbar { width: 8px; }
+    .sidebar::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--neutral-300) 80%, transparent); border-radius: 999px; }
 
-    .sidebar a:hover {
-      background: rgba(249,226,175,.35);
-      color: var(--primary-purple);
-      transform: translateX(4px);
-    }
-
-    .sidebar a.active {
-      background: linear-gradient(135deg, rgba(0,159,189,.15), rgba(74,36,157,.1));
-      color: var(--primary-purple);
-      font-weight: 700;
-      border-left: 4px solid var(--primary-teal);
+    .sidebar .sidebar-links,
+    .sidebar .sidebar-logout {
+      padding-right: .25rem;
     }
 
     .sidebar .sidebar-links {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .sidebar a {
+      margin: .2rem .5rem;
+      padding: .75rem .9rem;
+      border-radius: 12px;
+      font-weight: 650;
+      letter-spacing: .1px;
       display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
+      align-items: center;
+      gap: .6rem;
     }
 
-    .sidebar .sidebar-logout {
-      margin-top: auto;
-      padding-top: .75rem;
-    }
+    .sidebar a i { width: 18px; text-align: center; opacity: .95; }
 
-    .sidebar a.logout-link:hover {
-      background: rgba(239, 68, 68, 0.12);
-      color: var(--accent-red);
+    .sidebar a:hover {
+      background: color-mix(in srgb, var(--accent-gold) 22%, transparent);
       transform: none;
+    }
+
+    .sidebar a.active {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary-teal) 14%, transparent), color-mix(in srgb, var(--primary-purple) 12%, transparent));
+      border-left: 4px solid var(--primary-teal);
+    }
+
+    /* Remove legacy mobile slide-in sidebar behavior (we use drawer + bottom nav) */
+    @media (max-width: 768px) {
+      .sidebar { display: none !important; }
     }
 
     /* ===================== PROFILE ===================== */
@@ -220,8 +223,855 @@
 
     /* ===================== MOBILE ===================== */
     @media(max-width:768px){
-      .sidebar { position: fixed; transform: translateX(-100%); z-index: 1050; }
-      .sidebar.show { transform: translateX(0); }
+      /* legacy sidebar slide-in removed: mobile uses drawer + bottom nav */
+    }
+
+    /* ===================== GLOBAL LOADER (Uiverse.io by Nawsome) ===================== */
+    .global-loader-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10050;
+      background: rgba(17, 24, 39, 0.28);
+      backdrop-filter: blur(2px);
+    }
+
+    .global-loader-overlay.show {
+      display: flex;
+    }
+
+    .global-loader-card {
+      background: rgba(255, 255, 255, 0.92);  
+      border: 1px solid var(--neutral-200);
+      border-radius: 16px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .global-loader-text {
+      font-size: 0.9rem;
+      color: var(--neutral-700);
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+
+    /* From Uiverse.io by Nawsome */
+    .boxes {
+      --size: 32px;
+      --duration: 800ms;
+      height: calc(var(--size) * 2);
+      width: calc(var(--size) * 3);
+      position: relative;
+      transform-style: preserve-3d;
+      transform-origin: 50% 50%;
+      margin-top: calc(var(--size) * 1.5 * -1);
+      transform: rotateX(60deg) rotateZ(45deg) rotateY(0deg) translateZ(0px);
+    }
+
+    .boxes .box {
+      width: var(--size);
+      height: var(--size);
+      top: 0;
+      left: 0;
+      position: absolute;
+      transform-style: preserve-3d;
+    }
+
+    .boxes .box:nth-child(1) {
+      transform: translate(100%, 0);
+      -webkit-animation: box1 var(--duration) linear infinite;
+      animation: box1 var(--duration) linear infinite;
+    }
+
+    .boxes .box:nth-child(2) {
+      transform: translate(0, 100%);
+      -webkit-animation: box2 var(--duration) linear infinite;
+      animation: box2 var(--duration) linear infinite;
+    }
+
+    .boxes .box:nth-child(3) {
+      transform: translate(100%, 100%);
+      -webkit-animation: box3 var(--duration) linear infinite;
+      animation: box3 var(--duration) linear infinite;
+    }
+
+    .boxes .box:nth-child(4) {
+      transform: translate(200%, 0);
+      -webkit-animation: box4 var(--duration) linear infinite;
+      animation: box4 var(--duration) linear infinite;
+    }
+
+    .boxes .box > div {
+      --background: #5C8DF6;
+      --top: auto;
+      --right: auto;
+      --bottom: auto;
+      --left: auto;
+      --translateZ: calc(var(--size) / 2);
+      --rotateY: 0deg;
+      --rotateX: 0deg;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--background);
+      top: var(--top);
+      right: var(--right);
+      bottom: var(--bottom);
+      left: var(--left);
+      transform: rotateY(var(--rotateY)) rotateX(var(--rotateX)) translateZ(var(--translateZ));
+    }
+
+    .boxes .box > div:nth-child(1) {
+      --top: 0;
+      --left: 0;
+    }
+
+    .boxes .box > div:nth-child(2) {
+      --background: #145af2;
+      --right: 0;
+      --rotateY: 90deg;
+    }
+
+    .boxes .box > div:nth-child(3) {
+      --background: #447cf5;
+      --rotateX: -90deg;
+    }
+
+    .boxes .box > div:nth-child(4) {
+      --background: #DBE3F4;
+      --top: 0;
+      --left: 0;
+      --translateZ: calc(var(--size) * 3 * -1);
+    }
+
+    @-webkit-keyframes box1 {
+      0%, 50% {
+        transform: translate(100%, 0);
+      }
+
+      100% {
+        transform: translate(200%, 0);
+      }
+    }
+
+    @keyframes box1 {
+      0%, 50% {
+        transform: translate(100%, 0);
+      }
+
+      100% {
+        transform: translate(200%, 0);
+      }
+    }
+
+    @-webkit-keyframes box2 {
+      0% {
+        transform: translate(0, 100%);
+      }
+
+      50% {
+        transform: translate(0, 0);
+      }
+
+      100% {
+        transform: translate(100%, 0);
+      }
+    }
+
+    @keyframes box2 {
+      0% {
+        transform: translate(0, 100%);
+      }
+
+      50% {
+        transform: translate(0, 0);
+      }
+
+      100% {
+        transform: translate(100%, 0);
+      }
+    }
+
+    @-webkit-keyframes box3 {
+      0%, 50% {
+        transform: translate(100%, 100%);
+      }
+
+      100% {
+        transform: translate(0, 100%);
+      }
+    }
+
+    @keyframes box3 {
+      0%, 50% {
+        transform: translate(100%, 100%);
+      }
+
+      100% {
+        transform: translate(0, 100%);
+      }
+    }
+
+    @-webkit-keyframes box4 {
+      0% {
+        transform: translate(200%, 0);
+      }
+
+      50% {
+        transform: translate(200%, 100%);
+      }
+
+      100% {
+        transform: translate(100%, 100%);
+      }
+    }
+
+    @keyframes box4 {
+      0% {
+        transform: translate(200%, 0);
+      }
+
+      50% {
+        transform: translate(200%, 100%);
+      }
+
+      100% {
+        transform: translate(100%, 100%);
+      }
+    }
+
+    /* ===================== MOBILE-FIRST APP SHELL ===================== */
+    :root {
+      --bottom-nav-h: 78px;
+      --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+      --bottom-nav-total: calc(var(--bottom-nav-h) + var(--bottom-nav-safe));
+
+      --touch-target: 48px;
+
+      --nav-surface: rgba(255, 255, 255, 0.78);
+      --nav-border: rgba(17, 24, 39, 0.08);
+      --nav-shadow: 0 16px 40px rgba(17, 24, 39, 0.18);
+      --nav-shadow-strong: 0 20px 55px rgba(17, 24, 39, 0.22);
+
+      --nav-active: var(--primary-purple);
+      --nav-inactive: color-mix(in srgb, var(--neutral-700) 85%, #0000);
+
+      --nav-accent: var(--primary-teal);
+    }
+
+    /* Reserve space for bottom nav on mobile so content isn't covered */
+    @media (max-width: 768px) {
+      .content {
+        padding: 1rem;
+        padding-bottom: calc(1rem + var(--bottom-nav-total));
+        height: auto;
+        min-height: 100vh;
+      }
+    }
+
+    /* Desktop keeps the sidebar layout; bottom nav hidden */
+    @media (min-width: 769px) {
+      .mobile-topbar,
+      .mobile-bottom-nav,
+      .mobile-drawer {
+        display: none !important;
+      }
+    }
+
+    /* Mobile: hide the desktop sidebar and use app-shell nav patterns */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none !important;
+      }
+
+      .d-flex {
+        min-height: 100vh;
+      }
+
+      .mobile-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 1060;
+        background: color-mix(in srgb, var(--neutral-white) 88%, transparent);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--neutral-200);
+        padding: .75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+      }
+
+      .mobile-topbar .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: .6rem;
+        text-decoration: none;
+        color: inherit;
+        min-height: var(--touch-target);
+      }
+
+      .mobile-topbar .brand img {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: 2px solid var(--primary-purple);
+        object-fit: cover;
+      }
+
+      .mobile-topbar .brand span {
+        font-weight: 900;
+        letter-spacing: .3px;
+        color: var(--primary-purple);
+      }
+
+      .mobile-topbar .top-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+      }
+
+      .mobile-topbar .tap-icon {
+        width: var(--touch-target);
+        height: var(--touch-target);
+        border-radius: 14px;
+        border: 1px solid var(--neutral-200);
+        background: var(--neutral-white);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--neutral-900);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+      }
+
+      .mobile-topbar .tap-icon:active {
+        transform: scale(0.96);
+      }
+
+      .mobile-bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1070;
+        padding: 0.75rem 1rem calc(0.75rem + var(--bottom-nav-safe));
+        pointer-events: none; /* container doesn't block, items do */
+      }
+
+      .mobile-bottom-nav .nav-surface {
+        pointer-events: auto;
+        margin: 0 auto;
+        max-width: 520px;
+        height: var(--bottom-nav-h);
+        background: var(--nav-surface);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--nav-border);
+        border-radius: 999px;
+        box-shadow: var(--nav-shadow);
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.25fr 1fr 1fr;
+        align-items: center;
+        gap: 0;
+        padding: 0.4rem 0.55rem;
+      }
+
+      .mobile-bottom-nav a,
+      .mobile-bottom-nav button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        text-decoration: none;
+        color: var(--nav-inactive);
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        min-height: var(--touch-target);
+        border-radius: 18px;
+        transition: transform .14s ease, color .14s ease, background-color .14s ease;
+      }
+
+      .mobile-bottom-nav a:active,
+      .mobile-bottom-nav button:active {
+        transform: scale(0.96);
+      }
+
+      .mobile-bottom-nav a.active {
+        color: var(--nav-active);
+        background: color-mix(in srgb, var(--nav-active) 10%, transparent);
+      }
+
+      .mobile-bottom-nav i {
+        font-size: 1.25rem;
+        line-height: 1;
+      }
+
+      /* Center primary action */
+      .mobile-bottom-nav .nav-add {
+        display: grid;
+        place-items: center;
+      }
+
+      .mobile-bottom-nav .nav-add .fab {
+        width: 58px;
+        height: 58px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal));
+        color: #fff;
+        display: grid;
+        place-items: center;
+        box-shadow: var(--nav-shadow-strong);
+        border: 1px solid rgba(255,255,255,0.22);
+        transform: translateY(-18px);
+        transition: transform .16s ease, filter .16s ease;
+      }
+
+      .mobile-bottom-nav .nav-add .fab:active {
+        transform: translateY(-18px) scale(0.96);
+      }
+
+      /* Drawer (restored) */
+      .mobile-drawer {
+        position: fixed;
+        inset: 0;
+        z-index: 1080;
+        display: none;
+      }
+
+      .mobile-drawer.show {
+        display: flex;
+      }
+
+      .mobile-drawer .drawer-backdrop {
+        flex: 1;
+        background: rgba(17, 24, 39, 0.35);
+        backdrop-filter: blur(2px);
+      }
+
+      .mobile-drawer .drawer-panel {
+        width: min(86vw, 320px);
+        max-width: 320px;
+        height: 100%;
+        background: var(--neutral-white);
+        border-right: 1px solid var(--neutral-200);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .mobile-drawer .drawer-header {
+        padding: .9rem 1rem;
+        border-bottom: 1px solid var(--neutral-200);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+      }
+
+      .mobile-drawer .drawer-header .title {
+        font-weight: 900;
+        color: var(--primary-purple);
+        letter-spacing: .3px;
+      }
+
+      .mobile-drawer .drawer-body {
+        padding: .75rem .75rem 1rem .75rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      .mobile-drawer .drawer-body a {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        padding: .8rem .9rem;
+        margin: .25rem 0;
+        border-radius: 14px;
+        text-decoration: none;
+        color: var(--neutral-900);
+        font-weight: 750;
+      }
+
+      .mobile-drawer .drawer-body a.active {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--primary-teal) 14%, transparent), color-mix(in srgb, var(--primary-purple) 12%, transparent));
+        border-left: 4px solid var(--primary-teal);
+      }
+
+      .mobile-drawer .drawer-body a:hover {
+        background: color-mix(in srgb, var(--accent-gold) 22%, transparent);
+      }
+
+      /* Account sheet removed */
+      .account-sheet { display: none !important; }
+    }
+
+    /* ===================== MOBILE: COMPACT MODALS ===================== */
+    @media (max-width: 576px) {
+      /* Default Bootstrap modal already uses margins; tighten + cap width */
+      .modal-dialog {
+        margin: .75rem auto;
+      }
+
+      /* Opt-in class: apply to specific modals only */
+      .modal-dialog.modal-compact {
+        max-width: 92vw !important;
+        max-height: 86vh;
+      }
+
+      .modal-dialog.modal-compact .modal-content {
+        max-height: 86vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .modal-dialog.modal-compact .modal-header,
+      .modal-dialog.modal-compact .modal-footer {
+        flex: 0 0 auto;
+      }
+
+      .modal-dialog.modal-compact .modal-body {
+        flex: 1 1 auto;
+        min-height: 0; /* required so flex item can shrink and scroll */
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .modal-dialog.modal-compact .modal-content {
+        max-height: 86vh;
+        overflow: hidden; /* prevent header/footer from scrolling away */
+      }
+
+      .modal-dialog.modal-compact .modal-body {
+        padding: 1rem 1rem;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Slightly tighter header/footer so overall height is smaller */
+      .modal-dialog.modal-compact .modal-header {
+        padding: .85rem 1rem;
+      }
+
+      .modal-dialog.modal-compact .modal-footer {
+        padding: .65rem 1rem;
+      }
+
+      /* Reduce large header paddings used by some modals (e.g., profile modal) */
+      #profileModal .modal-header[style*="padding: 2rem"] {
+        padding: 1rem !important;
+      }
+
+      /* Reduce section spacing inside the profile modal */
+      #profileModal .modal-body .mb-4 { margin-bottom: 1rem !important; }
+      #profileModal .modal-body .mb-3 { margin-bottom: .65rem !important; }
+      #profileModal .modal-body .text-center.mb-4 { margin-bottom: 1rem !important; }
+
+      /* Keep big circular photo from dominating the viewport */
+      #profileModal .modal-body .rounded-circle[style*="width: 120px"] {
+        width: 88px !important;
+        height: 88px !important;
+      }
+    }
+
+    /* ===================== MOBILE: MODAL vs BOTTOM NAV ===================== */
+    @media (max-width: 768px) {
+      /* Bootstrap modal stack: backdrop ~1050, modal ~1055. Keep bottom nav under that. */
+      .mobile-bottom-nav {
+        z-index: 1040; /* below modal/backdrop */
+      }
+
+      /* Give modals extra space at the bottom so fixed UI (and safe area) won't block buttons */
+      .modal-dialog {
+        margin-bottom: calc(1rem + var(--bottom-nav-total, 78px));
+      }
+    }
+
+    /* ===================== DARK MODE (Requested palette) ===================== */
+    :root {
+      /* Darker variant of the requested palette */
+      --dm-1: #0B2D30; /* base */
+      --dm-2: #0F4C55; /* surface */
+      --dm-3: #073B63; /* borders/secondary */
+      --dm-4: #320A6B; /* accent */
+    }
+
+    body.dark-mode {
+      background: var(--dm-1) !important;
+      color: color-mix(in srgb, #ffffff 86%, var(--dm-4)) !important;
+
+      /* Override shared tokens used throughout user templates */
+      --neutral-bg: var(--dm-1);
+      --neutral-white: var(--dm-2);
+      --neutral-50: color-mix(in srgb, var(--dm-1) 78%, var(--dm-2));
+      --neutral-100: color-mix(in srgb, var(--dm-2) 88%, #0000);
+      --neutral-200: color-mix(in srgb, var(--dm-3) 55%, #0000);
+      --neutral-300: color-mix(in srgb, var(--dm-3) 70%, #0000);
+      --neutral-400: color-mix(in srgb, #ffffff 45%, #0000);
+      --neutral-600: color-mix(in srgb, #ffffff 72%, #0000);
+      --neutral-700: color-mix(in srgb, #ffffff 82%, #0000);
+      --neutral-900: color-mix(in srgb, #ffffff 90%, var(--dm-4));
+
+      /* Alias commonly used page-level vars */
+      --page-bg: var(--dm-1);
+      --card-bg: var(--dm-2);
+      --card: var(--dm-2);
+
+      --text: color-mix(in srgb, #ffffff 88%, var(--dm-4));
+      --muted: color-mix(in srgb, #ffffff 70%, #0000);
+      --border-color: color-mix(in srgb, var(--dm-3) 55%, #0000);
+
+      /* Bottom nav surface */
+      --nav-surface: color-mix(in srgb, var(--dm-2) 82%, #0000);
+      --nav-border: color-mix(in srgb, var(--dm-3) 55%, #0000);
+
+      /* Keep app accents recognizable in dark */
+      --primary-purple: color-mix(in srgb, #8a5cff 40%, var(--dm-3));
+      --primary-teal: var(--dm-2);
+      --accent-gold: color-mix(in srgb, #F9E2AF 35%, var(--dm-2));
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.25);
+      --shadow-md: 0 8px 24px rgba(0,0,0,.30);
+      --shadow-lg: 0 14px 40px rgba(0,0,0,.38);
+
+      /* Bottom nav icon contrast in dark mode */
+      --nav-active: color-mix(in srgb, #ffffff 92%, var(--dm-4));
+      --nav-inactive: color-mix(in srgb, #ffffff 72%, #0000);
+    }
+
+    /* Common surfaces in dark mode */
+    body.dark-mode .sidebar,
+    body.dark-mode .mobile-topbar,
+    body.dark-mode .mobile-drawer .drawer-panel,
+    body.dark-mode .notification-dropdown {
+      background: var(--dm-2) !important;
+      color: var(--dm-4) !important;
+      border-color: color-mix(in srgb, var(--dm-3) 55%, #0000) !important;
+    }
+
+    body.dark-mode .content {
+      background: var(--dm-1) !important;
+      color: var(--dm-4) !important;
+    }
+
+    body.dark-mode .modal-content {
+      background: var(--dm-2) !important;
+      color: var(--dm-4) !important;
+      border-color: color-mix(in srgb, var(--dm-3) 55%, #0000) !important;
+    }
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select,
+    body.dark-mode input,
+    body.dark-mode textarea,
+    body.dark-mode select {
+      background: color-mix(in srgb, var(--dm-2) 88%, #0000) !important;
+      color: var(--dm-4) !important;
+      border-color: color-mix(in srgb, var(--dm-3) 65%, #0000) !important;
+    }
+
+    body.dark-mode .form-control::placeholder,
+    body.dark-mode textarea::placeholder {
+      color: color-mix(in srgb, var(--dm-4) 62%, #0000) !important;
+    }
+
+    body.dark-mode .table,
+    body.dark-mode .data-table,
+    body.dark-mode .data-table td,
+    body.dark-mode .data-table th {
+      color: var(--dm-4) !important;
+    }
+
+    /* Toggle button styling */
+    .darkmode-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--neutral-200);
+      background: var(--neutral-white);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      color: var(--neutral-900);
+      transition: transform .12s ease, background-color .12s ease, color .12s ease, border-color .12s ease;
+    }
+
+    .darkmode-toggle:active { transform: scale(0.96); }
+    .darkmode-toggle i { font-size: 1.15rem; line-height: 1; }
+    
+    /* Removed (toggle now lives at top of sidebar) */
+    .darkmode-toggle--desktop { display: none !important; }
+
+    /* From Uiverse.io by andrew-demchenk0 */
+    .switch {
+      font-size: 17px;
+      position: relative;
+      display: inline-block;
+      width: 64px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #73C0FC;
+      transition: .4s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 30px;
+      width: 30px;
+      border-radius: 20px;
+      left: 2px;
+      bottom: 2px;
+      z-index: 2;
+      background-color: #e8e8e8;
+      transition: .4s;
+    }
+
+    .sun svg {
+      position: absolute;
+      top: 6px;
+      left: 36px;
+      z-index: 1;
+      width: 24px;
+      height: 24px;
+    }
+
+    .moon svg {
+      fill: #73C0FC;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 1;
+      width: 24px;
+      height: 24px;
+    }
+
+    .sun svg {
+      animation: rotate 15s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .moon svg {
+      animation: tilt 5s linear infinite;
+    }
+
+    @keyframes tilt {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .input:checked + .slider {
+      background-color: #183153;
+    }
+
+    .input:focus + .slider {
+      box-shadow: 0 0 1px #183153;
+    }
+
+    .input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+
+    /* Sidebar placement row */
+    .theme-switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center; /* center the switch */
+      padding: 0 .5rem .75rem .5rem;
+    }
+
+    /* label removed on desktop; keep class harmless */
+    .theme-switch-label { display: none; }
+
+    /* Ensure bottom-nav icons always inherit the correct color */
+    .mobile-bottom-nav a i,
+    .mobile-bottom-nav button i {
+      color: currentColor;
+    }
+
+    body.dark-mode .mobile-bottom-nav a,
+    body.dark-mode .mobile-bottom-nav button {
+      color: var(--nav-inactive);
+    }
+
+    body.dark-mode .mobile-bottom-nav a.active {
+      color: var(--nav-active);
+      background: color-mix(in srgb, var(--nav-active) 14%, transparent);
+    }
+
+    /* ===== DARK MODE: make modal form inputs clearly readable ===== */
+    body.dark-mode .modal .form-control,
+    body.dark-mode .modal .form-select,
+    body.dark-mode .modal textarea,
+    body.dark-mode .modal input[type="text"],
+    body.dark-mode .modal input[type="email"],
+    body.dark-mode .modal input[type="password"],
+    body.dark-mode .modal input[type="datetime-local"],
+    body.dark-mode .modal input[type="file"],
+    body.dark-mode .modal select {
+      background: color-mix(in srgb, var(--dm-2) 90%, #0000) !important;
+      color: var(--text) !important;
+      border-color: color-mix(in srgb, var(--dm-3) 65%, #0000) !important;
+    }
+
+    body.dark-mode .modal .form-control::placeholder,
+    body.dark-mode .modal textarea::placeholder {
+      color: color-mix(in srgb, var(--text) 70%, #0000) !important;
+      opacity: 1;
+    }
+
+    body.dark-mode .modal .form-control:disabled,
+    body.dark-mode .modal .form-control[readonly],
+    body.dark-mode .modal .form-select:disabled,
+    body.dark-mode .modal .form-select[readonly] {
+      background: color-mix(in srgb, var(--dm-2) 76%, #0000) !important;
+      color: color-mix(in srgb, var(--text) 70%, #0000) !important;
+      opacity: 1;
+    }
+
+    /* Some modals use a hard-coded bg-white on the modal body; override it in dark mode */
+    body.dark-mode .modal .modal-body.bg-white,
+    body.dark-mode .modal .modal-body.p-3.bg-white {
+      background: var(--dm-2) !important;
+      color: var(--text) !important;
+    }
+
+    body.dark-mode .modal label,
+    body.dark-mode .modal .form-label,
+    body.dark-mode .modal .small,
+    body.dark-mode .modal .text-muted {
+      color: color-mix(in srgb, var(--text) 78%, #0000) !important;
     }
   </style>
 </head>
@@ -243,7 +1093,18 @@
       >
       <span style="font-weight: 900; letter-spacing: .4px; font-size: 1.35rem; color: var(--primary-purple); line-height: 1.1;">FindITFast</span>
     </a>
-<br>
+
+    <!-- Desktop dark-mode toggle (top of sidebar) -->
+    <div class="d-none d-md-flex theme-switch-row">
+      <label class="switch" aria-label="Toggle dark mode" style="margin: 0 auto;">
+        <span class="sun"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="#ffd43b"><circle r="5" cy="12" cx="12"></circle><path d="m21 13h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm-17 0h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm13.66-5.66a1 1 0 0 1 -.66-.29 1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1 -.75.29zm-12.02 12.02a1 1 0 0 1 -.71-.29 1 1 0 0 1 0-1.41l.71-.66a1 1 0 0 1 1.41 1.41l-.71.71a1 1 0 0 1 -.7.24zm6.36-14.36a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm0 17a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm-5.66-14.66a1 1 0 0 1 -.7-.29l-.71-.71a1 1 0 0 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.29zm12.02 12.02a1 1 0 0 1 -.7-.29l-.66-.71a1 1 0 0 1 1.36-1.36l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.24z"></path></g></svg></span>
+        <span class="moon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="m223.5 32c-123.5 0-223.5 100.3-223.5 224s100 224 223.5 224c60.6 0 115.5-24.2 155.8-63.4 5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6-96.9 0-175.5-78.8-175.5-176 0-65.8 36-123.1 89.3-153.3 6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"></path></svg></span>
+        <input type="checkbox" class="input" id="darkModeToggleDesktop" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <br>
     <div class="profile-box">
       {% if current_user.profile_photo %}
         <img src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}" class="profile-avatar">
@@ -297,8 +1158,48 @@
 
   <!-- MAIN -->
   <main class="content flex-grow-1">
+    <!-- Mobile top bar (visible on small screens) -->
+    <div class="mobile-topbar">
+      <!-- Burger button (restored) -->
+      <button class="tap-icon" type="button" id="mobileMenuBtn" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <a class="brand" href="{{ url_for('user.dashboard') }}" aria-label="Go to dashboard">
+        <img src="{{ url_for('static', filename='images/logo_new.png') }}" alt="FindITFast">
+        <span>FindITFast</span>
+      </a>
+
+      <div class="top-actions">
+        <button class="tap-icon" type="button" id="mobileBellBtn" aria-label="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span id="mobileBellBadge" class="notification-badge" style="display:none">0</span>
+        </button>
+        <label class="switch" aria-label="Toggle dark mode">
+          <span class="sun"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="#ffd43b"><circle r="5" cy="12" cx="12"></circle><path d="m21 13h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm-17 0h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm13.66-5.66a1 1 0 0 1 -.66-.29 1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1 -.75.29zm-12.02 12.02a1 1 0 0 1 -.71-.29 1 1 0 0 1 0-1.41l.71-.66a1 1 0 0 1 1.41 1.41l-.71.71a1 1 0 0 1 -.7.24zm6.36-14.36a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm0 17a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm-5.66-14.66a1 1 0 0 1 -.7-.29l-.71-.71a1 1 0 0 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.29zm12.02 12.02a1 1 0 0 1 -.7-.29l-.66-.71a1 1 0 0 1 1.36-1.36l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.24z"></path></g></svg></span>
+          <span class="moon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="m223.5 32c-123.5 0-223.5 100.3-223.5 224s100 224 223.5 224c60.6 0 115.5-24.2 155.8-63.4 5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6-96.9 0-175.5-78.8-175.5-176 0-65.8 36-123.1 89.3-153.3 6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"></path></svg></span>
+          <input type="checkbox" class="input" id="darkModeToggleMobile" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
     {% block content %}{% endblock %}
   </main>
+</div>
+
+<!-- GLOBAL LOADER OVERLAY -->
+<div id="globalLoaderOverlay" class="global-loader-overlay" aria-hidden="true">
+  <div class="global-loader-card" role="status" aria-live="polite">
+    <!-- From Uiverse.io by Nawsome -->
+    <div class="boxes" aria-hidden="true">
+      <div class="box"><div></div><div></div><div></div><div></div></div>
+      <div class="box"><div></div><div></div><div></div><div></div></div>
+      <div class="box"><div></div><div></div><div></div><div></div></div>
+      <div class="box"><div></div><div></div><div></div><div></div></div>
+    </div>
+    <div id="globalLoaderText" class="global-loader-text">Loading…</div>
+  </div>
 </div>
 
 <!-- NOTIFICATION DROPDOWN -->
@@ -315,7 +1216,7 @@
 
 <!-- PROFILE MODAL -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+  <div class="modal-dialog modal-dialog-centered modal-compact" style="max-width: 600px;">
     <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
       
       <!-- Header -->
@@ -454,6 +1355,103 @@
   </div>
 </div>
 
+<!-- Mobile drawer (restored) -->
+<div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+  <div class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="drawer-header">
+      <div class="title">Menu</div>
+      <button class="tap-icon" type="button" id="mobileDrawerClose" aria-label="Close menu">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
+        <i class="fa-solid fa-table-columns"></i> Dashboard
+      </a>
+      <a href="{{ url_for('user.lost_items') }}" class="{{ 'active' if request.endpoint == 'user.lost_items' }}">
+        <i class="fa-solid fa-cube"></i> My Lost Items
+      </a>
+      <a href="{{ url_for('user.my_found_items') }}" class="{{ 'active' if request.endpoint == 'user.my_found_items' }}">
+        <i class="fa-solid fa-box-open"></i> My Found Items
+      </a>
+      <a href="{{ url_for('user.matches') }}" class="{{ 'active' if request.endpoint == 'user.matches' }}">
+        <i class="fa-solid fa-cubes"></i> Matches
+      </a>
+      <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}">
+        <i class="fa-solid fa-bell"></i> Notifications
+      </a>
+
+      <hr style="border-color: var(--neutral-200);">
+
+      <button type="button" class="btn w-100" style="border-radius:14px; border:1px solid var(--neutral-200); font-weight:800;" data-bs-toggle="modal" data-bs-target="#profileModal">
+        <i class="fa-solid fa-user-pen me-2" style="color: var(--primary-purple);"></i> Edit Profile
+      </button>
+
+      <button type="button" class="btn w-100 mt-2" style="border-radius:14px; border:1px solid var(--neutral-200); font-weight:800;" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+        <i class="fa-solid fa-key me-2" style="color: var(--primary-purple);"></i> Change Password
+      </button>
+
+      <button type="button" class="btn w-100 mt-2" style="border-radius:14px; border:1px solid color-mix(in srgb, var(--accent-red) 35%, var(--neutral-200)); font-weight:900; color: var(--accent-red);" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
+        <i class="fa-solid fa-right-from-bracket me-2" style="color: var(--accent-red);"></i> Logout
+      </button>
+    </div>
+  </div>
+  <div class="drawer-backdrop" id="mobileDrawerBackdrop" aria-hidden="true"></div>
+</div>
+
+<!-- Mobile bottom navigation (visible on small screens) -->
+<nav class="mobile-bottom-nav" aria-label="Bottom navigation">
+  <div class="nav-surface">
+    <a href="{{ url_for('user.dashboard') }}" aria-label="Dashboard" class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
+      <i class="bi bi-grid-1x2-fill"></i>
+    </a>
+
+    <a href="{{ url_for('user.lost_items') }}" aria-label="My Lost Items" class="{{ 'active' if request.endpoint == 'user.lost_items' }}">
+      <i class="bi bi-search"></i>
+    </a>
+
+    <!-- Primary action: open add sheet -->
+    <div class="nav-add">
+      <button type="button" class="fab" id="mobileAddBtn" aria-label="Add">
+        <i class="bi bi-plus-lg" style="font-size: 1.4rem;"></i>
+      </button>
+    </div>
+
+    <a href="{{ url_for('user.my_found_items') }}" aria-label="My Found Items" class="{{ 'active' if request.endpoint == 'user.my_found_items' }}">
+      <i class="bi bi-box-seam"></i>
+    </a>
+
+    <a href="{{ url_for('user.matches') }}" aria-label="Matches" class="{{ 'active' if request.endpoint == 'user.matches' }}">
+      <i class="bi bi-stars"></i>
+      <span id="matchesBadgeMobile" class="notification-badge" style="display:none"></span>
+    </a>
+  </div>
+</nav>
+
+<!-- Add Action Sheet (mobile) -->
+<div class="modal fade" id="mobileAddSheet" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content" style="border: none; border-radius: 18px; box-shadow: var(--shadow-lg);">
+      <div class="modal-header" style="border: none; padding: 1rem 1rem .5rem 1rem;">
+        <h6 class="modal-title fw-bold" style="color: var(--primary-purple);">Add</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding: .5rem 1rem 1rem 1rem;">
+        <div class="d-grid gap-2">
+          <button type="button" class="btn" id="mobileAddLostBtn" style="border-radius: 14px; border: 1px solid var(--neutral-200); background: color-mix(in srgb, var(--primary-purple) 8%, var(--neutral-white)); font-weight: 800;">
+            <i class="bi bi-search me-2" style="color: var(--primary-purple);"></i> Report Lost Item
+          </button>
+          <button type="button" class="btn" id="mobileAddFoundBtn" style="border-radius: 14px; border: 1px solid var(--neutral-200); background: color-mix(in srgb, var(--primary-teal) 8%, var(--neutral-white)); font-weight: 800;">
+            <i class="bi bi-box-seam me-2" style="color: var(--primary-teal);"></i> Report Found Item
+          </button>
+        </div>
+        <div class="small text-muted" style="margin-top: .75rem;">You can also add items from their pages.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -465,6 +1463,62 @@ const dropdown = document.getElementById('notificationDropdown');
 const notificationsListEl = document.getElementById('notificationsList');
 const bellBadgeEl = document.getElementById('bellNotificationBadge');
 const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+/* ===================== GLOBAL LOADER HELPERS ===================== */
+const globalLoaderOverlayEl = document.getElementById('globalLoaderOverlay');
+const globalLoaderTextEl = document.getElementById('globalLoaderText');
+
+let globalLoaderTimer = null;
+let globalLoaderVisible = false;
+
+function scheduleGlobalLoaderShow(message, delayMs = 300) {
+  if (!globalLoaderOverlayEl) return;
+  if (globalLoaderTimer) {
+    clearTimeout(globalLoaderTimer);
+    globalLoaderTimer = null;
+  }
+  globalLoaderTimer = setTimeout(() => {
+    showGlobalLoader(message);
+  }, delayMs);
+}
+
+function cancelScheduledGlobalLoader() {
+  if (globalLoaderTimer) {
+    clearTimeout(globalLoaderTimer);
+    globalLoaderTimer = null;
+  }
+}
+
+function showGlobalLoader(message) {
+  if (!globalLoaderOverlayEl) return;
+  if (globalLoaderTextEl) {
+    globalLoaderTextEl.textContent = message || 'Loading…';
+  }
+  globalLoaderOverlayEl.classList.add('show');
+  globalLoaderOverlayEl.setAttribute('aria-hidden', 'false');
+  globalLoaderVisible = true;
+}
+
+function hideGlobalLoader() {
+  if (!globalLoaderOverlayEl) return;
+  cancelScheduledGlobalLoader();
+  if (!globalLoaderVisible) return;
+  globalLoaderOverlayEl.classList.remove('show');
+  globalLoaderOverlayEl.setAttribute('aria-hidden', 'true');
+  globalLoaderVisible = false;
+}
+
+async function withGlobalLoader(message, fn) {
+  // Only show if the operation takes longer than 300ms (prevents flicker)
+  scheduleGlobalLoaderShow(message, 300);
+  try {
+    return await fn();
+  } finally {
+    // If it hasn't shown yet, it will be cancelled here.
+    // If it has shown, it will be hidden.
+    hideGlobalLoader();
+  }
+}
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -533,7 +1587,6 @@ function renderNewestUnread(notifications) {
 
 async function refreshNotificationDropdown() {
   try {
-    // Ask for a handful so we can find the newest unread
     const res = await fetch('/notifications/api/recent?limit=15', { headers: { 'Accept': 'application/json' } });
     if (!res.ok) return;
     const data = await res.json();
@@ -573,7 +1626,7 @@ bellBtn.addEventListener('click', async e => {
   dropdown.style.display = willOpen ? 'block' : 'none';
 
   if (willOpen) {
-    await refreshNotificationDropdown();
+    await withGlobalLoader('Loading notifications…', refreshNotificationDropdown);
   }
 });
 
@@ -586,24 +1639,44 @@ if (dropdown) {
 if (markAllReadBtn) {
   markAllReadBtn.addEventListener('click', async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/notifications/mark-all-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      if (res.ok) {
-        await refreshNotificationDropdown();
+    await withGlobalLoader('Marking all as read…', async () => {
+      try {
+        const res = await fetch('/notifications/mark-all-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        if (res.ok) {
+          await refreshNotificationDropdown();
+        }
+      } catch (_) {
+        // no-op
       }
-    } catch (_) {
-      // no-op
-    }
+    });
   });
 }
 
 // Keep badge updated even if user never opens dropdown
 document.addEventListener('DOMContentLoaded', () => {
   refreshNotificationDropdown();
+
+  // Attach loader on form submits that cause navigation
+  const profileForm = document.getElementById('profileFormModal');
+  if (profileForm) {
+    profileForm.addEventListener('submit', () => {
+      showGlobalLoader('Saving profile…');
+    });
+  }
+
+  const changePasswordModal = document.getElementById('changePasswordModal');
+  if (changePasswordModal) {
+    const changePasswordForm = changePasswordModal.querySelector('form');
+    if (changePasswordForm) {
+      changePasswordForm.addEventListener('submit', () => {
+        showGlobalLoader('Updating password…');
+      });
+    }
+  }
 });
 
 /* ===================== PROFILE PHOTO PREVIEW ===================== */
@@ -617,6 +1690,181 @@ function previewProfilePhoto(event) {
     reader.readAsDataURL(file);
   }
 }
+
+// Mirror matches badge into mobile bottom nav if present
+const matchesBadgeDesktop = document.getElementById('matchesBadge');
+const matchesBadgeMobile = document.getElementById('matchesBadgeMobile');
+if (matchesBadgeDesktop && matchesBadgeMobile) {
+  const sync = () => {
+    matchesBadgeMobile.textContent = matchesBadgeDesktop.textContent;
+    matchesBadgeMobile.style.display = matchesBadgeDesktop.style.display;
+  };
+  const obs = new MutationObserver(sync);
+  obs.observe(matchesBadgeDesktop, { childList: true, characterData: true, attributes: true, subtree: true });
+  sync();
+}
+
+// Mobile bell reuses same dropdown positioning logic
+const mobileBellBtn = document.getElementById('mobileBellBtn');
+const mobileBellBadge = document.getElementById('mobileBellBadge');
+if (mobileBellBtn) {
+  mobileBellBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const rect = mobileBellBtn.getBoundingClientRect();
+
+    let top = rect.bottom + 10;
+    let left = rect.left;
+
+    // Fit dropdown within viewport on smaller screens
+    const width = 360;
+    if (left + width > window.innerWidth - 10) left = window.innerWidth - width - 10;
+    if (left < 10) left = 10;
+
+    const dropdownHeight = 500;
+    if (top + dropdownHeight > window.innerHeight) top = rect.top - dropdownHeight - 10;
+
+    dropdown.style.top = top + 'px';
+    dropdown.style.left = left + 'px';
+
+    const willOpen = dropdown.style.display !== 'block';
+    dropdown.style.display = willOpen ? 'block' : 'none';
+
+    if (willOpen) {
+      await withGlobalLoader('Loading notifications…', refreshNotificationDropdown);
+    }
+  });
+}
+
+// Keep mobile badge in sync with bell badge
+function syncBellBadges() {
+  if (!mobileBellBadge || !bellBadgeEl) return;
+  mobileBellBadge.textContent = bellBadgeEl.textContent;
+  mobileBellBadge.style.display = bellBadgeEl.style.display;
+}
+
+// Wrap existing setBellBadge to also update mobile badge
+const __origSetBellBadge = setBellBadge;
+setBellBadge = function(count) {
+  __origSetBellBadge(count);
+  syncBellBadges();
+}
+
+// Add action sheet
+const mobileAddBtn = document.getElementById('mobileAddBtn');
+const mobileAddSheetEl = document.getElementById('mobileAddSheet');
+const mobileAddLostBtn = document.getElementById('mobileAddLostBtn');
+const mobileAddFoundBtn = document.getElementById('mobileAddFoundBtn');
+const mobileAddSheet = mobileAddSheetEl ? new bootstrap.Modal(mobileAddSheetEl) : null;
+
+if (mobileAddBtn && mobileAddSheet) {
+  mobileAddBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    mobileAddSheet.show();
+  });
+}
+
+function closeAddSheet() {
+  if (mobileAddSheet) mobileAddSheet.hide();
+}
+
+// Attempt to open the proper modal if user is already on that page.
+if (mobileAddLostBtn) {
+  mobileAddLostBtn.addEventListener('click', () => {
+    closeAddSheet();
+    if (typeof bootstrap !== 'undefined' && document.getElementById('reportLostModal')) {
+      const m = new bootstrap.Modal(document.getElementById('reportLostModal'));
+      m.show();
+    } else {
+      window.location.href = "{{ url_for('user.lost_items') }}";
+    }
+  });
+}
+
+if (mobileAddFoundBtn) {
+  mobileAddFoundBtn.addEventListener('click', () => {
+    closeAddSheet();
+    if (typeof bootstrap !== 'undefined' && document.getElementById('reportFoundModal')) {
+      const m = new bootstrap.Modal(document.getElementById('reportFoundModal'));
+      m.show();
+    } else {
+      window.location.href = "{{ url_for('user.my_found_items') }}";
+    }
+  });
+}
+
+// Ensure mobile badge sync on load too
+document.addEventListener('DOMContentLoaded', () => {
+  syncBellBadges();
+});
+
+// Mobile drawer controls (restored)
+const mobileDrawer = document.getElementById('mobileDrawer');
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+const mobileDrawerBackdrop = document.getElementById('mobileDrawerBackdrop');
+
+function openMobileDrawer() {
+  if (!mobileDrawer) return;
+  mobileDrawer.classList.add('show');
+  mobileDrawer.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileDrawer() {
+  if (!mobileDrawer) return;
+  mobileDrawer.classList.remove('show');
+  mobileDrawer.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', (e) => { e.preventDefault(); openMobileDrawer(); });
+if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', (e) => { e.preventDefault(); closeMobileDrawer(); });
+if (mobileDrawerBackdrop) mobileDrawerBackdrop.addEventListener('click', (e) => { e.preventDefault(); closeMobileDrawer(); });
+
+// Close drawer on ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && mobileDrawer && mobileDrawer.classList.contains('show')) {
+    closeMobileDrawer();
+  }
+});
+
+// Close drawer when any link inside is tapped
+if (mobileDrawer) {
+  mobileDrawer.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (a && a.getAttribute('href') && a.getAttribute('href') !== '#') {
+      closeMobileDrawer();
+    }
+  });
+}
+
+// ===================== DARK MODE TOGGLE (persisted) =====================
+(function () {
+  const body = document.body;
+
+  const desktopInput = document.getElementById('darkModeToggleDesktop');
+  const mobileInput = document.getElementById('darkModeToggleMobile');
+
+  function setChecked(isDark) {
+    if (desktopInput) desktopInput.checked = isDark;
+    if (mobileInput) mobileInput.checked = isDark;
+  }
+
+  function apply(isDark) {
+    body.classList.toggle('dark-mode', isDark);
+    localStorage.setItem('darkMode', String(isDark));
+    setChecked(isDark);
+  }
+
+  apply(localStorage.getItem('darkMode') === 'true');
+
+  function onToggle(e) {
+    apply(!!e.target.checked);
+  }
+
+  desktopInput?.addEventListener('change', onToggle);
+  mobileInput?.addEventListener('change', onToggle);
+})();
 </script>
 
 {# Allow child templates (e.g., my_lost_items.html) to inject their page-specific JS #}

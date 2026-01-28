@@ -3,20 +3,14 @@
 {% block content %}
 <style>
   :root {
-    --page-bg: #f7f8fc;
-    --card-bg: #ffffff;
-    --text: #2b2d42;
-    --muted: #6c757d;
-    --shadow: 0 8px 24px rgba(18, 38, 63, 0.06);
+    --page-bg: var(--neutral-bg);
+    --card-bg: var(--neutral-white);
+    --text: var(--neutral-900);
+    --muted: var(--neutral-600);
+    --shadow: var(--shadow-md);
   }
 
-  body.dark-mode {
-    --page-bg: #1b1b1b;
-    --card-bg: #292929;
-    --text: #ffffff;
-    --muted: #808080;
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
+  /* Remove local body.dark-mode palette overrides (use global base palette) */
 
   body {
     background-color: var(--page-bg);
@@ -25,11 +19,7 @@
   }
 
   .border {
-    border-color: var(--border-color) !important;
-  }
-
-  body.dark-mode .border {
-    border-color: #404040 !important;
+    border-color: var(--neutral-200) !important;
   }
 
   .bg-light {
@@ -51,10 +41,11 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
+  /* Keep info alert readable in dark mode using theme tokens */
   body.dark-mode .alert-info {
-    background-color: rgba(23, 162, 184, 0.15);
-    border-color: #17a2b8;
-    color: #17a2b8;
+    background-color: color-mix(in srgb, var(--primary-teal) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary-teal) 40%, transparent);
+    color: var(--text);
   }
 
   .fw-bold {
@@ -86,11 +77,6 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const darkMode = localStorage.getItem('darkMode') === 'true';
-  if (darkMode) {
-    document.body.classList.add('dark-mode');
-  }
-});
+/* Dark mode is controlled globally in base_user_dashboard.html */
 </script>
 {% endblock %}
