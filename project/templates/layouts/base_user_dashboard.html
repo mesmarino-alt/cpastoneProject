@@ -221,6 +221,35 @@
       overflow-y: auto;
     }
 
+    /* ===================== DESKTOP CONTENT WIDTH HELPERS ===================== */
+    /*
+      Some child pages wrap their contents in a .container-fluid with their own max-width,
+      which can make pages look "narrow" on desktop.
+
+      These helpers standardize a full-width page container that still allows optional
+      max-width constraints when a page explicitly opts in.
+    */
+    .dashboard-page {
+      width: 100%;
+      max-width: none;
+    }
+
+    .dashboard-page--constrained {
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Ensure Bootstrap containers inside the main content don't silently limit desktop width */
+    @media (min-width: 992px) {
+      main.content > .container,
+      main.content > .container-lg,
+      main.content > .container-xl,
+      main.content > .container-xxl {
+        max-width: none;
+      }
+    }
+
     /* ===================== MOBILE ===================== */
     @media(max-width:768px){
       /* legacy sidebar slide-in removed: mobile uses drawer + bottom nav */
@@ -819,15 +848,15 @@
       --neutral-400: color-mix(in srgb, #ffffff 45%, #0000);
       --neutral-600: color-mix(in srgb, #ffffff 72%, #0000);
       --neutral-700: color-mix(in srgb, #ffffff 82%, #0000);
-      --neutral-900: color-mix(in srgb, #ffffff 90%, var(--dm-4));
+      --neutral-900: color-mix(in srgb, #ffffff 94%, #0000);
 
       /* Alias commonly used page-level vars */
       --page-bg: var(--dm-1);
       --card-bg: var(--dm-2);
       --card: var(--dm-2);
 
-      --text: color-mix(in srgb, #ffffff 88%, var(--dm-4));
-      --muted: color-mix(in srgb, #ffffff 70%, #0000);
+      --text: color-mix(in srgb, #ffffff 92%, #0000);
+      --muted: color-mix(in srgb, #ffffff 72%, #0000);
       --border-color: color-mix(in srgb, var(--dm-3) 55%, #0000);
 
       /* Bottom nav surface */
@@ -835,7 +864,7 @@
       --nav-border: color-mix(in srgb, var(--dm-3) 55%, #0000);
 
       /* Keep app accents recognizable in dark */
-      --primary-purple: color-mix(in srgb, #8a5cff 40%, var(--dm-3));
+      --primary-purple: color-mix(in srgb, #ffffff 86%, #0000); /* make "purple text" readable */
       --primary-teal: var(--dm-2);
       --accent-gold: color-mix(in srgb, #F9E2AF 35%, var(--dm-2));
 
@@ -844,7 +873,7 @@
       --shadow-lg: 0 14px 40px rgba(0,0,0,.38);
 
       /* Bottom nav icon contrast in dark mode */
-      --nav-active: color-mix(in srgb, #ffffff 92%, var(--dm-4));
+      --nav-active: color-mix(in srgb, #ffffff 92%, #0000);
       --nav-inactive: color-mix(in srgb, #ffffff 72%, #0000);
     }
 
@@ -854,41 +883,66 @@
     body.dark-mode .mobile-drawer .drawer-panel,
     body.dark-mode .notification-dropdown {
       background: var(--dm-2) !important;
-      color: var(--dm-4) !important;
+      color: var(--text) !important;
       border-color: color-mix(in srgb, var(--dm-3) 55%, #0000) !important;
     }
 
     body.dark-mode .content {
       background: var(--dm-1) !important;
-      color: var(--dm-4) !important;
+      color: var(--text) !important;
     }
 
     body.dark-mode .modal-content {
       background: var(--dm-2) !important;
-      color: var(--dm-4) !important;
+      color: var(--text) !important;
       border-color: color-mix(in srgb, var(--dm-3) 55%, #0000) !important;
     }
 
-    body.dark-mode .form-control,
-    body.dark-mode .form-select,
-    body.dark-mode input,
-    body.dark-mode textarea,
-    body.dark-mode select {
-      background: color-mix(in srgb, var(--dm-2) 88%, #0000) !important;
-      color: var(--dm-4) !important;
-      border-color: color-mix(in srgb, var(--dm-3) 65%, #0000) !important;
+    /* ===== DARK MODE: readable headings/labels that were using purple ===== */
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode h4,
+    body.dark-mode h5,
+    body.dark-mode h6,
+    body.dark-mode .panel-title,
+    body.dark-mode .data-table th,
+    body.dark-mode .modal-title,
+    body.dark-mode .drawer-header .title {
+      color: var(--text) !important;
     }
 
-    body.dark-mode .form-control::placeholder,
-    body.dark-mode textarea::placeholder {
-      color: color-mix(in srgb, var(--dm-4) 62%, #0000) !important;
+    /* Fix inline styles like: style="color: var(--primary-purple)" */
+    body.dark-mode [style*="var(--primary-purple)"] {
+      color: var(--text) !important;
     }
 
     body.dark-mode .table,
     body.dark-mode .data-table,
     body.dark-mode .data-table td,
     body.dark-mode .data-table th {
-      color: var(--dm-4) !important;
+      color: var(--text) !important;
+    }
+
+    /* Make table header background readable in dark */
+    body.dark-mode .data-table thead {
+      background: color-mix(in srgb, var(--dm-3) 35%, transparent) !important;
+    }
+
+    body.dark-mode .data-table th {
+      border-bottom-color: color-mix(in srgb, var(--dm-3) 65%, #0000) !important;
+    }
+
+    body.dark-mode .data-table td {
+      border-bottom-color: color-mix(in srgb, var(--dm-3) 55%, #0000) !important;
+    }
+
+    body.dark-mode .data-table tbody tr:nth-child(odd) {
+      background-color: color-mix(in srgb, #000 10%, var(--dm-2)) !important;
+    }
+
+    body.dark-mode .data-table tbody tr:hover {
+      background-color: color-mix(in srgb, #fff 6%, var(--dm-2)) !important;
     }
 
     /* Toggle button styling */
@@ -1072,6 +1126,38 @@
     body.dark-mode .modal .small,
     body.dark-mode .modal .text-muted {
       color: color-mix(in srgb, var(--text) 78%, #0000) !important;
+    }
+
+    /* ===================== MOBILE DRAWER: PROFILE HEADER ===================== */
+    .mobile-drawer .drawer-profile {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .85rem .25rem 1rem .25rem;
+    }
+
+    .mobile-drawer .drawer-profile .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 2px solid var(--primary-teal);
+      object-fit: cover;
+      flex: 0 0 auto;
+      background: var(--neutral-100);
+    }
+
+    .mobile-drawer .drawer-profile .name {
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .mobile-drawer .drawer-profile .email {
+      font-size: .82rem;
+      color: var(--neutral-600);
+    }
+
+    body.dark-mode .mobile-drawer .drawer-profile .email {
+      color: var(--muted) !important;
     }
   </style>
 </head>
@@ -1366,19 +1452,32 @@
     </div>
 
     <div class="drawer-body">
-      <a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}">
+      <!-- Profile photo at top of navigation -->
+      <a href="{{ url_for('user.dashboard') }}" class="drawer-profile" data-close-drawer="true" aria-label="Go to dashboard">
+        {% if current_user.profile_photo %}
+          <img class="avatar" src="{{ url_for('static', filename='uploads/profile_photos/' ~ current_user.profile_photo) }}" alt="Profile photo">
+        {% else %}
+          <div class="avatar d-flex align-items-center justify-content-center text-white" style="background: var(--neutral-400); border-color: var(--primary-teal);">U</div>
+        {% endif %}
+        <div class="min-w-0">
+          <div class="name text-truncate">{{ current_user.name }}</div>
+          <div class="email text-truncate">{{ current_user.email }}</div>
+        </div>
+      </a>
+
+      <a href="{{ url_for('user.dashboard') }}" class="{{ 'active' if request.endpoint == 'user.dashboard' }}" data-close-drawer="true">
         <i class="fa-solid fa-table-columns"></i> Dashboard
       </a>
-      <a href="{{ url_for('user.lost_items') }}" class="{{ 'active' if request.endpoint == 'user.lost_items' }}">
+      <a href="{{ url_for('user.lost_items') }}" class="{{ 'active' if request.endpoint == 'user.lost_items' }}" data-close-drawer="true">
         <i class="fa-solid fa-cube"></i> My Lost Items
       </a>
-      <a href="{{ url_for('user.my_found_items') }}" class="{{ 'active' if request.endpoint == 'user.my_found_items' }}">
+      <a href="{{ url_for('user.my_found_items') }}" class="{{ 'active' if request.endpoint == 'user.my_found_items' }}" data-close-drawer="true">
         <i class="fa-solid fa-box-open"></i> My Found Items
       </a>
-      <a href="{{ url_for('user.matches') }}" class="{{ 'active' if request.endpoint == 'user.matches' }}">
+      <a href="{{ url_for('user.matches') }}" class="{{ 'active' if request.endpoint == 'user.matches' }}" data-close-drawer="true">
         <i class="fa-solid fa-cubes"></i> Matches
       </a>
-      <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}">
+      <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}" data-close-drawer="true">
         <i class="fa-solid fa-bell"></i> Notifications
       </a>
 
@@ -1836,6 +1935,12 @@ if (mobileDrawer) {
       closeMobileDrawer();
     }
   });
+
+  // Explicit: close on any element that opts in
+  mobileDrawer.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-close-drawer="true"]');
+    if (el) closeMobileDrawer();
+  });
 }
 
 // ===================== DARK MODE TOGGLE (persisted) =====================
@@ -1872,3 +1977,4 @@ if (mobileDrawer) {
 
 </body>
 </html>
+

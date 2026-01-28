@@ -3,9 +3,7 @@
 {% block content %}
 <style>
   /* ===== THEME TOKENS (use shared tokens from base layout) ===== */
-  :root {
-    /* Do not re-declare tokens here; base_user_dashboard.html is the source of truth. */
-  }
+  /* Do not re-declare tokens here; base_user_dashboard.html is the source of truth. */
 
   body, .container-fluid {
     background: linear-gradient(135deg, var(--neutral-bg) 0%, color-mix(in srgb, var(--accent-gold) 20%, transparent) 100%);
@@ -16,8 +14,8 @@
 
   /* Keep all dashboard sections aligned to the same content width */
   .dash-container {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
   }
 
   /* ===== PAGE HEADER ===== */

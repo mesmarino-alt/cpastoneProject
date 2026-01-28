@@ -21,6 +21,24 @@
     --primary-accent-2: var(--primary-teal);
   }
 
+  /*
+    Safety fallbacks:
+    If base_user_dashboard.html doesn't define the neutral/primary tokens (or a second :root overrides them),
+    ensure the modal/page still has readable colors.
+  */
+  :root {
+    --page-bg: var(--neutral-bg, #f6f7fb);
+    --card: var(--neutral-white, #ffffff);
+    --text: var(--neutral-900, #111827);
+    --muted: var(--neutral-600, #6b7280);
+    --shadow: var(--shadow-md, 0 10px 24px rgba(18, 38, 63, 0.08));
+    --border-color: var(--neutral-200, #e5e7eb);
+
+    --primary-accent: var(--primary-purple, #8A2BE2);
+    --primary-accent-hover: color-mix(in srgb, var(--primary-accent) 85%, #000);
+    --primary-accent-2: var(--primary-teal, #20c997);
+  }
+
   body, .container-fluid {
     background-color: var(--page-bg);
     color: var(--text);
@@ -347,6 +365,17 @@
     --surface-2: color-mix(in srgb, var(--card) 92%, #0000 8%);
   }
 
+  /* Ensure modal sections always pick up readable defaults */
+  .lost-modal-content,
+  .lost-modal-body,
+  .lost-identity,
+  .lost-attrs,
+  .lost-features,
+  .lost-image-panel {
+    background: var(--card);
+    color: var(--text);
+  }
+
   .lost-modal-dialog {
     max-width: 860px;
   }
@@ -641,8 +670,8 @@
      My Lost Items page (modern dashboard redesign)
      --------------------------------------------- */
   .lost-page-wrap {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
   }
 
   @media (min-width: 1200px) {
@@ -654,7 +683,7 @@
 
   @media (min-width: 1600px) {
     .lost-page-wrap {
-      max-width: 1560px;
+      max-width: none;
     }
   }
 
@@ -1099,6 +1128,56 @@
        But we still want badge visible, so set content z-index. */
     .lost-mobile-card { position: relative; z-index: 1; }
   }
+
+  /* Ensure description is always readable (prevents "blank white" look) */
+  #lostView_description {
+    color: var(--text) !important;
+    background: color-mix(in srgb, var(--neutral-white) 86%, var(--primary-purple) 14%) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px;
+    padding: .75rem .85rem;
+    min-height: 3.25rem;
+  }
+
+  /* Dark mode: slightly darker surface tint so it doesn't glow */
+  body.dark-mode #lostView_description {
+    background: color-mix(in srgb, var(--neutral-white) 82%, #000 18%) !important;
+    border-color: color-mix(in srgb, var(--border-color) 85%, #0000) !important;
+  }
+
+  /* View modal palette: adapt to base dashboard dark mode tokens */
+  body.dark-mode #viewLostItemModal {
+    /* Keep header colors deep but not tied to light palette */
+    --navy: color-mix(in srgb, var(--dm-3) 70%, #000 30%);
+    --teal: color-mix(in srgb, var(--primary-teal) 55%, #ffffff 45%);
+    --soft-purple: color-mix(in srgb, var(--dm-4) 75%, #ffffff 25%);
+
+    /* Ensure modal surfaces use the dark-mode cards */
+    --surface: var(--neutral-white);
+    --surface-2: color-mix(in srgb, var(--neutral-white) 86%, #000 14%);
+  }
+
+  /* Description panel: use a dark-surface mix in dark mode (no white glow) */
+  body.dark-mode #lostView_description {
+    background: color-mix(in srgb, var(--neutral-white) 92%, #000 8%) !important;
+    color: var(--text) !important;
+  }
+
+  /* View modal image panel adapts to dark mode */
+  body.dark-mode .lost-image-panel {
+    background: color-mix(in srgb, var(--neutral-white) 86%, #000 14%) !important;
+  }
+
+  body.dark-mode .lost-image-frame {
+    background: color-mix(in srgb, var(--neutral-white) 88%, #000 12%) !important;
+    border-color: color-mix(in srgb, var(--border-color) 90%, #0000) !important;
+  }
+
+  body.dark-mode .lost-image-empty {
+    background: color-mix(in srgb, var(--neutral-white) 88%, #000 12%) !important;
+    color: var(--muted) !important;
+  }
+
 </style>
 
 <div class="py-4">
@@ -1699,6 +1778,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const viewModal = document.getElementById('viewLostItemModal');
   if (!viewModal) return;
 
+  // Track the element that opened the modal so we can restore focus on close
+  let lastViewModalTrigger = null;
+
+  viewModal.addEventListener('show.bs.modal', (event) => {
+    lastViewModalTrigger = event.relatedTarget || document.activeElement;
+  });
+
+  // IMPORTANT: move focus out BEFORE Bootstrap marks the modal aria-hidden="true".
+  // This prevents the Chrome warning when closing via close-button or backdrop click.
+  viewModal.addEventListener('hide.bs.modal', () => {
+    const active = document.activeElement;
+    if (active && viewModal.contains(active)) {
+      const toFocus = (lastViewModalTrigger && document.contains(lastViewModalTrigger))
+        ? lastViewModalTrigger
+        : document.body;
+
+      // Move focus synchronously before the aria-hidden flip.
+      toFocus?.focus?.({ preventScroll: true });
+
+      // As a safety net, blur the previously focused element.
+      active.blur?.();
+    }
+  });
+
+  // When fully hidden, restore focus to the trigger (fallback)
+  viewModal.addEventListener('hidden.bs.modal', () => {
+    const toFocus = lastViewModalTrigger;
+
+    if (toFocus && typeof toFocus.focus === 'function' && document.contains(toFocus)) {
+      toFocus.focus({ preventScroll: true });
+    } else {
+      document.body.focus?.({ preventScroll: true });
+    }
+
+    lastViewModalTrigger = null;
+  });
+
   const el = {
     name: document.getElementById('lostView_name'),
     category: document.getElementById('lostView_category'),
@@ -1759,6 +1875,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el.material) el.material.textContent = '—';
     el.lastSeen.textContent = '—';
     el.date.textContent = '—';
+    // Keep a visible placeholder so the panel never looks empty.
     el.description.textContent = '—';
     setStatusBadge('');
     el.photo.innerHTML = `
@@ -1789,7 +1906,9 @@ document.addEventListener('DOMContentLoaded', () => {
         el.date.textContent = data.reported_at || data.last_seen_at || '—';
 
         // Exactly like dashboard: textContent (no HTML)
-        el.description.textContent = data.description || '—';
+        // Render a placeholder if description missing/empty
+        const desc = (data.description ?? '').toString().trim();
+        el.description.textContent = desc.length ? desc : '—';
 
         setStatusBadge(data.status);
         renderPhotoLikeDashboard(data.photo);
