@@ -7,7 +7,7 @@ ENV FLASK_ENV=production
 
 # Install system dependencies for common DB drivers and build tools
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev gcc curl \
+    && apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev gcc curl libssl-dev libffi-dev python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install PyTorch CPU wheel first from the PyTorch index,
@@ -15,13 +15,14 @@ RUN apt-get update \
 # pytorch/pytorch:... tag on Docker Hub.
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip setuptools wheel \
-    && python -m pip install --no-cache-dir Flask==3.1.2 \
+    && python -m pip install --no-cache-dir Flask==3.1.2 Flask-Bcrypt==1.0.1 \
     && python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
     && grep -v '^torch' requirements.txt > reqs_no_torch.txt \
     && python -m pip install --no-cache-dir -r reqs_no_torch.txt \
     && python -m pip install --no-cache-dir gunicorn==23.0.0 \
     # Verify critical packages are importable and print versions to build logs
     && python -c "import flask; import sys; print('flask==%s' % flask.__version__)" \
+    && python -c "import flask_bcrypt; print('flask_bcrypt OK')" \
     && python -c "import torch; print('torch==%s' % torch.__version__)"
 
 # Copy app
