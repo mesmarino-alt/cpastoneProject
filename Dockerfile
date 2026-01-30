@@ -18,7 +18,7 @@ ENV GUNICORN_CMD_ARGS="--workers 1 --timeout 120"
 # pytorch/pytorch:... tag on Docker Hub.
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip setuptools wheel \
-    && python -m pip install --no-cache-dir Flask==3.1.2 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 \
+    && python -m pip install --no-cache-dir Flask==3.1.2 Flask-Bcrypt==1.0.1 Flask-Login==0.6.3 PyMySQL==1.1.2 \
     && python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
     && grep -v '^torch' requirements.txt > reqs_no_torch.txt \
     && python -m pip install --no-cache-dir -r reqs_no_torch.txt \
@@ -26,6 +26,7 @@ RUN python -m pip install --upgrade pip setuptools wheel \
     # Verify critical packages are importable and print versions to build logs
     && python -c "import flask; import sys; print('flask==%s' % flask.__version__)" \
     && python -c "import flask_bcrypt; print('flask_bcrypt OK')" \
+    && python -c "import pymysql; print('pymysql OK')" \
     && python -c "import torch; print('torch==%s' % torch.__version__)" \
     # Print installed packages for debugging
     && python -m pip freeze | sed -n '1,200p'
