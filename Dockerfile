@@ -14,9 +14,11 @@ RUN apt-get update \
 # then install the rest of the requirements. This avoids relying on a non-existent
 # pytorch/pytorch:... tag on Docker Hub.
 COPY requirements.txt .
-RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
+RUN python -m pip install --upgrade pip setuptools wheel \
+    && python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
     && grep -v '^torch' requirements.txt > reqs_no_torch.txt \
-    && pip install --no-cache-dir -r reqs_no_torch.txt
+    && python -m pip install --no-cache-dir -r reqs_no_torch.txt \
+    && python -m pip install --no-cache-dir gunicorn==23.0.0
 
 # Copy app
 COPY . .
@@ -25,5 +27,6 @@ COPY . .
 EXPOSE 8000
 
 # Use a shell command so the $PORT environment variable is expanded at runtime.
-# Provide a default port (8000) if PORT is not set.
-CMD ["sh", "-c", "gunicorn wsgi:app -b 0.0.0.0:${PORT:-8000} --workers 4 --timeout 120"]
+# Provide a default port (8000) if PORT is not set. Use python -m gunicorn to avoid
+# relying on an executable being present in PATH.
+CMD ["sh", "-c", "python -m gunicorn wsgi:app -b 0.0.0.0:${PORT:-8000} --workers 4 --timeout 120"]
