@@ -12,7 +12,11 @@ RUN apt-get update \
 
 # Install Python deps
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install PyTorch CPU wheel from the official PyTorch index first so
+# the `torch==2.9.1+cpu` artifact (which lives on the PyTorch index) can be found,
+# then install the rest of the requirements.
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch==2.9.1+cpu \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy app
 COPY . .
