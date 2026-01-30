@@ -13,24 +13,25 @@
 
   <style>
     :root {
-      /* Palette */
-      --p-teal: #0ABAB5;
-      --p-mint: #56DFCF;
-      --p-soft: #ADEED9;
-      --p-blush: #FFEDF3;
+      /* Palette (requested) */
+      --p-cream: #F6F0D7;
+      --p-sage: #C5D89D;
+      --p-olive: #9CAB84;
+      --p-moss: #89986D;
 
       /* System tokens */
-      --brand: var(--p-teal);
-      --brand-2: var(--p-mint);
-      --brand-soft: rgba(10, 186, 181, 0.14);
-      --bg: #f7fbfb;
-      --bg2: #f3fbf8;
+      --brand: var(--p-moss);
+      --brand-2: var(--p-sage);
+      --brand-soft: rgba(137, 152, 109, 0.16);
+
+      --bg: var(--p-cream);
+      --bg2: rgba(197, 216, 157, 0.20);
       --surface: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: rgba(15, 23, 42, 0.08);
-      --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
-      --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
+      --text: #1f2419;
+      --muted: #5b6547;
+      --border: rgba(156, 171, 132, 0.45);
+      --shadow: 0 10px 30px rgba(31, 36, 25, 0.14);
+      --shadow-sm: 0 6px 18px rgba(31, 36, 25, 0.10);
       --radius: 14px;
     }
 
@@ -41,8 +42,8 @@
       font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(1200px 600px at 20% 0%, rgba(10, 186, 181, 0.10), transparent 60%),
-        radial-gradient(1000px 500px at 90% 10%, rgba(86, 223, 207, 0.08), transparent 55%),
+        radial-gradient(1200px 600px at 20% 0%, rgba(156, 171, 132, 0.22), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(197, 216, 157, 0.22), transparent 55%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
     }
 
@@ -50,9 +51,9 @@
     .sidebar {
       width: 220px; /* reduced */
       min-height: 100vh;
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(31, 36, 25, 0.92);
       backdrop-filter: blur(10px);
-      color: rgba(255, 255, 255, 0.92);
+      color: rgba(246, 240, 215, 0.92);
       position: fixed;
       top: 0;
       left: 0;
@@ -62,7 +63,8 @@
       overflow-y: auto;
       overflow-x: hidden;
       flex-shrink: 0;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(197, 216, 157, 0.16);
+      padding-top: 1rem;
     }
 
     .sidebar.show { transform: translateX(0); }
@@ -72,22 +74,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1.25rem 0 0.75rem;
+      padding: 1.25rem 0.75rem 1rem;
+      text-align: center;
     }
 
     .profile-photo {
       width: 64px;
       height: 64px;
       object-fit: cover;
-      border: 2px solid rgba(10, 186, 181, 0.85);
+      border: 2px solid rgba(197, 216, 157, 0.90);
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
     }
 
     .profile-photo-placeholder {
       width: 64px;
       height: 64px;
-      background: rgba(10, 186, 181, 0.95);
-      color: white;
+      background: rgba(137, 152, 109, 0.95);
+      color: var(--p-cream);
       font-weight: 800;
       font-size: 1.05rem;
       border-radius: 999px;
@@ -98,59 +101,131 @@
     }
 
     .profile-block p { margin-bottom: 0.25rem; }
-    .profile-block .fw-bold { font-weight: 800 !important; }
-    .profile-block .small { color: rgba(255,255,255,0.72); }
+    .profile-block .fw-bold { font-weight: 900 !important; letter-spacing: -0.2px; }
+    .profile-block .small { color: rgba(246, 240, 215, 0.78); line-height: 1.25; }
+    .profile-block .meta-divider {
+      width: 64px;
+      height: 2px;
+      margin: 0.75rem auto 0.25rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(197, 216, 157, 0.65), transparent);
+    }
 
     .sidebar hr {
-      border-color: rgba(255,255,255,0.1);
+      border-color: rgba(197, 216, 157, 0.14);
       opacity: 1;
+      margin: 0.75rem 0.25rem 0.85rem;
+    }
+
+    .sidebar .nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0 0.25rem;
     }
 
     .sidebar a {
-      color: rgba(255, 255, 255, 0.86);
+      color: rgba(246, 240, 215, 0.88);
       text-decoration: none;
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      padding: 0.7rem 0.85rem;
-      border-radius: 12px;
+      padding: 0.72rem 0.85rem;
+      border-radius: 14px;
       position: relative;
       word-wrap: break-word;
       white-space: normal;
       overflow-wrap: break-word;
       font-size: 0.92rem;
-      font-weight: 600;
+      font-weight: 650;
+      letter-spacing: -0.1px;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 44px;
       transition: background-color 0.15s ease, color 0.15s ease;
     }
 
+    .sidebar a i {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
     .sidebar a:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255,255,255,0.96);
+      background: rgba(197, 216, 157, 0.11);
+      color: rgba(246, 240, 215, 0.99);
     }
 
     .sidebar a.active {
-      background: rgba(10, 186, 181, 0.16);
-      color: #fff;
-      font-weight: 800;
+      background: linear-gradient(180deg, rgba(137, 152, 109, 0.26), rgba(137, 152, 109, 0.14));
+      border: 1px solid rgba(197, 216, 157, 0.18);
+      color: var(--p-cream);
+      font-weight: 850;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
     }
 
     .sidebar a.active::before {
       content: '';
       position: absolute;
-      left: -12px;
+      left: -10px;
       top: 10px;
       bottom: 10px;
-      width: 4px;
+      width: 3px;
       border-radius: 999px;
-      background: rgba(10, 186, 181, 0.95);
+      background: rgba(197, 216, 157, 0.95);
     }
+
+    .sidebar a:focus-visible {
+      outline: 3px solid rgba(197, 216, 157, 0.28);
+      outline-offset: 2px;
+    }
+
+    .notification-badge {
+      margin-left: auto;
+      background: rgba(197, 216, 157, 0.92);
+      color: rgba(31, 36, 25, 0.95);
+      border: 1px solid rgba(31, 36, 25, 0.25);
+      font-weight: 900;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      line-height: 1.2;
+    }
+
+    /* Sidebar links: wrap labels with .nav-label for compact mode */
+    .nav-group a .nav-label { margin-left: 0.6rem; display: inline-block; }
+
+    /* Compact sidebar (icon-only) for medium screens */
+    .sidebar.compact {
+      width: 64px;
+      padding-top: 0.75rem;
+      overflow: visible;
+    }
+    .sidebar.compact .profile-block { padding: 0.6rem 0.25rem; }
+    .sidebar.compact .profile-photo, .sidebar.compact .profile-photo-placeholder { width:40px; height:40px; }
+    .sidebar.compact .meta-divider { display:none; }
+    .sidebar.compact .profile-block p { display:none; }
+    .sidebar.compact .nav-group { gap: 0.25rem; }
+    .sidebar.compact .nav-group a {
+      justify-content: center;
+      padding: 0.55rem 0.45rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+    }
+    .sidebar.compact .nav-group a i { margin-right: 0; }
+    .sidebar.compact .nav-group a .nav-label { display: none; }
+    .sidebar.compact .notification-badge { display: none; }
 
     /* Overlay */
     .sidebar-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.55);
+      background: rgba(31, 36, 25, 0.55);
       z-index: 1040;
     }
 
@@ -175,15 +250,85 @@
 
     /* Improve focus visibility */
     a:focus-visible, button:focus-visible, .btn:focus-visible {
-      outline: 3px solid rgba(10, 186, 181, 0.32);
+      outline: 3px solid rgba(197, 216, 157, 0.38);
       outline-offset: 2px;
       border-radius: 10px;
+    }
+
+    /* Compact desktop: when browser is narrowed but still desktop */
+    @media (max-width: 1200px) {
+      .sidebar {
+        width: 200px;
+      }
+      .content {
+        margin-left: 200px;
+        padding: 1.25rem 1rem;
+      }
+    }
+
+    /* Small desktop / large tablet */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 184px;
+      }
+      .content {
+        margin-left: 184px;
+        padding: 1.1rem 0.9rem;
+      }
+      .sidebar a {
+        font-size: 0.9rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+      }
+      .profile-photo,
+      .profile-photo-placeholder {
+        width: 56px;
+        height: 56px;
+      }
     }
 
     @media (max-width: 992px) {
       .content { margin-left: 0; }
       .sidebar { transform: translateX(-100%); }
       .sidebar.show { transform: translateX(0); }
+      /* On medium breakpoints keep compact behavior available */
+    }
+
+    /* Topbar and toggle for small screens */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Toggle button visual: make it more visible and slightly larger */
+    .btn-icon {
+      background: linear-gradient(180deg, var(--brand), var(--brand-2));
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 18px rgba(31,36,25,0.12);
+      font-size: 1.05rem;
+      padding: 0.55rem 0.7rem;
+    }
+
+    .topbar-title { font-weight: 800; color: var(--p-cream); display: block; }
+
+    /* Keep toggle and title visible on all sizes; adjust layout if needed on large screens */
+    @media (min-width: 1200px) {
+      /* On very large screens keep a subtle inline appearance */
+      .btn-icon { padding: 0.4rem 0.5rem; }
+    }
+
+    @media (max-width: 991px) {
+      /* Ensure content padding is comfortable on smaller screens */
+      .content { padding: 0.9rem 0.85rem; }
+    }
+
+    @media (max-width: 576px) {
+      .sidenav-compact { display: none; }
+      .content { padding: 0.6rem 0.6rem; }
+      .sugg-controls input[type="search"]{ min-width: 140px; }
     }
   </style>
 </head>
@@ -205,44 +350,51 @@
       <p class="fw-bold mb-0">{{ current_user.name }}</p>
       <p class="small mb-0">{{ current_user.email }}</p>
       <p class="small mb-0">Role: {{ current_user.role|title }}</p>
+      <div class="meta-divider"></div>
     </div>
 
     <hr />
 
     <!-- Navigation Links (preserved) -->
-    <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2"></i> Dashboard
-    </a>
-    <a href="{{ url_for('admin.users_page') }}" class="{% if request.endpoint == 'admin.users_page' %}active{% endif %}">
-      <i class="bi bi-people"></i> Users
-    </a>
-    <a href="{{ url_for('admin.items_page') }}" class="{% if request.endpoint == 'admin.items_page' %}active{% endif %}">
-      <i class="bi bi-box-seam"></i> Items
-    </a>
+    <div class="nav-group">
+      <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="{{ url_for('admin.users_page') }}" class="{% if request.endpoint == 'admin.users_page' %}active{% endif %}">
+        <i class="bi bi-people"></i> <span class="nav-label">Users</span>
+      </a>
+      <a href="{{ url_for('admin.items_page') }}" class="{% if request.endpoint == 'admin.items_page' %}active{% endif %}">
+        <i class="bi bi-box-seam"></i> <span class="nav-label">Items</span>
+      </a>
+      <a href="{{ url_for('admin_claims.claims_page') }}" class="{% if request.endpoint == 'admin_claims.claims_page' %}active{% endif %}">
+        <i class="bi bi-file-earmark-check"></i> <span class="nav-label">Claims</span>
+        {% if pending_count is defined and pending_count > 0 and not session.get('claims_seen') %}
+          <span class="notification-badge">{{ pending_count }}</span>
+        {% endif %}
+      </a>
+      <a href="{{ url_for('admin.reports_page') }}" class="{% if request.endpoint == 'admin.reports_page' %}active{% endif %}">
+        <i class="bi bi-journal-text"></i> <span class="nav-label">Reports</span>
+      </a>
 
-    <a href="{{ url_for('admin_claims.claims_page') }}" 
-    class="{% if request.endpoint == 'admin_claims.claims_page' %}active{% endif %}">
-    <i class="bi bi-file-earmark-check"></i> Claims
-    {% if pending_count is defined and pending_count > 0 and not session.get('claims_seen') %}
-      <span class="notification-badge">{{ pending_count }}</span>
-    {% endif %}
- </a>
- 
-    <a href="{{ url_for('admin.reports_page') }}" class="{% if request.endpoint == 'admin.reports_page' %}active{% endif %}">
-      <i class="bi bi-journal-text"></i> Reports
-    </a>
+      <!-- Suggestions nav link -->
+      <a href="{{ url_for('admin.suggestions_page') }}" class="{% if request.endpoint == 'admin.suggestions_page' %}active{% endif %}">
+        <i class="bi bi-lightbulb"></i> <span class="nav-label">Suggestions</span>
+      </a>
 
-    <a href="#" 
-    data-bs-toggle="modal" 
-    data-bs-target="#logoutConfirmModal"
-    class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
-    <i class="bi bi-box-arrow-right"></i> Logout
- </a>
- 
+      <a href="#" data-bs-toggle="modal" data-bs-target="#logoutConfirmModal" class="{% if request.endpoint == 'auth.logout' %}active{% endif %}">
+        <i class="bi bi-box-arrow-right"></i> <span class="nav-label">Logout</span>
+      </a>
+    </div>
   </nav>
 
   <!-- Main Content -->
   <main class="flex-grow-1 content">
+    <!-- Topbar: shows a toggle button for small screens to open/close sidebar -->
+    <div class="topbar">
+      <button id="sidebarToggle" class="btn-icon" aria-label="Toggle sidebar">☰</button>
+      <div class="topbar-title">Admin</div>
+    </div>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, msg in messages %}
@@ -293,16 +445,70 @@
     const toggle = document.getElementById("sidebarToggle");
     const overlay = document.getElementById("sidebarOverlay");
 
+    function closeSidebar() {
+      if (!sidebar) return;
+      sidebar.classList.remove("show");
+      overlay.classList.remove("active");
+    }
+
+    function openSidebar() {
+      if (!sidebar) return;
+      sidebar.classList.add("show");
+      overlay.classList.add("active");
+    }
+
+    function toggleCompactSidebar() {
+      if (!sidebar) return;
+      sidebar.classList.toggle("compact");
+    }
+
+    // Initialize based on viewport
+    if (sidebar) {
+      if (window.innerWidth >= 992) {
+        sidebar.classList.add('show');
+        overlay.classList.remove('active');
+      } else {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('active');
+      }
+    }
+
     if (toggle && sidebar && overlay) {
       toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("show");
-        overlay.classList.toggle("active");
+        if (sidebar.classList.contains('show')) closeSidebar();
+        else openSidebar();
       });
 
       overlay.addEventListener("click", () => {
-        sidebar.classList.remove("show");
-        overlay.classList.remove("active");
+        closeSidebar();
       });
+
+      // Close on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSidebar();
+      });
+
+      // Keep sidebar state in sync when resizing the window
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          if (window.innerWidth >= 992) {
+            // Desktop: ensure sidebar visible and overlay hidden
+            sidebar.classList.add('show');
+            overlay.classList.remove('active');
+          } else {
+            // Mobile: hide sidebar by default
+            sidebar.classList.remove('show');
+            overlay.classList.remove('active');
+          }
+        }, 120);
+      });
+    }
+
+    // Toggle compact sidebar on medium screens
+    if (window.innerWidth >= 768 && window.innerWidth < 992) {
+      toggleCompactSidebar();
     }
   });
 </script>

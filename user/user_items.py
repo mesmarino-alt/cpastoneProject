@@ -140,13 +140,22 @@ def claim_item_from_modal():
         print(f"[CLAIM] Verification - Claim exists: {verification}")
 
         # Update item status to "Claimed" to indicate a claim is pending
+        # Only update if status is not already in a final state (approved, reviewed, closed, etc)
         print(f"[CLAIM] Updating item {item_id} status to 'Claimed'...")
         if item_type == 'found':
-            cur.execute("UPDATE found_items SET status='Claimed' WHERE id=%s", (item_id,))
+            cur.execute("""
+                UPDATE found_items 
+                SET status='Claimed' 
+                WHERE id=%s AND status NOT IN ('reviewed', 'closed', 'returned')
+            """, (item_id,))
         else:
-            cur.execute("UPDATE lost_items SET status='Claimed' WHERE id=%s", (item_id,))
+            cur.execute("""
+                UPDATE lost_items 
+                SET status='Claimed' 
+                WHERE id=%s AND status NOT IN ('reviewed', 'closed', 'recovered')
+            """, (item_id,))
         conn.commit()
-        print(f"[CLAIM] ✓ Item status updated to 'Claimed'")
+        print(f"[CLAIM] ✓ Item status updated (if not in final state)")
 
         # Notify admins
         print(f"[CLAIM] Fetching admins for notification...")

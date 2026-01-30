@@ -1477,10 +1477,38 @@
             <textarea id="lost_description" name="description" class="form-control" rows="3" placeholder="Scratches, stickers, engravings, cracked screen..."></textarea>
           </div>
 
+          <!-- Last seen location (Campus selector) -->
           <div class="mb-3">
-            <label class="form-label" for="lost_last_seen">Last seen location</label>
-            <input type="text" id="lost_last_seen" name="last_seen" class="form-control" placeholder="Building, room, area">
+            <label class="form-label" for="lost_last_seen_select">Last seen location (Campus)</label>
+            <select id="lost_last_seen_select" name="last_seen" class="form-select" required>
+              <option value="" selected disabled>Select a building/area</option>
+              <!-- TODO: keep this list in sync with Edit Lost modal -->
+              <option value="Cict Grounds">Cict Grounds</option>
+              <option value="Cict Parking">Cict Parking</option>
+              <option value="Cict Lobby (Ground Floor)">Cict Lobby (Ground Floor)</option>
+              <option value="Cict Lobby (Second Floor)">Cict Lobby (Second Floor)</option>
+              <option value="Cict Lobby (Third Floor)">Cict Lobby (Third Floor)</option>
+              <option value="Cict Faculty">Cict Faculty</option>
+              <option value="Electrical Room">Electrical Room</option>
+              <option value="Sim Room 1">Sim Room 1</option>
+              <option value="Sim Room 2">Sim Room 2</option>
+              <option value="Learning Resources Center">Learning Resources Center</option>
+              <option value="ComLab 1">ComLab 1</option>
+              <option value="Security Office">Security Office</option>
+              <option value="Library">Library</option>
+              <option value="Other">Other (specify)</option>
+            </select>
+
+            <input
+              type="text"
+              id="lost_last_seen_other"
+              class="form-control mt-2 d-none"
+              placeholder="Type room / specific area"
+              aria-label="Other last seen location"
+            >
+            <small class="text-muted">Choose a campus location for consistent reports.</small>
           </div>
+
           <div class="mb-3">
             <label class="form-label" for="lost_last_seen_at">Date/time last seen</label>
             <input type="datetime-local" id="lost_last_seen_at" name="last_seen_at" class="form-control">
@@ -1734,7 +1762,31 @@
             <label class="form-label fw-semibold">
               <i class="bi bi-geo-alt text-purple me-2"></i> Last Seen Location
             </label>
-            <input type="text" name="last_seen" id="editLastSeen" class="form-control rounded-pill">
+            <select name="last_seen" id="editLastSeenSelect" class="form-select rounded-pill" required>
+              <option value="" disabled>Select a building/area</option>
+              <!-- TODO: keep this list in sync with Report Lost modal -->
+              <option value="Cict Grounds">Cict Grounds</option>
+              <option value="Cict Parking">Cict Parking</option>
+              <option value="Cict Lobby (Ground Floor)">Cict Lobby (Ground Floor)</option>
+              <option value="Cict Lobby (Second Floor)">Cict Lobby (Second Floor)</option>
+              <option value="Cict Lobby (Third Floor)">Cict Lobby (Third Floor)</option>
+              <option value="Cict Faculty">Cict Faculty</option>
+              <option value="Electrical Room">Electrical Room</option>
+              <option value="Sim Room 1">Sim Room 1</option>
+              <option value="Sim Room 2">Sim Room 2</option>
+              <option value="Learning Resources Center">Learning Resources Center</option>
+              <option value="ComLab 1">ComLab 1</option>
+              <option value="Research & Extension">Research & Extension</option>
+              <option value="Accreditation Room">Accreditation Room</option>
+              <option value="Other">Other (specify)</option>
+            </select>
+            <input
+              type="text"
+              id="editLastSeenOther"
+              class="form-control rounded-pill mt-2 d-none"
+              placeholder="Type room / specific area"
+              aria-label="Other last seen location"
+            >
           </div>
           
           <div class="mb-2">
@@ -1775,146 +1827,220 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkMode = localStorage.getItem('darkMode') === 'true';
   if (darkMode) document.body.classList.add('dark-mode');
 
+  // View modal
   const viewModal = document.getElementById('viewLostItemModal');
-  if (!viewModal) return;
+  if (viewModal) {
+    let lastViewModalTrigger = null;
 
-  // Track the element that opened the modal so we can restore focus on close
-  let lastViewModalTrigger = null;
+    viewModal.addEventListener('show.bs.modal', (event) => {
+      lastViewModalTrigger = event.relatedTarget || document.activeElement;
+    });
 
-  viewModal.addEventListener('show.bs.modal', (event) => {
-    lastViewModalTrigger = event.relatedTarget || document.activeElement;
-  });
+    viewModal.addEventListener('hide.bs.modal', () => {
+      const active = document.activeElement;
+      if (active && viewModal.contains(active)) {
+        const toFocus = (lastViewModalTrigger && document.contains(lastViewModalTrigger))
+          ? lastViewModalTrigger
+          : document.body;
+        toFocus?.focus?.({ preventScroll: true });
+        active.blur?.();
+      }
+    });
 
-  // IMPORTANT: move focus out BEFORE Bootstrap marks the modal aria-hidden="true".
-  // This prevents the Chrome warning when closing via close-button or backdrop click.
-  viewModal.addEventListener('hide.bs.modal', () => {
-    const active = document.activeElement;
-    if (active && viewModal.contains(active)) {
-      const toFocus = (lastViewModalTrigger && document.contains(lastViewModalTrigger))
-        ? lastViewModalTrigger
-        : document.body;
+    viewModal.addEventListener('hidden.bs.modal', () => {
+      const toFocus = lastViewModalTrigger;
+      if (toFocus && typeof toFocus.focus === 'function' && document.contains(toFocus)) {
+        toFocus.focus({ preventScroll: true });
+      }
+      lastViewModalTrigger = null;
+    });
 
-      // Move focus synchronously before the aria-hidden flip.
-      toFocus?.focus?.({ preventScroll: true });
+    const el = {
+      name: document.getElementById('lostView_name'),
+      category: document.getElementById('lostView_category'),
+      color: document.getElementById('lostView_color'),
+      brand: document.getElementById('lostView_brand'),
+      shape: document.getElementById('lostView_shape'),
+      material: document.getElementById('lostView_material'),
+      lastSeen: document.getElementById('lostView_lastSeen'),
+      date: document.getElementById('lostView_date'),
+      status: document.getElementById('lostView_status'),
+      description: document.getElementById('lostView_description'),
+      photo: document.getElementById('lostView_photo')
+    };
 
-      // As a safety net, blur the previously focused element.
-      active.blur?.();
-    }
-  });
+    const setStatusBadge = (statusRaw) => {
+      const status = (statusRaw || '').toString().toLowerCase().trim();
+      const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+      el.status.textContent = label;
+      el.status.className = 'lost-badge lost-status ' + (
+        status === 'pending' ? 'lost-status--pending' :
+        status === 'approved' ? 'lost-status--approved' :
+        status === 'rejected' ? 'lost-status--rejected' :
+        status === 'closed' ? 'lost-status--closed' :
+        'lost-status--closed'
+      );
+    };
 
-  // When fully hidden, restore focus to the trigger (fallback)
-  viewModal.addEventListener('hidden.bs.modal', () => {
-    const toFocus = lastViewModalTrigger;
+    const renderPhoto = (photoValue) => {
+      const raw = (photoValue || '').toString().trim();
+      if (!raw) {
+        el.photo.innerHTML = `\
+          <div class="lost-image-empty">\
+            <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>\
+            <div class="fw-bold">No photo uploaded</div>\
+            <div style="font-size: .85rem;">This report can still be verified by details.</div>\
+          </div>`;
+        return;
+      }
 
-    if (toFocus && typeof toFocus.focus === 'function' && document.contains(toFocus)) {
-      toFocus.focus({ preventScroll: true });
-    } else {
-      document.body.focus?.({ preventScroll: true });
-    }
+      let normalized = raw.replace(/^\/+/, '');
+      normalized = normalized.replace(/^static\/uploads\//, '');
+      normalized = normalized.replace(/^uploads\//, '');
+      el.photo.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" alt="Lost item photo">`;
+    };
 
-    lastViewModalTrigger = null;
-  });
+    const reset = () => {
+      el.name.textContent = '—';
+      el.category.textContent = '—';
+      if (el.color) el.color.textContent = '—';
+      if (el.brand) el.brand.textContent = '—';
+      if (el.shape) el.shape.textContent = '—';
+      if (el.material) el.material.textContent = '—';
+      el.lastSeen.textContent = '—';
+      el.date.textContent = '—';
+      el.description.textContent = '—';
+      setStatusBadge('');
+      renderPhoto('');
+    };
 
-  const el = {
-    name: document.getElementById('lostView_name'),
-    category: document.getElementById('lostView_category'),
-    color: document.getElementById('lostView_color'),
-    brand: document.getElementById('lostView_brand'),
-    shape: document.getElementById('lostView_shape'),
-    material: document.getElementById('lostView_material'),
-    lastSeen: document.getElementById('lostView_lastSeen'),
-    date: document.getElementById('lostView_date'),
-    status: document.getElementById('lostView_status'),
-    description: document.getElementById('lostView_description'),
-    photo: document.getElementById('lostView_photo')
+    viewModal.addEventListener('show.bs.modal', (event) => {
+      reset();
+      const button = event.relatedTarget;
+      const itemId = button?.getAttribute('data-id');
+      if (!itemId) return;
+
+      fetch(`/user/api/lost_items/${itemId}`, { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          el.name.textContent = data.name || '—';
+          el.category.textContent = data.category || '—';
+          if (el.color) el.color.textContent = data.color || '—';
+          if (el.brand) el.brand.textContent = data.brand || '—';
+          if (el.shape) el.shape.textContent = data.shape || '—';
+          if (el.material) el.material.textContent = data.material || '—';
+          el.lastSeen.textContent = data.last_seen || '—';
+          el.date.textContent = data.reported_at || data.last_seen_at || '—';
+
+          const desc = (data.description ?? '').toString().trim();
+          el.description.textContent = desc.length ? desc : '—';
+
+          setStatusBadge(data.status);
+          renderPhoto(data.photo);
+        })
+        .catch(err => console.error('Failed to load lost item:', err));
+    });
+  }
+
+  // Campus last-seen selector + "Other"
+  const setupLastSeen = (selectEl, otherEl) => {
+    if (!selectEl || !otherEl) return;
+
+    const sync = () => {
+      const v = selectEl.value;
+      if (v === 'Other') {
+        otherEl.classList.remove('d-none');
+        otherEl.required = true;
+        selectEl.removeAttribute('name');
+        otherEl.setAttribute('name', 'last_seen');
+      } else {
+        otherEl.classList.add('d-none');
+        otherEl.required = false;
+        otherEl.value = '';
+        otherEl.removeAttribute('name');
+        selectEl.setAttribute('name', 'last_seen');
+      }
+    };
+
+    selectEl.addEventListener('change', sync);
+    sync();
   };
 
-  const setStatusBadge = (statusRaw) => {
-    const status = (statusRaw || '').toString().toLowerCase().trim();
-    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+  setupLastSeen(
+    document.getElementById('lost_last_seen_select'),
+    document.getElementById('lost_last_seen_other')
+  );
 
-    el.status.textContent = label;
-    el.status.className = 'lost-badge lost-status ' + (
-      status === 'pending' ? 'lost-status--pending' :
-      status === 'approved' ? 'lost-status--approved' :
-      status === 'rejected' ? 'lost-status--rejected' :
-      status === 'closed' ? 'lost-status--closed' :
-      'lost-status--closed'
-    );
-  };
+  setupLastSeen(
+    document.getElementById('editLastSeenSelect'),
+    document.getElementById('editLastSeenOther')
+  );
 
-  const renderPhotoLikeDashboard = (photoValue) => {
-    const raw = (photoValue || '').toString().trim();
+  // Filter popovers
+  (function initLostFilterPops() {
+    const bar = document.querySelector('.lost-filter-bar');
+    if (!bar) return;
 
-    if (!raw) {
-      // Match the new photo frame empty state
-      el.photo.innerHTML = `
-        <div class="lost-image-empty">
-          <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
-          <div class="fw-bold">No photo uploaded</div>
-          <div style="font-size: .85rem;">This report can still be verified by details.</div>
-        </div>`;
-      return;
-    }
+    const clampPopoverToViewport = (pop) => {
+      if (!pop) return;
 
-    // Mimic user_dashboard.html expectation: data.photo is a filename.
-    // Also accept accidental saved paths and strip them.
-    let normalized = raw.replace(/^\/+/, '');
-    normalized = normalized.replace(/^static\/uploads\//, '');
-    normalized = normalized.replace(/^uploads\//, '');
+      const padding = 12;
+      pop.style.left = '50%';
+      pop.style.right = 'auto';
+      pop.style.transform = 'translateX(-50%)';
 
-    el.photo.innerHTML = `<img src="/static/uploads/${encodeURIComponent(normalized)}" alt="Lost item photo">`;
-  };
+      const rect = pop.getBoundingClientRect();
+      if (rect.right > window.innerWidth - padding) {
+        const shift = rect.right - (window.innerWidth - padding);
+        pop.style.transform = `translateX(calc(-50% - ${shift}px))`;
+      }
 
-  const reset = () => {
-    el.name.textContent = '—';
-    el.category.textContent = '—';
-    if (el.color) el.color.textContent = '—';
-    if (el.brand) el.brand.textContent = '—';
-    if (el.shape) el.shape.textContent = '—';
-    if (el.material) el.material.textContent = '—';
-    el.lastSeen.textContent = '—';
-    el.date.textContent = '—';
-    // Keep a visible placeholder so the panel never looks empty.
-    el.description.textContent = '—';
-    setStatusBadge('');
-    el.photo.innerHTML = `
-      <div class="lost-image-empty">
-        <i class="bi bi-image" style="font-size: 2.2rem; opacity: .6;"></i>
-        <div class="fw-bold">No photo uploaded</div>
-        <div style="font-size: .85rem;">This report can still be verified by details.</div>
-      </div>`;
-  };
+      const rect2 = pop.getBoundingClientRect();
+      if (rect2.left < padding) {
+        const shift = padding - rect2.left;
+        pop.style.transform = `translateX(calc(-50% + ${shift}px))`;
+      }
+    };
 
-  viewModal.addEventListener('show.bs.modal', (event) => {
-    reset();
+    const closeAll = () => {
+      bar.querySelectorAll('.lost-filter-pop.show').forEach(p => {
+        p.classList.remove('show');
+        p.style.left = '';
+        p.style.right = '';
+        p.style.transform = '';
+      });
+    };
 
-    const button = event.relatedTarget;
-    const itemId = button?.getAttribute('data-id');
-    if (!itemId) return;
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-filter-pop]');
+      if (!btn) return;
+      e.preventDefault();
 
-    fetch(`/user/api/lost_items/${itemId}`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => {
-        el.name.textContent = data.name || '—';
-        el.category.textContent = data.category || '—';
-        if (el.color) el.color.textContent = data.color || '—';
-        if (el.brand) el.brand.textContent = data.brand || '—';
-        if (el.shape) el.shape.textContent = data.shape || '—';
-        if (el.material) el.material.textContent = data.material || '—';
-        el.lastSeen.textContent = data.last_seen || '—';
-        el.date.textContent = data.reported_at || data.last_seen_at || '—';
+      const id = btn.getAttribute('data-filter-pop');
+      const pop = document.getElementById(id);
+      if (!pop) return;
 
-        // Exactly like dashboard: textContent (no HTML)
-        // Render a placeholder if description missing/empty
-        const desc = (data.description ?? '').toString().trim();
-        el.description.textContent = desc.length ? desc : '—';
+      const isOpen = pop.classList.contains('show');
+      closeAll();
+      if (!isOpen) {
+        pop.classList.add('show');
+        requestAnimationFrame(() => clampPopoverToViewport(pop));
+        pop.querySelector('input, select')?.focus?.();
+      }
+    });
 
-        setStatusBadge(data.status);
-        renderPhotoLikeDashboard(data.photo);
-      })
-      .catch(err => console.error('Failed to load lost item:', err));
-  });
+    window.addEventListener('resize', () => {
+      bar.querySelectorAll('.lost-filter-pop.show').forEach(clampPopoverToViewport);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!bar.contains(e.target)) closeAll();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAll();
+    });
+  })();
 });
 
 function filterTable() {
@@ -1937,77 +2063,5 @@ function filterTable() {
     row.style.display = searchMatch && categoryMatch && statusMatch ? '' : 'none';
   });
 }
-
-// Minimal filters: toggle popovers
-(function initLostFilterPops() {
-  const bar = document.querySelector('.lost-filter-bar');
-  if (!bar) return;
-
-  const clampPopoverToViewport = (pop) => {
-    if (!pop) return;
-
-    const padding = 12;
-
-    // reset to centered default
-    pop.style.left = '50%';
-    pop.style.right = 'auto';
-    pop.style.transform = 'translateX(-50%)';
-
-    const rect = pop.getBoundingClientRect();
-
-    // if overflow right, shift left by setting a translateX calc
-    if (rect.right > window.innerWidth - padding) {
-      const shift = rect.right - (window.innerWidth - padding);
-      pop.style.transform = `translateX(calc(-50% - ${shift}px))`;
-    }
-
-    // if overflow left, shift right
-    const rect2 = pop.getBoundingClientRect();
-    if (rect2.left < padding) {
-      const shift = padding - rect2.left;
-      pop.style.transform = `translateX(calc(-50% + ${shift}px))`;
-    }
-  };
-
-  const closeAll = () => {
-    bar.querySelectorAll('.lost-filter-pop.show').forEach(p => {
-      p.classList.remove('show');
-      p.style.left = '';
-      p.style.right = '';
-      p.style.transform = '';
-    });
-  };
-
-  bar.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-filter-pop]');
-    if (!btn) return;
-    e.preventDefault();
-
-    const id = btn.getAttribute('data-filter-pop');
-    const pop = document.getElementById(id);
-    if (!pop) return;
-
-    const isOpen = pop.classList.contains('show');
-    closeAll();
-    if (!isOpen) {
-      pop.classList.add('show');
-      requestAnimationFrame(() => clampPopoverToViewport(pop));
-      const focusEl = pop.querySelector('input, select');
-      focusEl?.focus();
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    bar.querySelectorAll('.lost-filter-pop.show').forEach(clampPopoverToViewport);
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!bar.contains(e.target)) closeAll();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAll();
-  });
-})();
 </script>
 {% endblock %}

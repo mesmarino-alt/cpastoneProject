@@ -104,7 +104,7 @@ def claim_approve(claim_id):
         # Get claim + related items + claimant info - use LEFT JOINs to handle direct item claims
         cur.execute("""
             SELECT c.id, c.match_id, c.lost_item_id, c.found_item_id, c.status, c.user_id,
-                   li.name as lost_name, fi.name as found_name
+                   li.name as lost_name, li.status as lost_status, fi.name as found_name, fi.status as found_status
             FROM claims c
             LEFT JOIN lost_items li ON li.id = c.lost_item_id
             LEFT JOIN found_items fi ON fi.id = c.found_item_id
@@ -127,14 +127,21 @@ def claim_approve(claim_id):
         found_id = claim.get('found_item_id')
         match_id = claim.get('match_id')
         
-        # Update claim status
+        print(f"[CLAIM APPROVE] Claim status: {status}, Lost ID: {lost_id}, Found ID: {found_id}")
+        print(f"[CLAIM APPROVE] Lost status: {claim.get('lost_status')}, Found status: {claim.get('found_status')}")
+        
+        # Update claim status first
         cur.execute("UPDATE claims SET status='Approved' WHERE id=%s", (claim_id,))
+        print(f"[CLAIM APPROVE] Updated claim status to 'Approved'")
 
-        # Update items status to 'claimed' so they still appear in dashboard
+        # Update items status to 'reviewed' (indicates both report and claim approved)
         if lost_id:
-            cur.execute("UPDATE lost_items SET status='claimed' WHERE id=%s", (lost_id,))
+            cur.execute("UPDATE lost_items SET status=%s WHERE id=%s", ('reviewed', lost_id))
+            print(f"[CLAIM APPROVE] Updated lost_items {lost_id} status to 'reviewed'")
+            
         if found_id:
-            cur.execute("UPDATE found_items SET status='claimed' WHERE id=%s", (found_id,))
+            cur.execute("UPDATE found_items SET status=%s WHERE id=%s", ('reviewed', found_id))
+            print(f"[CLAIM APPROVE] Updated found_items {found_id} status to 'reviewed'")
 
         # Reject other pending claims for this match (if match_id exists)
         if match_id:
@@ -142,8 +149,80 @@ def claim_approve(claim_id):
                 UPDATE claims SET status='Rejected'
                 WHERE match_id=%s AND id<>%s AND status='Pending'
             """, (match_id, claim_id))
+            print(f"[CLAIM APPROVE] Rejected other pending claims for match {match_id}")
 
         conn.commit()
+        print(f"[CLAIM APPROVE] Transaction committed")
+
+        # --- Post-commit diagnostics ---
+        try:
+            # Check for any triggers on the item tables that might reset status
+            cur.execute("""
+                SELECT TRIGGER_NAME, EVENT_MANIPULATION, ACTION_STATEMENT
+                FROM information_schema.TRIGGERS
+                WHERE TRIGGER_SCHEMA = DATABASE()
+                  AND EVENT_OBJECT_TABLE IN ('lost_items','found_items')
+            """)
+            triggers = cur.fetchall()
+            print(f"[CLAIM APPROVE] DB triggers affecting lost_items/found_items: {triggers}")
+        except Exception as e:
+            print(f"[CLAIM APPROVE] Could not read triggers: {e}")
+
+        # Re-check statuses using a fresh connection (in case some external process/trigger runs after commit)
+        import time
+        time.sleep(0.8)
+        try:
+            conn2 = get_db()
+            cur2 = conn2.cursor(pymysql.cursors.DictCursor)
+            if lost_id:
+                cur2.execute("SELECT id, status FROM lost_items WHERE id=%s", (lost_id,))
+                row = cur2.fetchone()
+                print(f"[CLAIM APPROVE] Post-commit check (fresh conn) - Lost item {lost_id}: {row}")
+                if not row or not row.get('status'):
+                    print(f"[CLAIM APPROVE] WARNING: Lost item {lost_id} status is empty after commit. Attempting forced update...")
+                    try:
+                        cur2.execute("UPDATE lost_items SET status=CAST(%s AS CHAR) WHERE id=%s", ('reviewed', lost_id))
+                        conn2.commit()
+                        cur2.execute("SELECT id, status FROM lost_items WHERE id=%s", (lost_id,))
+                        row2 = cur2.fetchone()
+                        print(f"[CLAIM APPROVE] After forced update - Lost item {lost_id}: {row2}")
+                    except Exception as e:
+                        print(f"[CLAIM APPROVE] Forced update failed for lost_items {lost_id}: {e}")
+
+            if found_id:
+                cur2.execute("SELECT id, status FROM found_items WHERE id=%s", (found_id,))
+                row = cur2.fetchone()
+                print(f"[CLAIM APPROVE] Post-commit check (fresh conn) - Found item {found_id}: {row}")
+                if not row or not row.get('status'):
+                    print(f"[CLAIM APPROVE] WARNING: Found item {found_id} status is empty after commit. Attempting forced update...")
+                    try:
+                        cur2.execute("UPDATE found_items SET status=CAST(%s AS CHAR) WHERE id=%s", ('reviewed', found_id))
+                        conn2.commit()
+                        cur2.execute("SELECT id, status FROM found_items WHERE id=%s", (found_id,))
+                        row2 = cur2.fetchone()
+                        print(f"[CLAIM APPROVE] After forced update - Found item {found_id}: {row2}")
+                    except Exception as e:
+                        print(f"[CLAIM APPROVE] Forced update failed for found_items {found_id}: {e}")
+        except Exception as e:
+            print(f"[CLAIM APPROVE] Post-commit fresh-connection check failed: {e}")
+        finally:
+            try:
+                cur2.close(); conn2.close()
+            except Exception:
+                pass
+        
+        # Verify the updates were successful
+        if lost_id:
+            cur.execute("SELECT status FROM lost_items WHERE id=%s", (lost_id,))
+            result = cur.fetchone()
+            actual_status = result.get('status') if result else None
+            print(f"[CLAIM APPROVE] Verification - Lost item {lost_id} status is now: '{actual_status}'")
+            
+        if found_id:
+            cur.execute("SELECT status FROM found_items WHERE id=%s", (found_id,))
+            result = cur.fetchone()
+            actual_status = result.get('status') if result else None
+            print(f"[CLAIM APPROVE] Verification - Found item {found_id} status is now: '{actual_status}'")
         
         # Send notification to claimant
         notify(
@@ -177,6 +256,8 @@ def claim_approve(claim_id):
         conn.rollback()
         flash(f'Error approving claim: {str(e)}', 'danger')
         print(f"[CLAIM APPROVE] ERROR: {str(e)}")
+        import traceback
+        traceback.print_exc()
     finally:
         cur.close()
         conn.close()

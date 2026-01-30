@@ -1275,10 +1275,37 @@
             </div>
           </div>
 
+          <!-- Where found (Campus selector) -->
           <div class="mb-3 mt-3">
-            <label class="form-label">Where found</label>
-            <input type="text" name="where_found" class="form-control" placeholder="Building, room, area">
+            <label class="form-label" for="found_where_select">Where found (Campus)</label>
+            <select name="where_found" id="found_where_select" class="form-select rounded-pill" required>
+              <option value="" disabled>Select a building/area</option>
+              <!-- TODO: keep this list in sync with Report Lost modal -->
+              <option value="Cict Grounds">Cict Grounds</option>
+              <option value="Cict Parking">Cict Parking</option>
+              <option value="Cict Lobby (Ground Floor)">Cict Lobby (Ground Floor)</option>
+              <option value="Cict Lobby (Second Floor)">Cict Lobby (Second Floor)</option>
+              <option value="Cict Lobby (Third Floor)">Cict Lobby (Third Floor)</option>
+              <option value="Cict Faculty">Cict Faculty</option>
+              <option value="Electrical Room">Electrical Room</option>
+              <option value="Sim Room 1">Sim Room 1</option>
+              <option value="Sim Room 2">Sim Room 2</option>
+              <option value="Learning Resources Center">Learning Resources Center</option>
+              <option value="ComLab 1">ComLab 1</option>
+              <option value="Research & Extension">Research & Extension</option>
+              <option value="Accreditation Room">Accreditation Room</option>
+              <option value="Other">Other (specify)</option>
+            </select>
+            <input
+              type="text"
+              id="found_where_other"
+              class="form-control mt-2 d-none"
+              placeholder="Type room / specific area"
+              aria-label="Other where found"
+            >
+            <small class="text-muted">Choose a campus location for consistent reports.</small>
           </div>
+
           <div class="mb-3">
             <label class="form-label">Date/time found</label>
             <input type="datetime-local" name="found_at" class="form-control">
@@ -1499,8 +1526,29 @@
               </select>
             </div>
           </div>
-          <div class="mb-2"><label>Where Found</label>
-            <input type="text" name="where_found" id="editFoundWhere" class="form-control rounded-pill">
+          <div class="mb-2">
+            <label>Where Found (Campus)</label>
+            <select name="where_found" id="editFoundWhereSelect" class="form-select rounded-pill" required>
+              <option value="" disabled>Select a building/area</option>
+              <option value="Main Building">Main Building</option>
+              <option value="Admin Building">Admin Building</option>
+              <option value="Library">Library</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="Gymnasium">Gymnasium</option>
+              <option value="Science Building">Science Building</option>
+              <option value="Engineering/CICT Building">Engineering/CICT Building</option>
+              <option value="Registrar">Registrar</option>
+              <option value="Clinic">Clinic</option>
+              <option value="Security Office">Security Office</option>
+              <option value="Other">Other (specify)</option>
+            </select>
+            <input
+              type="text"
+              id="editFoundWhereOther"
+              class="form-control rounded-pill mt-2 d-none"
+              placeholder="Type room / specific area"
+              aria-label="Other where found"
+            >
           </div>
           <div class="mb-2"><label>Date Found</label>
             <input type="datetime-local" name="found_at" id="editFoundAt" class="form-control rounded-pill">
@@ -1710,8 +1758,62 @@ document.addEventListener('DOMContentLoaded', () => {
         form.action = data.action || '';
         form.method = 'POST';
       }
+
+      // Fill campus where_found selector (fallback to Other)
+      const whereSelect = document.getElementById('editFoundWhereSelect');
+      const whereOther = document.getElementById('editFoundWhereOther');
+      const whereVal = (data.where_found || '').toString();
+
+      if (whereSelect) {
+        const hasOption = Array.from(whereSelect.options).some(o => o.value === whereVal);
+        if (hasOption) {
+          whereSelect.value = whereVal;
+        } else if (whereVal) {
+          whereSelect.value = 'Other';
+          if (whereOther) whereOther.value = whereVal;
+        } else {
+          whereSelect.value = '';
+        }
+
+        // trigger toggle state
+        whereSelect.dispatchEvent(new Event('change'));
+      }
     });
   }
+
+  // Campus where_found selector + "Other" (Report Found + Edit Found)
+  const setupWhereFound = (selectEl, otherEl) => {
+    if (!selectEl || !otherEl) return;
+
+    const sync = () => {
+      const v = selectEl.value;
+      if (v === 'Other') {
+        otherEl.classList.remove('d-none');
+        otherEl.required = true;
+        selectEl.removeAttribute('name');
+        otherEl.setAttribute('name', 'where_found');
+      } else {
+        otherEl.classList.add('d-none');
+        otherEl.required = false;
+        otherEl.value = '';
+        otherEl.removeAttribute('name');
+        selectEl.setAttribute('name', 'where_found');
+      }
+    };
+
+    selectEl.addEventListener('change', sync);
+    sync();
+  };
+
+  setupWhereFound(
+    document.getElementById('found_where_select'),
+    document.getElementById('found_where_other')
+  );
+
+  setupWhereFound(
+    document.getElementById('editFoundWhereSelect'),
+    document.getElementById('editFoundWhereOther')
+  );
 
   // Minimal filters: toggle popovers
   (function initFoundFilterPops() {

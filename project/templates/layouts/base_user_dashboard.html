@@ -56,6 +56,8 @@
       border-right: 1px solid color-mix(in srgb, var(--primary-purple) 35%, var(--neutral-200));
       box-shadow: var(--shadow-sm);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .sidebar::-webkit-scrollbar { width: 8px; }
@@ -69,6 +71,8 @@
     .sidebar .sidebar-links {
       overflow-y: auto;
       overscroll-behavior: contain;
+      flex: 1 1 auto;
+      min-height: 0;
     }
 
     .sidebar a {
@@ -92,6 +96,42 @@
     .sidebar a.active {
       background: linear-gradient(135deg, color-mix(in srgb, var(--primary-teal) 14%, transparent), color-mix(in srgb, var(--primary-purple) 12%, transparent));
       border-left: 4px solid var(--primary-teal);
+    }
+
+    .sidebar .sidebar-logout {
+      margin-top: auto;
+      padding-top: .5rem;
+      border-top: 1px solid color-mix(in srgb, var(--accent-red) 28%, var(--neutral-200));
+    }
+
+    .sidebar .sidebar-logout .logout-link {
+      color: var(--accent-red);
+      font-weight: 900;
+      border: 1px solid color-mix(in srgb, var(--accent-red) 35%, transparent);
+      background: color-mix(in srgb, var(--accent-red) 8%, transparent);
+    }
+
+    .sidebar .sidebar-logout .logout-link i {
+      background: color-mix(in srgb, var(--accent-red) 12%, transparent);
+      color: var(--accent-red);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-red) 26%, transparent);
+    }
+
+    .sidebar .sidebar-logout .logout-link:hover {
+      background: color-mix(in srgb, var(--accent-red) 12%, transparent);
+      border-color: color-mix(in srgb, var(--accent-red) 45%, transparent);
+    }
+
+    body.dark-mode .sidebar .sidebar-logout .logout-link {
+      color: color-mix(in srgb, #fff 92%, #0000) !important;
+      background: color-mix(in srgb, var(--accent-red) 22%, transparent) !important;
+      border-color: color-mix(in srgb, var(--accent-red) 45%, transparent) !important;
+    }
+
+    body.dark-mode .sidebar .sidebar-logout .logout-link i {
+      background: color-mix(in srgb, var(--accent-red) 28%, transparent) !important;
+      color: color-mix(in srgb, #fff 92%, #0000) !important;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-red) 40%, transparent) !important;
     }
 
     /* Remove legacy mobile slide-in sidebar behavior (we use drawer + bottom nav) */
@@ -1159,6 +1199,171 @@
     body.dark-mode .mobile-drawer .drawer-profile .email {
       color: var(--muted) !important;
     }
+
+    /* ===================== SIDEBAR NAV: VISUALLY APPEALING LINKS ===================== */
+    .sidebar .sidebar-links a,
+    .sidebar a.nav-link,
+    .sidebar button.nav-link {
+      position: relative;
+      border-radius: 14px;
+      padding: .78rem .95rem;
+      font-weight: 800;
+      letter-spacing: .15px;
+      color: var(--neutral-900);
+      text-decoration: none;
+
+      /* soft “pill” surface */
+      background: transparent;
+      border: 1px solid transparent;
+
+      transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .18s ease;
+    }
+
+    /* icon treatment: clean chip */
+    .sidebar .sidebar-links a i,
+    .sidebar a.nav-link i,
+    .sidebar button.nav-link i {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--primary-purple) 7%, transparent);
+      color: color-mix(in srgb, var(--primary-purple) 76%, var(--neutral-900));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-purple) 16%, transparent);
+    }
+
+    .sidebar .sidebar-links a:hover,
+    .sidebar a.nav-link:hover,
+    .sidebar button.nav-link:hover {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary-purple) 8%, var(--neutral-50)),
+        color-mix(in srgb, var(--primary-teal) 6%, var(--neutral-white))
+      );
+      border-color: color-mix(in srgb, var(--primary-purple) 20%, var(--neutral-200));
+      box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .sidebar .sidebar-links a:active,
+    .sidebar a.nav-link:active,
+    .sidebar button.nav-link:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+    }
+
+    /* Active state: clearer highlight + left accent bar */
+    .sidebar .sidebar-links a.active,
+    .sidebar a.nav-link.active {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary-teal) 16%, var(--neutral-white)),
+        color-mix(in srgb, var(--primary-purple) 12%, var(--neutral-white))
+      );
+      border-color: color-mix(in srgb, var(--primary-teal) 35%, var(--neutral-200));
+      box-shadow: 0 10px 28px rgba(74, 36, 157, 0.10);
+    }
+
+    .sidebar .sidebar-links a.active::before,
+    .sidebar a.nav-link.active::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--primary-teal), var(--primary-purple));
+    }
+
+    /* Active icon chip */
+    .sidebar .sidebar-links a.active i,
+    .sidebar a.nav-link.active i {
+      background: color-mix(in srgb, var(--primary-teal) 18%, transparent);
+      color: color-mix(in srgb, var(--primary-purple) 85%, var(--neutral-900));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-teal) 30%, transparent);
+    }
+
+    /* Accessibility: clearer focus outline */
+    .sidebar .sidebar-links a:focus-visible,
+    .sidebar a.nav-link:focus-visible,
+    .sidebar button.nav-link:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--primary-teal) 55%, transparent);
+      outline-offset: 2px;
+    }
+
+    /* Dark mode variants for nav chips + hovers */
+    body.dark-mode .sidebar .sidebar-links a,
+    body.dark-mode .sidebar a.nav-link,
+    body.dark-mode .sidebar button.nav-link {
+      color: var(--text) !important;
+    }
+
+    body.dark-mode .sidebar .sidebar-links a i,
+    body.dark-mode .sidebar a.nav-link i,
+    body.dark-mode .sidebar button.nav-link i {
+      background: color-mix(in srgb, #fff 8%, transparent) !important;
+      color: color-mix(in srgb, #fff 90%, transparent) !important;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 14%, transparent) !important;
+    }
+
+    body.dark-mode .sidebar .sidebar-links a:hover,
+    body.dark-mode .sidebar a.nav-link:hover,
+    body.dark-mode .sidebar button.nav-link:hover {
+      background: linear-gradient(135deg, color-mix(in srgb, #fff 9%, transparent), color-mix(in srgb, #fff 5%, transparent)) !important;
+      border-color: color-mix(in srgb, #fff 14%, transparent) !important;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28) !important;
+    }
+
+    body.dark-mode .sidebar .sidebar-links a.active,
+    body.dark-mode .sidebar a.nav-link.active {
+      background: linear-gradient(135deg, color-mix(in srgb, #fff 12%, transparent), color-mix(in srgb, #fff 7%, transparent)) !important;
+      border-color: color-mix(in srgb, #fff 18%, transparent) !important;
+    }
+
+    .suggestion-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1090;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      border: none;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal));
+      color: #fff;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .suggestion-fab:hover {
+      filter: brightness(0.98);
+    }
+
+    .suggestion-fab:active {
+      transform: scale(0.97);
+    }
+
+    /* Mobile: lift above bottom nav */
+    @media (max-width: 768px) {
+      .suggestion-fab {
+        bottom: calc(14px + var(--bottom-nav-total));
+        right: 14px;
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        z-index: 1038; /* below modals; above page content */
+      }
+
+      /* Keep bottom nav above normal floating UI */
+      .mobile-bottom-nav { z-index: 1070; }
+    }
   </style>
 </head>
 
@@ -1300,6 +1505,54 @@
   </div>
 </div>
 
+<!-- ===================== SUGGESTION FAB + MODAL ===================== -->
+<button
+  type="button"
+  id="suggestionFab"
+  class="suggestion-fab"
+  aria-label="Send a suggestion"
+  title="Send a suggestion"
+  data-bs-toggle="modal"
+  data-bs-target="#suggestionModal"
+>
+  <i class="fa-solid fa-comment-dots"></i>
+</button>
+
+<div class="modal fade" id="suggestionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-compact" style="max-width: 560px;">
+    <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
+      <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); border: none; border-radius: 16px 16px 0 0;">
+        <h5 class="modal-title fw-bold">
+          <i class="fa-solid fa-comment-dots me-2"></i> Suggestion / Feedback
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <label for="suggestionMessage" class="form-label fw-semibold">What should we add or improve?</label>
+        <textarea
+          id="suggestionMessage"
+          class="form-control"
+          rows="4"
+          placeholder="Type your suggestion here..."
+          maxlength="2000"
+        ></textarea>
+        <div class="small text-muted mt-2">Max 2000 characters.</div>
+
+        <div class="alert alert-success mt-3 d-none" id="suggestionSuccess">Thanks! Your suggestion was sent.</div>
+        <div class="alert alert-danger mt-3 d-none" id="suggestionError"></div>
+      </div>
+
+      <div class="modal-footer" style="background-color: var(--neutral-50); border-top: 1px solid var(--neutral-200);">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn rounded-pill" id="submitSuggestionBtn" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); color: #fff; border: none; font-weight: 800;">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PROFILE MODAL -->
 <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-compact" style="max-width: 600px;">
@@ -1411,7 +1664,7 @@
 
 <!-- CHANGE PASSWORD MODAL -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered"></div>
     <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: var(--shadow-lg);">
       <form method="post" action="{{ url_for('user.change_password') }}">
         <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary-purple), var(--primary-teal)); border: none; border-radius: 16px 16px 0 0; padding: 2rem;">
@@ -1697,63 +1950,97 @@ async function refreshNotificationDropdown() {
   }
 }
 
-bellBtn.addEventListener('click', async e => {
-  e.stopPropagation();
-  const rect = bellBtn.getBoundingClientRect();
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
 
-  // Calculate position
+function positionNotificationDropdown(anchorEl) {
+  if (!dropdown || !anchorEl) return;
+
+  // Ensure it's measurable
+  const prevDisplay = dropdown.style.display;
+  dropdown.style.display = 'block';
+
+  const rect = anchorEl.getBoundingClientRect();
+  const ddRect = dropdown.getBoundingClientRect();
+
+  const padding = 10;
+
+  // Default: open below and right-aligned to the icon
   let top = rect.bottom + 10;
-  let left = rect.right - 360;
+  let left = rect.right - ddRect.width;
 
-  // Ensure dropdown doesn't go off-screen horizontally
-  if (left < 10) {
-    left = 10;
-  } else if (left + 360 > window.innerWidth) {
-    left = window.innerWidth - 370;
+  // Clamp horizontally
+  left = clamp(left, padding, window.innerWidth - ddRect.width - padding);
+
+  // If it would overflow bottom, open above
+  if (top + ddRect.height > window.innerHeight - padding) {
+    top = rect.top - ddRect.height - 10;
   }
 
-  // Ensure dropdown doesn't go off-screen vertically
-  const dropdownHeight = 500;
-  if (top + dropdownHeight > window.innerHeight) {
-    top = rect.top - dropdownHeight - 10;
+  // Clamp vertically
+  top = clamp(top, padding, window.innerHeight - ddRect.height - padding);
+
+  dropdown.style.top = `${top}px`;
+  dropdown.style.left = `${left}px`;
+
+  // Restore if caller wanted closed
+  dropdown.style.display = prevDisplay;
+}
+
+let currentDropdownAnchor = null;
+function openNotificationDropdown(anchorEl) {
+  currentDropdownAnchor = anchorEl;
+  dropdown.style.display = 'block';
+  positionNotificationDropdown(anchorEl);
+}
+
+function closeNotificationDropdown() {
+  dropdown.style.display = 'none';
+  currentDropdownAnchor = null;
+}
+
+function isDropdownOpen() {
+  return dropdown && dropdown.style.display === 'block';
+}
+
+function toggleNotificationDropdown(anchorEl) {
+  if (!dropdown || !anchorEl) return;
+  if (isDropdownOpen()) {
+    closeNotificationDropdown();
+  } else {
+    openNotificationDropdown(anchorEl);
   }
+}
 
-  dropdown.style.top = top + 'px';
-  dropdown.style.left = left + 'px';
+if (bellBtn) {
+  bellBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
 
-  const willOpen = dropdown.style.display !== 'block';
-  dropdown.style.display = willOpen ? 'block' : 'none';
+    const willOpen = !isDropdownOpen();
+    toggleNotificationDropdown(bellBtn);
 
-  if (willOpen) {
-    await withGlobalLoader('Loading notifications…', refreshNotificationDropdown);
-  }
-});
+    if (willOpen) {
+      await withGlobalLoader('Loading notifications…', refreshNotificationDropdown);
+      // Reposition after content renders (height may change)
+      positionNotificationDropdown(bellBtn);
+    }
+  });
+}
 
-document.addEventListener('click', () => dropdown.style.display = 'none');
+document.addEventListener('click', () => closeNotificationDropdown());
 
 if (dropdown) {
   dropdown.addEventListener('click', (e) => e.stopPropagation());
 }
 
-if (markAllReadBtn) {
-  markAllReadBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    await withGlobalLoader('Marking all as read…', async () => {
-      try {
-        const res = await fetch('/notifications/mark-all-read', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
-        });
-        if (res.ok) {
-          await refreshNotificationDropdown();
-        }
-      } catch (_) {
-        // no-op
-      }
-    });
-  });
-}
+/* Keep dropdown anchored while scrolling/zooming/resizing */
+window.addEventListener('resize', () => {
+  if (isDropdownOpen() && currentDropdownAnchor) positionNotificationDropdown(currentDropdownAnchor);
+});
+window.addEventListener('scroll', () => {
+  if (isDropdownOpen() && currentDropdownAnchor) positionNotificationDropdown(currentDropdownAnchor);
+}, true);
 
 // Keep badge updated even if user never opens dropdown
 document.addEventListener('DOMContentLoaded', () => {
@@ -1809,27 +2096,13 @@ const mobileBellBadge = document.getElementById('mobileBellBadge');
 if (mobileBellBtn) {
   mobileBellBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const rect = mobileBellBtn.getBoundingClientRect();
 
-    let top = rect.bottom + 10;
-    let left = rect.left;
-
-    // Fit dropdown within viewport on smaller screens
-    const width = 360;
-    if (left + width > window.innerWidth - 10) left = window.innerWidth - width - 10;
-    if (left < 10) left = 10;
-
-    const dropdownHeight = 500;
-    if (top + dropdownHeight > window.innerHeight) top = rect.top - dropdownHeight - 10;
-
-    dropdown.style.top = top + 'px';
-    dropdown.style.left = left + 'px';
-
-    const willOpen = dropdown.style.display !== 'block';
-    dropdown.style.display = willOpen ? 'block' : 'none';
+    const willOpen = !isDropdownOpen();
+    toggleNotificationDropdown(mobileBellBtn);
 
     if (willOpen) {
       await withGlobalLoader('Loading notifications…', refreshNotificationDropdown);
+      positionNotificationDropdown(mobileBellBtn);
     }
   });
 }
@@ -1970,6 +2243,68 @@ if (mobileDrawer) {
   desktopInput?.addEventListener('change', onToggle);
   mobileInput?.addEventListener('change', onToggle);
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const suggestionMessageEl = document.getElementById('suggestionMessage');
+  const submitSuggestionBtn = document.getElementById('submitSuggestionBtn');
+  const successEl = document.getElementById('suggestionSuccess');
+  const errorEl = document.getElementById('suggestionError');
+  const suggestionModalEl = document.getElementById('suggestionModal');
+
+  const show = (el, yes) => {
+    if (!el) return;
+    el.classList.toggle('d-none', !yes);
+  };
+
+  const resetState = () => {
+    show(successEl, false);
+    show(errorEl, false);
+    if (errorEl) errorEl.textContent = '';
+  };
+
+  suggestionModalEl?.addEventListener('show.bs.modal', () => {
+    resetState();
+    // focus textarea after modal opens
+    setTimeout(() => suggestionMessageEl?.focus?.(), 250);
+  });
+
+  submitSuggestionBtn?.addEventListener('click', async () => {
+    resetState();
+    const msg = (suggestionMessageEl?.value || '').trim();
+
+    if (!msg) {
+      show(errorEl, true);
+      if (errorEl) errorEl.textContent = 'Please type a suggestion first.';
+      return;
+    }
+
+    submitSuggestionBtn.disabled = true;
+    try {
+      const res = await fetch('/user/api/suggestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ message: msg })
+      });
+
+      if (res.ok) {
+        show(successEl, true);
+        if (suggestionMessageEl) suggestionMessageEl.value = '';
+      } else {
+        const data = await res.json().catch(() => ({}));
+        show(errorEl, true);
+        if (errorEl) errorEl.textContent = data.error || 'Failed to send suggestion. Please try again.';
+      }
+    } catch (e) {
+      show(errorEl, true);
+      if (errorEl) errorEl.textContent = 'Failed to send suggestion. Please try again.';
+    } finally {
+      submitSuggestionBtn.disabled = false;
+    }
+  });
+});
 </script>
 
 {# Allow child templates (e.g., my_lost_items.html) to inject their page-specific JS #}

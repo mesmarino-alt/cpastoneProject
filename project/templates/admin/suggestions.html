@@ -1,0 +1,168 @@
+{% extends 'layouts/base_admin_dashboard.html' %}
+
+{% block content %}
+<style>
+  /* Suggestions page styles - card based, compact admin look */
+  /* Use full available content width like other admin pages */
+  .suggestions-page { max-width: none; width: 100%; margin: 0; }
+  .sugg-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+  .sugg-title { margin:0; font-size:1.15rem; font-weight:900; color:var(--neutral-900); }
+  .sugg-sub { margin:0; color:var(--neutral-500); font-weight:700; }
+
+  .sugg-controls { display:flex; gap:0.6rem; align-items:center; }
+  .sugg-controls input[type="search"]{ padding:0.5rem 0.75rem; border-radius:10px; border:1px solid var(--neutral-200); min-width:260px; }
+  .sugg-controls select{ padding:0.46rem 0.6rem; border-radius:10px; border:1px solid var(--neutral-200); }
+  .badge-new { background: linear-gradient(90deg, var(--p-sage), var(--p-moss)); color: #fff; padding:6px 10px; border-radius:999px; font-weight:900; font-size:0.85rem; }
+
+  .cards { display:flex; flex-direction:column; gap:0.85rem; margin-top:1rem; }
+  .sugg-card { background:var(--white); border:1px solid var(--neutral-200); border-radius:12px; padding:14px; box-shadow:var(--shadow-sm); }
+  .sugg-card.unread { border-left: 4px solid var(--p-moss); }
+  .card-top { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; }
+  .from { font-weight:900; color:var(--neutral-900); }
+  .meta { color:var(--neutral-500); font-weight:700; font-size:0.9rem; }
+  .message { margin:10px 0 12px; color:var(--neutral-700); white-space:pre-wrap; }
+  .card-actions { display:flex; gap:0.5rem; }
+  .btn { padding:6px 10px; border-radius:8px; border:1px solid var(--neutral-200); background:var(--white); cursor:pointer; font-weight:800; }
+  .btn.ghost { background:transparent; }
+  .btn.primary { background: linear-gradient(180deg, rgba(137,152,109,0.14), rgba(137,152,109,0.06)); color:var(--p-moss); border:1px solid rgba(137,152,109,0.22); }
+  .btn.danger { background:transparent; border:1px solid rgba(239,68,68,0.18); color:#b91c1c; }
+
+  .empty-state { padding:2rem; text-align:center; color:var(--neutral-500); }
+
+  @media (max-width: 768px){
+    .sugg-controls { flex-direction:column; align-items:stretch; }
+    .sugg-controls input[type="search"]{ width:100%; }
+  }
+</style>
+
+<!-- Wrap content in dashboard-main to match spacing of other admin pages -->
+<div class="dashboard-main">
+  <div class="suggestions-page">
+    <div class="sugg-header">
+      <div>
+        <h1 class="sugg-title">Suggestions <span class="badge-new">{{ suggestions|length }} New</span></h1>
+        <p class="sugg-sub">Latest feedback submitted by users</p>
+      </div>
+
+      <div class="sugg-controls">
+        <input id="suggSearch" type="search" placeholder="Search suggestions..." aria-label="Search suggestions" />
+        <select id="suggSort">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+        </select>
+        <select id="suggFilter">
+          <option value="all">All</option>
+          <option value="unread">Unread</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="suggestionsList" class="cards">
+      {% if suggestions and suggestions|length > 0 %}
+        {% for s in suggestions %}
+        <article class="sugg-card unread" data-id="{{ s.id }}" data-user="{{ (s.user_name or s.user_email or ('User #' ~ s.user_id))|lower }}" data-date="{{ s.created_at.strftime('%Y-%m-%d %H:%M:%S') if s.created_at else '' }}">
+          <div class="card-top">
+            <div>
+              <div class="from">{{ s.user_name or s.user_email or ('User #' ~ s.user_id) }}</div>
+              <div class="meta">{{ s.created_at.strftime('%b %d, %Y • %H:%M') if s.created_at else '-' }}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn primary js-mark-read" title="Mark as read">Mark as Read</button>
+              <button class="btn danger js-delete" data-id="{{ s.id }}">Delete</button>
+            </div>
+          </div>
+
+          <div class="message">{{ s.message or '-' }}</div>
+        </article>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">No suggestions yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Client-side filtering, sorting, and actions
+  (function(){
+    const listEl = document.getElementById('suggestionsList');
+    const searchEl = document.getElementById('suggSearch');
+    const sortEl = document.getElementById('suggSort');
+    const filterEl = document.getElementById('suggFilter');
+
+    function getCards(){ return Array.from(listEl.querySelectorAll('.sugg-card')); }
+
+    function applyFilters(){
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const sort = sortEl.value;
+      const filter = filterEl.value;
+
+      let cards = getCards();
+
+      cards.forEach(c => {
+        const txt = (c.dataset.user + ' ' + (c.querySelector('.message')?.textContent||'')).toLowerCase();
+        const matchesQ = !q || txt.indexOf(q) !== -1;
+        const isUnread = c.classList.contains('unread');
+        const passesFilter = filter === 'all' || (filter === 'unread' && isUnread);
+        c.style.display = (matchesQ && passesFilter) ? '' : 'none';
+      });
+
+      // Sort
+      cards.sort((a,b)=>{
+        const da = new Date(a.dataset.date || 0).getTime();
+        const db = new Date(b.dataset.date || 0).getTime();
+        return sort === 'newest' ? db - da : da - db;
+      });
+
+      // Re-append in order
+      cards.forEach(c => listEl.appendChild(c));
+    }
+
+    searchEl.addEventListener('input', applyFilters);
+    sortEl.addEventListener('change', applyFilters);
+    filterEl.addEventListener('change', applyFilters);
+
+    // Actions
+    listEl.addEventListener('click', async (e) => {
+      const markBtn = e.target.closest('.js-mark-read');
+      const delBtn = e.target.closest('.js-delete');
+
+      if(markBtn){
+        const card = markBtn.closest('.sugg-card');
+        if(!card) return;
+        card.classList.remove('unread');
+        // simple visual feedback
+        markBtn.textContent = 'Marked';
+        markBtn.disabled = true;
+        applyFilters();
+        return;
+      }
+
+      if(delBtn){
+        const id = delBtn.getAttribute('data-id');
+        const card = delBtn.closest('.sugg-card');
+        if(!id || !card) return;
+        if(!confirm('Delete this suggestion? This action cannot be undone.')) return;
+
+        try{
+          const res = await fetch("{{ url_for('admin.delete_suggestion', id=0) }}".replace('/0', `/${id}`), {
+            method: 'POST', headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'}
+          });
+          const data = await res.json();
+          if(res.ok && data.success){
+            card.remove();
+          } else {
+            alert(data.message || 'Delete failed');
+          }
+        }catch(err){
+          alert('Network error. Delete failed.');
+        }
+      }
+    });
+
+    // Initial sort/filter pass
+    applyFilters();
+  })();
+</script>
+
+{% endblock %}

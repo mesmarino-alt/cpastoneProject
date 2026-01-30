@@ -1005,5 +1005,37 @@ def api_item_claim(item_id, item_type):
         conn.close()
 
 
+@user_bp.route('/api/suggestions', methods=['POST'])
+@login_required
+def api_submit_suggestion():
+    """Accept a suggestion/feedback message from the logged-in user and persist it."""
+    data = request.get_json(silent=True) or {}
+    message = (data.get('message') or '').strip()
+
+    if not message:
+        return jsonify({'ok': False, 'error': 'Message is required.'}), 400
+
+    # Basic length guard (UI uses maxlength too)
+    if len(message) > 2000:
+        return jsonify({'ok': False, 'error': 'Message is too long (max 2000).'}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO suggestions (user_id, message, created_at) VALUES (%s, %s, NOW())",
+            (int(current_user.get_id()), message)
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'ok': False, 'error': f'Failed to save suggestion: {str(e)}'}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+    return jsonify({'ok': True}), 201
+
+
 #ML Routes Import
 import user.user_matches

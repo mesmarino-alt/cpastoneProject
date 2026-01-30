@@ -80,6 +80,16 @@ def dashboard():
         """)
         reports = cur.fetchall()
 
+        # Suggestions — latest user feedback
+        cur.execute("""
+            SELECT s.id, s.user_id, s.message, s.created_at,
+                   u.name AS user_name, u.email AS user_email
+            FROM suggestions s
+            LEFT JOIN users u ON u.id = s.user_id
+            ORDER BY s.created_at DESC
+            LIMIT 50
+        """)
+        suggestions = cur.fetchall()
 
         chart_data = {
             "labels": ["Lost Items", "Found Items"],
@@ -91,7 +101,8 @@ def dashboard():
             users=users,
             kpis=kpis,
             chart_data=chart_data,
-            reports=reports
+            reports=reports,
+            suggestions=suggestions,
         )
 
     finally:
@@ -308,16 +319,19 @@ def reports_page():
     cur = conn.cursor(pymysql.cursors.DictCursor)
     try:
         # Fetch reports with reporter name from both lost and found items
+        # Include items with status: pending, approved, or reviewed (fully processed)
         cur.execute("""
             SELECT li.id, li.name, 'lost' AS type, li.reported_at, li.last_seen AS location, 
                    li.status, u.name AS reporter_name
             FROM lost_items li
             JOIN users u ON li.user_id = u.id
+            WHERE li.status IN ('pending', 'approved', 'reviewed')
             UNION ALL
             SELECT fi.id, fi.name, 'found' AS type, fi.reported_at, fi.where_found AS location,
                    fi.status, u.name AS reporter_name
             FROM found_items fi
             JOIN users u ON fi.user_id = u.id
+            WHERE fi.status IN ('pending', 'approved', 'reviewed')
             ORDER BY reported_at DESC
         """)
         reports = cur.fetchall()
@@ -533,6 +547,48 @@ def debug_item(item_id, item_type):
             'status_is_approved': item.get('status') == 'approved',
             'status_value': item.get('status')
         })
+    finally:
+        cur.close()
+        conn.close()
+
+
+@admin_bp.route('/suggestions')
+@login_required
+def suggestions_page():
+    conn = get_db()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    try:
+        cur.execute("""
+            SELECT s.id, s.user_id, s.message, s.created_at,
+                   u.name AS user_name, u.email AS user_email
+            FROM suggestions s
+            LEFT JOIN users u ON u.id = s.user_id
+            ORDER BY s.created_at DESC
+        """)
+        suggestions = cur.fetchall()
+    finally:
+        cur.close()
+        conn.close()
+
+    return render_template('admin/suggestions.html', suggestions=suggestions)
+
+@admin_bp.route('/suggestions/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_suggestion(id):
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id FROM suggestions WHERE id=%s", (id,))
+        row = cur.fetchone()
+        if not row:
+            return jsonify({'success': False, 'message': 'Suggestion not found'}), 404
+
+        cur.execute("DELETE FROM suggestions WHERE id=%s", (id,))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
     finally:
         cur.close()
         conn.close()

@@ -3,31 +3,33 @@
 {% block content %}
 <style>
   :root {
-    /* Palette */
-    --p-teal: #0ABAB5;
-    --p-mint: #56DFCF;
-    --p-soft: #ADEED9;
-    --p-blush: #FFEDF3;
+    /* Palette (requested) */
+    --p-cream: #F6F0D7;
+    --p-sage:  #C5D89D;
+    --p-olive: #9CAB84;
+    --p-moss:  #89986D;
 
     /* Dashboard tokens */
-    --primary: var(--p-teal);
-    --primary-2: var(--p-mint);
-    --primary-soft: rgba(10, 186, 181, 0.14);
+    --primary: var(--p-moss);
+    --primary-2: var(--p-sage);
+    --primary-soft: rgba(137, 152, 109, 0.16);
 
-    /* Keep semantics consistent */
+    /* Semantics */
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
 
-    --neutral-50: #f8fafc;
-    --neutral-100: #f1f5f9;
-    --neutral-200: #e2e8f0;
-    --neutral-500: #64748b;
-    --neutral-700: #334155;
-    --neutral-900: #0f172a;
+    /* Neutrals (tinted to palette) */
+    --neutral-50: var(--p-cream);
+    --neutral-100: rgba(246, 240, 215, 0.72);
+    --neutral-200: rgba(156, 171, 132, 0.35);
+    --neutral-500: #5b6547;
+    --neutral-700: #2f3725;
+    --neutral-900: #1f2419;
+
     --white: #ffffff;
-    --shadow-sm: 0 6px 18px rgba(2, 6, 23, 0.06);
-    --shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+    --shadow-sm: 0 6px 18px rgba(31, 36, 25, 0.10);
+    --shadow: 0 10px 30px rgba(31, 36, 25, 0.14);
     --radius: 14px;
   }
 
@@ -72,7 +74,7 @@
     gap: 0.5rem;
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
-  .qa-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: rgba(10, 186, 181, 0.35); text-decoration: none; }
+  .qa-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); border-color: rgba(137, 152, 109, 0.35); text-decoration: none; }
   .qa-btn:active { transform: translateY(0); }
 
   /* Unified stat cards */
@@ -96,7 +98,7 @@
     overflow: hidden;
   }
 
-  .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(10, 186, 181, 0.28); }
+  .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(137, 152, 109, 0.28); }
   .kpi-card:active { transform: translateY(-1px) scale(0.995); }
 
   .kpi-top {
@@ -139,7 +141,7 @@
     margin: 0;
     font-size: 0.9rem;
     font-weight: 600;
-    color: rgba(51, 65, 85, 0.82);
+    color: rgba(47, 55, 37, 0.82);
   }
 
   /* Needs Attention as action cards */
@@ -204,8 +206,8 @@
   }
 
   .btn-review {
-    border: 1px solid rgba(10, 186, 181, 0.32);
-    background: rgba(10, 186, 181, 0.10);
+    border: 1px solid rgba(137, 152, 109, 0.32);
+    background: rgba(137, 152, 109, 0.10);
     color: var(--primary);
     border-radius: 12px;
     padding: 0.45rem 0.75rem;
@@ -215,7 +217,7 @@
     transition: transform .15s ease, background .15s ease;
     white-space: nowrap;
   }
-  .btn-review:hover { background: rgba(10, 186, 181, 0.14); transform: translateY(-1px); text-decoration: none; }
+  .btn-review:hover { background: rgba(137, 152, 109, 0.14); transform: translateY(-1px); text-decoration: none; }
   .btn-review:active { transform: translateY(0); }
 
   /* Tables */
@@ -268,8 +270,8 @@
     color: var(--neutral-700);
   }
 
-  .data-table tbody tr:nth-child(even) { background: rgba(241, 245, 249, 0.55); }
-  .data-table tbody tr:hover { background: rgba(10, 186, 181, 0.06); }
+  .data-table tbody tr:nth-child(even) { background: rgba(246, 240, 215, 0.55); }
+  .data-table tbody tr:hover { background: rgba(137, 152, 109, 0.06); }
 
   /* Status pill mapping */
   .status-pill {
@@ -305,12 +307,12 @@
   .btn-mini:active { transform: translateY(1px) scale(0.99); }
 
   .btn-approve {
-    border: 1px solid rgba(10, 186, 181, 0.30);
-    background: linear-gradient(180deg, rgba(86, 223, 207, 0.22), rgba(10, 186, 181, 0.10));
+    border: 1px solid rgba(137, 152, 109, 0.30);
+    background: linear-gradient(180deg, rgba(197, 216, 157, 0.22), rgba(137, 152, 109, 0.10));
     color: #066a67;
   }
 
-  .btn-approve:hover { background: linear-gradient(180deg, rgba(86, 223, 207, 0.28), rgba(10, 186, 181, 0.14)); }
+  .btn-approve:hover { background: linear-gradient(180deg, rgba(197, 216, 157, 0.28), rgba(137, 152, 109, 0.14)); }
 
   .btn-reject {
     border: 1px solid rgba(239, 68, 68, 0.22);
@@ -327,11 +329,39 @@
     height: 10px;
     width: 120px;
     border-radius: 999px;
-    background: linear-gradient(90deg, rgba(226,232,240,0.7), rgba(241,245,249,0.95), rgba(226,232,240,0.7));
+    background: linear-gradient(90deg, rgba(156,171,132,0.7), rgba(246,240,215,0.95), rgba(156,171,132,0.7));
     background-size: 200% 100%;
     animation: shimmer 1.1s infinite linear;
   }
   @keyframes shimmer { 0% { background-position: 0% 0 } 100% { background-position: 200% 0 } }
+
+  /* Small desktop responsiveness (browser narrowed) */
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .table-section { grid-template-columns: 1fr !important; }
+  }
+
+  @media (max-width: 1024px) {
+    .dashboard-main { padding: 0; }
+
+    .quick-actions { gap: 0.5rem; }
+    .qa-btn { padding: 0.55rem 0.8rem; font-size: 0.86rem; }
+
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .kpi-card { padding: 0.95rem; }
+    .kpi-value { font-size: 1.8rem; }
+
+    .triage-body { padding: 0.9rem; }
+    .triage-grid { grid-template-columns: 1fr; }
+
+    .table-header { padding: 0.85rem 0.9rem; }
+    .data-table thead th { padding: 0.7rem 0.9rem; }
+    .data-table tbody td { padding: 0.8rem 0.9rem; }
+
+    /* Make wide tables scroll horizontally instead of overflowing */
+    .scrollable-table { overflow-x: auto; }
+    table.data-table { min-width: 760px; }
+  }
 
   /* Responsive tweaks */
   @media (max-width: 768px) {
@@ -481,7 +511,7 @@
               <td class="fw-bold" style="color: var(--neutral-900);">{{ r.name }}</td>
               <td class="d-none d-md-table-cell" style="color: var(--neutral-500);">{{ r.reporter_name }}</td>
               <td class="d-none d-lg-table-cell">
-                <span class="status-pill {{ 'status-rejected' if false else '' }}" style="border-color: transparent; background: rgba(2,6,23,0.04); color: var(--neutral-700);">
+                <span class="status-pill {{ 'status-rejected' if false else '' }}" style="border-color: transparent; background: rgba(31, 36, 25, 0.04); color: var(--neutral-700);">
                   {{ r.type|title }}
                 </span>
               </td>
@@ -596,7 +626,7 @@
                 <td class="d-none d-md-table-cell" style="color: var(--neutral-500);">{{ r.reporter_name }}</td>
                 <td class="fw-bold" style="color: var(--neutral-900);">{{ r.name[:24] }}</td>
                 <td class="d-none d-lg-table-cell">
-                  <span class="status-pill" style="border-color: transparent; background: rgba(2,6,23,0.04); color: var(--neutral-700);">
+                  <span class="status-pill" style="border-color: transparent; background: rgba(31, 36, 25, 0.04); color: var(--neutral-700);">
                     {{ r.type|title }}
                   </span>
                 </td>

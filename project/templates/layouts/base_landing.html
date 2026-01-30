@@ -4,333 +4,678 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Find It Fast{% endblock %}</title>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
   <style>
+    :root {
+      --navy-950: #071021;
+      --navy-900: #0b1b33;
+      --navy-800: #102a4d;
+      --text: #0b1220;
+      --muted: rgba(17, 24, 39, 0.68);
+      --surface: rgba(255, 255, 255, 0.10);
+      --surface-2: rgba(255, 255, 255, 0.14);
+      --border: rgba(255, 255, 255, 0.18);
+      --teal: #0ea5e9; /* teal/cyan */
+      --cyan: #22d3ee; /* soft cyan */
+      --focus: rgba(34, 211, 238, 0.30);
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+      --shadow-soft: 0 16px 50px rgba(0, 0, 0, 0.22);
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 14px;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, rgba(20, 40, 100, 0.4) 0%, rgba(10, 20, 50, 0.45) 100%),
-                  url('{{ url_for("static", filename="images/back.jpg") }}') center/cover no-repeat fixed;
-      background-attachment: fixed;
-      background-blend-mode: overlay;
+      font-family: Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #eaf0ff;
+      /* Move the photo to a pseudo-element so we can enhance it without affecting the card */
+      background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15));
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      place-items: center;
+      padding: clamp(14px, 3vw, 28px);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background photo layer (enhanced) */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        url("{{ url_for('static', filename='images/back.jpg') }}") center/cover no-repeat fixed;
+      filter: saturate(1.08) contrast(1.08) brightness(0.98);
+      transform: scale(1.02);
+    }
+
+    /* Overlay + vignette layer */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(1300px 700px at 50% 10%, rgba(34, 211, 238, 0.14) 0%, rgba(14, 165, 233, 0.06) 35%, rgba(7, 16, 33, 0) 75%),
+        /* Keep photo visible: lighter overlay */
+        linear-gradient(135deg, rgba(7, 16, 33, 0.58) 0%, rgba(11, 27, 51, 0.50) 40%, rgba(7, 16, 33, 0.62) 100%),
+        /* Soft vignette */
+        radial-gradient(80% 70% at 50% 40%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.16) 55%, rgba(0, 0, 0, 0.38) 100%);
+    }
+
+    .landing-shell {
+      width: min(1040px, 100%);
+      position: relative;
+      z-index: 1;
     }
 
     .landing-card {
-      display: flex;
-      flex-direction: row;
       width: 100%;
-      max-width: 900px;
-      border-radius: 24px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-xl);
       overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      position: relative; /* allow absolute children like modal */
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transform: translateY(0);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      position: relative; /* anchor flash modals */
+    }
+
+    .landing-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+      border-color: rgba(34, 211, 238, 0.22);
     }
 
     .landing-left {
-      flex: 3;
-      background: linear-gradient(to bottom right, rgba(0, 180, 216, 0.75), rgba(0, 119, 182, 0.75));
-      color: white;
+      position: relative;
+      padding: clamp(18px, 4vw, 34px);
+      background:
+        linear-gradient(135deg, rgba(16, 42, 77, 0.92) 0%, rgba(11, 27, 51, 0.92) 40%, rgba(7, 16, 33, 0.92) 100%),
+        radial-gradient(800px 500px at 30% 30%, rgba(34, 211, 238, 0.22) 0%, rgba(0, 0, 0, 0) 60%);
+      border-right: 1px solid rgba(255, 255, 255, 0.10);
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+      min-height: 480px;
+    }
+
+    .brand {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      gap: 14px;
     }
 
-    .landing-left img {
-      width: 150px;
-      height: 150px;
+    .brand-mark {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      margin-bottom: 1rem;
-      filter:
-        drop-shadow(0 0 10px rgba(138, 43, 226, 0.75))
-        drop-shadow(0 0 24px rgba(138, 43, 226, 0.55))
-        drop-shadow(0 0 44px rgba(111, 34, 181, 0.40));
-      animation: brandGlowImg 2.2s ease-in-out infinite;
     }
 
-    .landing-left h2 {
-      text-align: center;
+    .brand-title {
+      line-height: 1.1;
+    }
+
+    .brand-title h1 {
       margin: 0;
-      font-weight: 500;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      font-family: Poppins, Inter, system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: clamp(26px, 3.2vw, 40px);
       color: #ffffff;
-      letter-spacing: 0.6px;
-      text-shadow:
-        0 0 8px rgba(255, 255, 255, 0.55),
-        0 0 18px rgba(138, 43, 226, 0.90),
-        0 0 38px rgba(138, 43, 226, 0.65),
-        0 0 58px rgba(111, 34, 181, 0.55);
-      animation: brandGlowText 2.2s ease-in-out infinite;
+      text-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 24px rgba(34, 211, 238, 0.10);
+    }
+
+    .brand-title p {
+      margin: 6px 0 0;
+      color: rgba(234, 240, 255, 0.78);
+      font-size: 1.02rem;
+    }
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.90);
+      font-size: 0.86rem;
+      white-space: nowrap;
+    }
+
+    .trust-pill i {
+      color: var(--cyan);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .feature {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      transition: background 180ms ease, transform 180ms ease, border-color 180ms ease;
+    }
+
+    .feature:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(34, 211, 238, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .feature i {
+      font-size: 1.15rem;
+      color: var(--cyan);
+      margin-top: 2px;
+      flex: 0 0 auto;
+    }
+
+    .feature strong {
+      display: block;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.95);
+      letter-spacing: -0.01em;
+    }
+
+    .feature span {
+      display: block;
+      margin-top: 3px;
+      color: rgba(234, 240, 255, 0.78);
+      font-size: 0.9rem;
+      line-height: 1.35;
     }
 
     .landing-right {
-      flex: 2;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      padding: 2.5rem 2rem;
+      padding: clamp(18px, 4vw, 34px);
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       display: flex;
       flex-direction: column;
       justify-content: center;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 16px;
     }
 
-    .landing-right h4 {
+    .panel-head h2 {
+      margin: 0;
+      font-family: Poppins, Inter, system-ui, sans-serif;
       font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: #111827;
-      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+      font-size: 1.35rem;
+      color: #eef6ff;
+    }
+
+    .panel-head p {
+      margin: 8px 0 0;
+      color: rgba(234, 240, 255, 0.78);
+      font-size: 0.95rem;
+    }
+
+    /* Form styling (icons + focus glow) */
+    .form-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(234, 240, 255, 0.74);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .input-icon {
+      position: relative;
+    }
+
+    .input-icon i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(234, 240, 255, 0.75);
+      pointer-events: none;
     }
 
     .form-control {
-      border-radius: 10px;
-      border: 1.5px solid rgba(0, 0, 0, 0.1);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 0.75rem 1rem;
-      font-size: 0.95rem;
-      transition: all 0.3s ease;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(7, 16, 33, 0.35);
+      color: #f2f6ff;
+      padding: 0.8rem 0.95rem 0.8rem 2.5rem;
+      font-size: 0.98rem;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .form-control::placeholder {
+      color: rgba(234, 240, 255, 0.55);
     }
 
     .form-control:focus {
       outline: none;
-      border-color: #00b4d8;
-      background: rgba(255, 255, 255, 0.98);
-      box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.15);
+      border-color: rgba(34, 211, 238, 0.45);
+      background: rgba(7, 16, 33, 0.44);
+      box-shadow: 0 0 0 4px var(--focus);
     }
 
-    .form-control::placeholder {
-      color: rgba(0, 0, 0, 0.4);
-    }
-
-    .form-label {
-      font-weight: 600;
-      color: #1f2937;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
+    .form-control:focus-visible {
+      outline: 2px solid rgba(34, 211, 238, 0.45);
+      outline-offset: 2px;
     }
 
     .btn-brand {
-      background: linear-gradient(135deg, #00b4d8 0%, #0096c7 100%);
-      color: white;
+      width: 100%;
       border: none;
-      border-radius: 10px;
-      padding: 0.8rem 1.5rem;
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
       font-weight: 700;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 25px rgba(0, 180, 216, 0.3);
+      letter-spacing: 0.03em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 1rem;
+      color: #04101f;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--teal) 60%, #2563eb 120%);
+      box-shadow: 0 14px 34px rgba(34, 211, 238, 0.18), 0 10px 30px rgba(14, 165, 233, 0.20);
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
     }
 
     .btn-brand:hover {
-      background: linear-gradient(135deg, #0096c7 0%, #00809d 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 15px 35px rgba(0, 180, 216, 0.4);
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow: 0 18px 42px rgba(34, 211, 238, 0.22), 0 14px 36px rgba(14, 165, 233, 0.24);
     }
 
     .btn-brand:active {
       transform: translateY(0);
-      box-shadow: 0 5px 15px rgba(0, 180, 216, 0.3);
+      box-shadow: 0 10px 25px rgba(34, 211, 238, 0.16), 0 8px 22px rgba(14, 165, 233, 0.18);
     }
 
-    .form-text {
-      color: #6b7280;
-      font-size: 0.9rem;
+    .helper-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      color: rgba(234, 240, 255, 0.76);
+      font-size: 0.92rem;
     }
 
-    .form-text a {
-      color: #00b4d8;
+    .helper-row a {
+      color: rgba(34, 211, 238, 0.92);
       text-decoration: none;
       font-weight: 600;
-      transition: color 0.2s ease;
     }
 
-    .form-text a:hover {
-      color: #0096c7;
+    .helper-row a:hover {
       text-decoration: underline;
     }
 
-    @media (max-width: 768px) {
-      .landing-card {
-        flex-direction: column;
-        margin: 1rem;
-      }
-      .landing-left, .landing-right {
-        flex: none;
-        width: 100%;
-      }
-      .landing-left {
-        padding: 1.5rem 1rem;
-        min-height: auto;
-      }
-      .landing-left img {
-        width: 80px;
-        height: 80px;
-      }
-      .landing-left p {
-        font-size: 0.9rem;
-      }
-      .landing-right {
-        padding: 1.5rem 1rem;
-      }
-      .landing-right h4 {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-      }
+    .security-note {
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(234, 240, 255, 0.78);
+      font-size: 0.9rem;
+      line-height: 1.35;
     }
 
-    @media (max-width: 480px) {
-      .landing-card {
-        margin: 0.5rem;
-        border-radius: 0.75rem;
-      }
-      body {
-        padding: 0.5rem;
-      }
-      .landing-left, .landing-right {
-        padding: 1rem !important;
-      }
-      .landing-left img {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 0.5rem;
-      }
-      .landing-left p {
-        font-size: 0.8rem;
-      }
-      .landing-right h4 {
-        font-size: 1.1rem;
-      }
-      .form-control, .btn {
-        font-size: 16px;
-      }
+    .security-note i {
+      color: var(--cyan);
+      font-size: 1.05rem;
+      margin-top: 2px;
     }
 
     /* Flash modal anchored top-left inside landing-card */
     .flash-modal-top-left .modal-dialog {
       position: absolute;
-      top: 1rem;
-      left: 1rem;
+      top: 0.9rem;
+      left: 0.9rem;
       margin: 0;
-      max-width: 300px;
-      transform: translateX(-120%); /* start off-screen */
-      transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+      max-width: 320px;
+      transform: translateX(-120%);
+      transition: transform 0.35s ease-out, opacity 0.35s ease-out;
       opacity: 0;
     }
 
     .flash-modal-top-left.show .modal-dialog {
-      transform: translateX(0); /* slide into view */
+      transform: translateX(0);
       opacity: 1;
     }
 
     .flash-modal-top-left .modal-content {
-      border-radius: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
 
-    /* ===== Glowing brand (logo + title) ===== */
-    @keyframes brandGlowImg {
-      0%, 100% {
-        filter:
-          drop-shadow(0 0 8px rgba(138, 43, 226, 0.60))
-          drop-shadow(0 0 18px rgba(138, 43, 226, 0.45))
-          drop-shadow(0 0 34px rgba(111, 34, 181, 0.30));
-        transform: translateY(0) scale(1);
+    .modal-header {
+      border-bottom-color: rgba(255, 255, 255, 0.10);
+    }
+
+    /* Responsiveness */
+    @media (max-width: 900px) {
+      .landing-card {
+        grid-template-columns: 1fr;
       }
-      50% {
-        filter:
-          drop-shadow(0 0 14px rgba(138, 43, 226, 0.95))
-          drop-shadow(0 0 34px rgba(138, 43, 226, 0.75))
-          drop-shadow(0 0 66px rgba(111, 34, 181, 0.60));
-        transform: translateY(-3px) scale(1.03);
+      .landing-left {
+        min-height: auto;
+      }
+      .feature-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    @keyframes brandGlowText {
-      0%, 100% {
-        text-shadow:
-          0 0 6px rgba(255, 255, 255, 0.40),
-          0 0 14px rgba(138, 43, 226, 0.70),
-          0 0 28px rgba(138, 43, 226, 0.52),
-          0 0 44px rgba(111, 34, 181, 0.40);
-        opacity: 0.92;
+    @media (max-width: 576px) {
+      body {
+        /* allow natural vertical scrolling on phones */
+        place-items: start;
       }
-      50% {
-        text-shadow:
-          0 0 10px rgba(255, 255, 255, 0.70),
-          0 0 24px rgba(138, 43, 226, 1.00),
-          0 0 52px rgba(138, 43, 226, 0.75),
-          0 0 80px rgba(111, 34, 181, 0.70);
+
+      .landing-shell {
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .landing-left,
+      .landing-right {
+        padding: 18px;
+      }
+
+      .brand {
+        gap: 12px;
+        align-items: center;
+      }
+
+      .brand-title h1 {
+        font-size: 28px;
+      }
+
+      .brand-title p {
+        font-size: 0.98rem;
+      }
+
+      .trust-row {
+        gap: 8px;
+      }
+
+      .trust-pill {
+        padding: 7px 9px;
+        font-size: 0.82rem;
+      }
+
+      .feature {
+        padding: 12px;
+      }
+
+      /* Make flash modal usable on phones */
+      .flash-modal-top-left .modal-dialog {
+        position: fixed;
+        top: max(env(safe-area-inset-top), 12px);
+        left: 12px;
+        right: 12px;
+        max-width: none;
+        transform: translateY(-10px);
+      }
+
+      .flash-modal-top-left.show .modal-dialog {
+        transform: translateY(0);
         opacity: 1;
+      }
+
+      .form-control {
+        padding-left: 2.45rem;
+      }
+
+      .landing-right {
+        padding: 16px;
+        gap: 12px;
+      }
+
+      .panel-head h2 {
+        font-size: 1.12rem;
+      }
+
+      .panel-head p {
+        margin-top: 6px;
+        font-size: 0.9rem;
+      }
+
+      .form-label {
+        font-size: 0.68rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .form-control {
+        padding: 0.68rem 0.85rem 0.68rem 2.35rem;
+        font-size: 0.95rem;
+      }
+
+      .btn-brand {
+        padding: 0.78rem 1rem;
+        border-radius: 12px;
+        font-size: 0.92rem;
+      }
+
+      .helper-row {
+        margin-top: 6px;
+        font-size: 0.88rem;
+      }
+
+      .security-note {
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+        background-attachment: scroll;
+      }
+      .brand-mark {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+      }
+      .panel-head h2 {
+        font-size: 1.2rem;
+      }
+      .form-control {
+        font-size: 16px; /* prevent iOS zoom */
+      }
+      /* Some browsers ignore background-attachment on pseudo elements; force scroll */
+      body::after {
+        background-attachment: scroll;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .landing-right {
+        padding: 14px;
+      }
+
+      .panel-head h2 {
+        font-size: 1.05rem;
+      }
+
+      .form-control {
+        padding: 0.64rem 0.8rem 0.64rem 2.25rem;
+      }
+
+      .btn-brand {
+        padding: 0.72rem 0.95rem;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .landing-left img,
-      .landing-left h2 {
-        animation: none;
+      .landing-card,
+      .feature,
+      .btn-brand,
+      .form-control {
+        transition: none;
       }
+      body {
+        scroll-behavior: auto;
+      }
+    }
+
+    /* Keep bootstrap's focus ring accessible, but consistent */
+    .btn:focus-visible {
+      outline: 2px solid rgba(34, 211, 238, 0.55);
+      outline-offset: 2px;
+      box-shadow: none;
     }
   </style>
 </head>
 <body>
-  <div class="landing-card">
-    <div class="landing-left">
-      <img src="{{ url_for('static', filename='images/logo_new.png') }}" alt="Seal" />
-      <br>
-      <h2>FindITFast</h2>
-    </div>
-    <div class="landing-right">
-      {% block content %}{% endblock %}
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, msg in messages %}
-          <!-- Sliding Modal inside landing-card -->
-          <div class="modal fade flash-modal-top-left" id="flashModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header bg-{{ category }}">
-                  <h5 class="modal-title text-white">{{ category|capitalize }}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  {{ msg }}
-                </div>
+  <div class="landing-shell">
+    <div class="landing-card">
+      <div class="landing-left">
+        <div>
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+              <img src="{{ url_for('static', filename='images/logo_new.png') }}" alt="" />
+            </div>
+            <div class="brand-title">
+              <h1>FindITFast</h1>
+              <p>Campus Lost &amp; Found System</p>
+              <div class="trust-row" aria-label="Trust indicators">
+                <span class="trust-pill"><i class="bi bi-shield-check"></i> Secure access</span>
+                <span class="trust-pill"><i class="bi bi-patch-check"></i> Verified reports</span>
+                <span class="trust-pill"><i class="bi bi-bell"></i> Instant alerts</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <script>
-            document.addEventListener('DOMContentLoaded', () => {
-              var modalEl = document.getElementById('flashModal{{ loop.index }}');
-              var flashModal = new bootstrap.Modal(modalEl);
-              flashModal.show();
-              // Auto-dismiss after 3s
-              setTimeout(() => flashModal.hide(), 3000);
-            });
-          </script>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+        <div class="feature-grid" aria-label="Highlights">
+          <div class="feature">
+            <i class="bi bi-search"></i>
+            <div>
+              <strong>Smart item matching</strong>
+              <span>Fast suggestions that help reunite owners with lost items.</span>
+            </div>
+          </div>
+          <div class="feature">
+            <i class="bi bi-lightning-charge"></i>
+            <div>
+              <strong>Real-time notifications</strong>
+              <span>Get updates when a potential match or claim is detected.</span>
+            </div>
+          </div>
+          <div class="feature">
+            <i class="bi bi-lock"></i>
+            <div>
+              <strong>Secure &amp; audited claims</strong>
+              <span>Designed for campus admin workflows and identity checks.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-right">
+        <div class="panel-head">
+          <h2>Sign in</h2>
+          <p>Use your campus credentials to continue.</p>
+        </div>
+
+        <!--
+          Styling hooks for login forms inside this layout:
+          - Wrap inputs with .input-icon and add an <i class="bi ..."></i>
+          - Use .btn-brand for primary submit
+          If a child template doesn't use these, it will still render fine.
+        -->
+        {% block content %}{% endblock %}
+
+        <div class="security-note" role="note">
+          <i class="bi bi-info-circle"></i>
+          <div>
+            <strong style="color: rgba(255,255,255,0.92); font-weight: 600;">Privacy &amp; security</strong><br>
+            Your session is protected.
+          </div>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="modal fade flash-modal-top-left" id="flashModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-{{ category }}">
+                    <h5 class="modal-title text-white">{{ category|capitalize }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    {{ msg }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                var modalEl = document.getElementById('flashModal{{ loop.index }}');
+                if (!modalEl) return;
+                var flashModal = new bootstrap.Modal(modalEl);
+                flashModal.show();
+                setTimeout(() => flashModal.hide(), 3200);
+              });
+            </script>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

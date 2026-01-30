@@ -1,14 +1,29 @@
+:root{
+  --p-cream:#F6F0D7;
+  --p-sage:#C5D89D;
+  --p-olive:#9CAB84;
+  --p-moss:#89986D;
+  --admin-bg:var(--p-cream);
+  --admin-surface:#ffffff;
+  --admin-border:rgba(156,171,132,0.45);
+  --admin-text:#1f2419;
+  --admin-muted:#5b6547;
+  --admin-accent:var(--p-moss);
+  --admin-accent-2:var(--p-sage);
+}
+
 /* soft cards */
 .soft-card {
-  background: #fff;
+  background: var(--admin-surface);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 12px rgba(31, 36, 25, 0.10);
+  border: 1px solid var(--admin-border);
 }
 
 /* headers */
 .soft-header {
-  background: linear-gradient(135deg, rgba(10, 186, 181, 0.14), rgba(86, 223, 207, 0.14));
+  background: linear-gradient(135deg, rgba(197, 216, 157, 0.45), rgba(137, 152, 109, 0.22));
+  color: var(--admin-text);
   font-weight: 800;
   padding: 0.75rem 1rem;
   border-radius: 12px 12px 0 0;
@@ -20,20 +35,22 @@
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: rgba(15, 23, 42, 0.06);
+  background: rgba(246, 240, 215, 0.75);
+  border: 1px solid rgba(156, 171, 132, 0.35);
+  color: var(--admin-text);
 }
-.pill-active { background: rgba(16, 185, 129, 0.16); color: #065f46; border: 1px solid rgba(16,185,129,0.25); }
-.pill-disabled { background: rgba(100, 116, 139, 0.12); color: #334155; border: 1px solid rgba(100,116,139,0.22); }
+.pill-active { background: rgba(197, 216, 157, 0.55); color: #2f3725; border: 1px solid rgba(137,152,109,0.35); }
+.pill-disabled { background: rgba(156, 171, 132, 0.22); color: #334155; border: 1px solid rgba(156, 171, 132, 0.35); }
 
 /* buttons */
 .btn-purple {
   /* backwards-compatible class name, new palette */
-  background-color: #0ABAB5;
-  color: #083344;
+  background-color: var(--admin-accent);
+  color: var(--admin-text);
   border-radius: 10px;
-  border: 1px solid rgba(10, 186, 181, 0.35);
+  border: 1px solid rgba(137, 152, 109, 0.55);
 }
-.btn-purple:hover { background-color: #56DFCF; }
+.btn-purple:hover { background-color: var(--admin-accent-2); }
 
 /* avatars */
 .avatar-sm {
@@ -52,6 +69,6 @@
 .scrollable-table thead th {
   position: sticky;
   top: 0;
-  background: #f8fafc;
+  background: var(--p-cream);
   z-index: 2;
 }
