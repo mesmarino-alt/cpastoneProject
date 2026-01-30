@@ -15,10 +15,14 @@ RUN apt-get update \
 # pytorch/pytorch:... tag on Docker Hub.
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip setuptools wheel \
+    && python -m pip install --no-cache-dir Flask==3.1.2 \
     && python -m pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
     && grep -v '^torch' requirements.txt > reqs_no_torch.txt \
     && python -m pip install --no-cache-dir -r reqs_no_torch.txt \
-    && python -m pip install --no-cache-dir gunicorn==23.0.0
+    && python -m pip install --no-cache-dir gunicorn==23.0.0 \
+    # Verify critical packages are importable and print versions to build logs
+    && python -c "import flask; import sys; print('flask==%s' % flask.__version__)" \
+    && python -c "import torch; print('torch==%s' % torch.__version__)"
 
 # Copy app
 COPY . .
