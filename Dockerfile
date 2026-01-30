@@ -1,5 +1,5 @@
-# Minimal Dockerfile for Flask app
-FROM python:3.11-slim
+# Use an official PyTorch CPU image so the torch wheel is already present
+FROM pytorch/pytorch:2.9.1-cpu
 
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
@@ -12,15 +12,14 @@ RUN apt-get update \
 
 # Install Python deps
 COPY requirements.txt .
-# Install PyTorch CPU wheel from the official PyTorch index first so
-# the `torch==2.9.1+cpu` artifact (which lives on the PyTorch index) can be found,
-# then install the rest of the requirements.
-RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch==2.9.1+cpu \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app
 COPY . .
 
 # Railway provides PORT env var at runtime
 EXPOSE 8000
-CMD ["gunicorn", "wsgi:app", "-b", "0.0.0.0:$PORT", "--workers", "4", "--timeout", "120"]
+
+# Use a shell command so the $PORT environment variable is expanded at runtime.
+# Provide a default port (8000) if PORT is not set.
+CMD ["sh", "-c", "gunicorn wsgi:app -b 0.0.0.0:${PORT:-8000} --workers 4 --timeout 120"]
