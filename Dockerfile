@@ -1,5 +1,5 @@
-# Use an official PyTorch CPU image so the torch wheel is already present
-FROM pytorch/pytorch:2.9.1-cpu
+# Use a slim Python base and install PyTorch CPU wheel from the official PyTorch index
+FROM python:3.11-slim
 
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
@@ -7,12 +7,16 @@ ENV FLASK_ENV=production
 
 # Install system dependencies for common DB drivers and build tools
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev gcc \
+    && apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev gcc curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
+# Copy requirements and install PyTorch CPU wheel first from the PyTorch index,
+# then install the rest of the requirements. This avoids relying on a non-existent
+# pytorch/pytorch:... tag on Docker Hub.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu "torch==2.9.1+cpu" \
+    && grep -v '^torch' requirements.txt > reqs_no_torch.txt \
+    && pip install --no-cache-dir -r reqs_no_torch.txt
 
 # Copy app
 COPY . .
