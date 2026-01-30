@@ -1,33 +1,22 @@
-# Use official Python runtime as base image
-FROM python:3.13-slim
+# Minimal Dockerfile for Flask app
+FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_ENV=production
 
-# Install system dependencies required for some Python packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+# Install system dependencies for common DB drivers and build tools
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential default-libmysqlclient-dev libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for better layer caching)
+# Install Python deps
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Python dependencies
-# Using --no-cache-dir to reduce image size and --no-build-isolation for faster builds
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-    --index-url https://download.pytorch.org/whl/cpu \
-    -r requirements.txt
-
-# Copy application code
+# Copy app
 COPY . .
 
-# Expose port
-EXPOSE 5000 8000
-
-# Set environment variables
-ENV FLASK_APP=app.py
-ENV PYTHONUNBUFFERED=1
-
-# Run with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]
+# Railway provides PORT env var at runtime
+EXPOSE 8000
+CMD ["gunicorn", "wsgi:app", "-b", "0.0.0.0:$PORT", "--workers", "4", "--timeout", "120"]
