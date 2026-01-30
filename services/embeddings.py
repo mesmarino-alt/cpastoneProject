@@ -1,20 +1,34 @@
 #embeddings.py
-from sentence_transformers import SentenceTransformer
 import json
 
-# Load model once at import
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Lazy-load the sentence-transformers model to avoid import-time failures
+# and excessive memory usage during app startup.
+_model = None
+
+def _get_model():
+    global _model
+    if _model is not None:
+        return _model
+    try:
+        from sentence_transformers import SentenceTransformer
+    except Exception as e:
+        # Raise a clear error when embeddings are actually used
+        raise ImportError("sentence-transformers is required for embeddings. Install it or disable embedding features.") from e
+    _model = SentenceTransformer('all-MiniLM-L6-v2')
+    return _model
 
 def compute_embedding(text: str):
     """Return embedding as a Python list for DB storage (JSON)."""
     if not text:
         return None
+    model = _get_model()
     return model.encode(text).tolist()
 
 def embed_tensor(text: str):
     """Return embedding as a tensor for similarity calculations."""
     if not text:
         return None
+    model = _get_model()
     return model.encode(text, convert_to_tensor=True)
 
 def serialize_embedding(embedding_list):
