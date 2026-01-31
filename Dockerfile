@@ -1,6 +1,6 @@
 # Use the official lightweight Python image.
 # https://hub.docker.com/_/python
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
@@ -30,5 +30,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
-# Run the web service on container startup.
-CMD ["gunicorn", "-b", ":8080", "main:app"]
+# Run the web service on container startup. Use shell form so $PORT and
+# GUNICORN_CMD_ARGS are expanded at runtime (Railway provides PORT).
+ENV GUNICORN_CMD_ARGS "--workers 1 --timeout 120"
+CMD ["sh", "-c", "python -m gunicorn wsgi:app -b 0.0.0.0:${PORT:-8000} $GUNICORN_CMD_ARGS"]
