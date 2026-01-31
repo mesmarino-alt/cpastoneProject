@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
 from extensions import bcrypt, login_manager
 from auth.routes import auth_bp
 from user.routes import user_bp
@@ -44,6 +44,13 @@ def inject_notifications():
         'unread_notifications_count': unread_notifications_count,
         'notifications': notifications
     }
+
+@app.errorhandler(503)
+def service_unavailable(error):
+    """Render a friendly maintenance page when the service is unavailable."""
+    # The template will attempt to load /static/images/malupiton.jpg —
+    # please copy your image into static/images/malupiton.jpg (or adjust the path).
+    return render_template('503.html'), 503
 
 @app.route('/')
 def index():
