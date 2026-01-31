@@ -5,6 +5,16 @@ FROM python:3.11-slim
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
+# Install system build deps needed for cryptography and other packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       libssl-dev \
+       libffi-dev \
+       cargo \
+       rustc \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip setuptools wheel \
