@@ -10,7 +10,7 @@ from models.user import FoundItem, LostItem
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from services.embeddings import compute_embedding, compute_item_embedding, compute_item_embedding_structured
-from services.matching import run_matching_pipeline
+from services.matching import get_matching_pipeline
 
 
 # Create a Blueprint named "user" with updated template folder
@@ -329,10 +329,11 @@ def report_lost():
         cur.close()
         conn.close()
 
-    # Run matching pipeline
+    # Run matching pipeline (lazy)
     print(f"[LOST] Triggering matching pipeline...")
     try:
-        run_matching_pipeline(threshold=0.72)
+        pipeline = get_matching_pipeline()
+        pipeline(threshold=0.72)
     except Exception as e:
         print(f"[LOST] Matching pipeline error: {str(e)}")
 
@@ -424,10 +425,11 @@ def report_found():
         cur.close()
         conn.close()
 
-    # Run matching pipeline
+    # Run matching pipeline (lazy)
     print(f"[FOUND] Triggering matching pipeline...")
     try:
-        run_matching_pipeline(threshold=0.72)
+        pipeline = get_matching_pipeline()
+        pipeline(threshold=0.72)
     except Exception as e:
         print(f"[FOUND] Matching pipeline error: {str(e)}")
 
@@ -1039,3 +1041,4 @@ def api_submit_suggestion():
 
 #ML Routes Import
 import user.user_matches
+``` 

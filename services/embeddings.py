@@ -1,20 +1,22 @@
 #embeddings.py
 import json
+import threading
 
-# Lazy-load the sentence-transformers model to avoid import-time failures
-# and excessive memory usage during app startup.
+# Lazy-load model (thread-safe) to avoid import-time heavy ML load
 _model = None
+_model_lock = threading.Lock()
 
 def _get_model():
     global _model
     if _model is not None:
         return _model
-    try:
-        from sentence_transformers import SentenceTransformer
-    except Exception as e:
-        # Raise a clear error when embeddings are actually used
-        raise ImportError("sentence-transformers is required for embeddings. Install it or disable embedding features.") from e
-    _model = SentenceTransformer('all-MiniLM-L6-v2')
+    with _model_lock:
+        if _model is None:
+            try:
+                from sentence_transformers import SentenceTransformer
+            except Exception as e:
+                raise ImportError("sentence-transformers is required for embeddings. Install it or disable embedding features.") from e
+            _model = SentenceTransformer('all-MiniLM-L6-v2')
     return _model
 
 def compute_embedding(text: str):

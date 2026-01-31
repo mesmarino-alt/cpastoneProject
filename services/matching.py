@@ -263,3 +263,14 @@ def run_matching_pipeline(threshold=0.75, max_matches_per_lost=5):
     print("="*60 + "\n")
 
     return matches
+
+def get_matching_pipeline():
+    """Return a callable that runs the matching pipeline.
+
+    This lets callers import get_matching_pipeline at module import time and
+    only execute the (potentially expensive) pipeline when the returned
+    callable is invoked.
+    """
+    def _pipeline(threshold=0.75, max_matches_per_lost=5):
+        return run_matching_pipeline(threshold=threshold, max_matches_per_lost=max_matches_per_lost)
+    return _pipeline

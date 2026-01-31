@@ -6,7 +6,7 @@ import json
 from db import get_db
 from models.user import User
 from .init import admin_bp
-from services.matching import run_matching_pipeline
+from services.matching import get_matching_pipeline
 from services.notifications import notify
 
 
@@ -491,11 +491,12 @@ def api_review_report():
             # Never fail the main action just because notification insert failed
             print(f"[ADMIN] Warning: failed to send report notification: {e}")
         
-        # If approved, trigger matching pipeline
+        # If approved, trigger matching pipeline (lazy)
         if status == 'approved':
             print(f"[ADMIN] Report approved for {item_type} item {item_id}. Triggering matching pipeline...")
             try:
-                created = run_matching_pipeline(threshold=0.75)
+                pipeline = get_matching_pipeline()
+                created = pipeline(threshold=0.75)
                 print(f"[ADMIN] Matching pipeline completed. Generated {len(created or [])} match candidate(s).")
             except Exception as e:
                 print(f"[ADMIN] Warning: Matching pipeline error: {str(e)}")
