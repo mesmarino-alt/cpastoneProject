@@ -1,9 +1,26 @@
 #matching.py
 import json
-import numpy as np
+import threading
 from db import get_db
 from services.embeddings import deserialize_embedding
 from sklearn.metrics.pairwise import cosine_similarity
+
+# Lazy-load numpy to avoid import-time dependency and reduce boot memory pressure
+_np = None
+_np_lock = threading.Lock()
+
+def _get_np():
+    global _np
+    if _np is not None:
+        return _np
+    with _np_lock:
+        if _np is None:
+            try:
+                import numpy as np
+            except Exception as e:
+                raise ImportError("numpy is required for matching. Install it or disable matching features.") from e
+            _np = np
+    return _np
 
 def _get(row, key, idx=None):
     if isinstance(row, dict):
@@ -81,6 +98,7 @@ def compute_cosine_similarity(emb1, emb2):
         return 0.0
     
     try:
+        np = _get_np()
         emb1_array = np.array(emb1).reshape(1, -1)
         emb2_array = np.array(emb2).reshape(1, -1)
         similarity = cosine_similarity(emb1_array, emb2_array)[0][0]
