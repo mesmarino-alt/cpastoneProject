@@ -7,11 +7,12 @@ buildTimeout = 3600
 
 [phases.setup]
 # Required for cryptography wheels / SSL bindings in slim environments
-aptPkgs = ["libssl-dev", "libffi-dev"]
+aptPkgs = ["libssl-dev", "libffi-dev", "build-essential", "cargo", "pkg-config"]
 
 [phases.install]
 cmds = [
   "python -m pip install --upgrade pip setuptools wheel",
+  "python -m pip install --no-cache-dir cryptography==42.0.8",
   "python -m pip install --no-cache-dir -r requirements.txt",
 ]
 
