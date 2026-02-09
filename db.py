@@ -40,6 +40,11 @@ def get_db():
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=True,
+            # Avoid caching_sha2_password/sha256_password which requires cryptography
+            auth_plugin_map={
+                'caching_sha2_password': 'mysql_native_password',
+                'sha256_password': 'mysql_native_password',
+            },
         )
         return conn
     except Exception as e:
