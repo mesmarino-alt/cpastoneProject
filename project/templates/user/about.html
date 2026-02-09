@@ -1,0 +1,356 @@
+{% extends 'layouts/base_user_dashboard.html' %}
+
+{% block content %}
+<style>
+  .abt { --purple: #4A249D; --teal: #009FBD; --teal-light: #e0f7fa; --purple-light: #f3eaff; }
+  .abt { max-width: none; margin: 0 auto; padding: 0 1.5rem; }
+
+  .abt .fade-up {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .55s cubic-bezier(.4,0,.2,1), transform .55s cubic-bezier(.4,0,.2,1);
+  }
+  .abt .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  .abt-section { margin-bottom: 2.25rem; }
+  .abt-section:last-child { margin-bottom: 1rem; }
+
+  /* HERO */
+  .abt-hero {
+    text-align: center; padding: 3.5rem 2rem 3rem; border-radius: 20px;
+    background: linear-gradient(160deg, var(--purple) 0%, var(--teal) 100%);
+    color: #fff; position: relative; overflow: hidden;
+  }
+  .abt-hero::before, .abt-hero::after {
+    content:''; position:absolute; border-radius:50%; pointer-events:none;
+    background: rgba(255,255,255,.05);
+  }
+  .abt-hero::before { width:340px; height:340px; top:-140px; right:-80px; }
+  .abt-hero::after  { width:220px; height:220px; bottom:-90px; left:-60px; }
+
+  .abt-hero-badge {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.3rem .85rem; border-radius:999px;
+    background:rgba(255,255,255,.14); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.18);
+    font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px;
+    margin-bottom:1rem; color:rgba(255,255,255,.92);
+  }
+  .abt-hero h1 {
+    font-size:2.2rem; font-weight:900; letter-spacing:-.4px;
+    margin-bottom:.7rem; color:#fff !important; line-height:1.2;
+  }
+  .abt-hero .tagline {
+    font-size:1.05rem; font-weight:500; opacity:.9;
+    max-width:720px; margin:0 auto; line-height:1.7;
+  }
+
+  /* SECTION HEADER */
+  .abt-sh { text-align:center; margin-bottom:1.5rem; }
+  .abt-sh h2 {
+    font-size:1.45rem; font-weight:900; color:var(--purple);
+    display:inline-flex; align-items:center; gap:.5rem; margin-bottom:.3rem;
+  }
+  .abt-sh h2 i { color:var(--teal); font-size:1.15rem; }
+  .abt-sh p { font-size:.92rem; color:var(--neutral-600); margin:0; }
+
+  /* MISSION */
+  .abt-mission {
+    background:var(--neutral-white); border:1px solid var(--neutral-200);
+    border-radius:16px; padding:2rem 2rem;
+    display:flex; gap:1.5rem; align-items:flex-start;
+  }
+  .abt-mission-icon {
+    flex:0 0 auto; width:50px; height:50px; border-radius:14px;
+    background:linear-gradient(135deg,var(--purple),var(--teal));
+    display:grid; place-items:center; color:#fff; font-size:1.2rem;
+  }
+  .abt-mission-body h3 { font-size:1.2rem; font-weight:800; color:var(--purple); margin-bottom:.5rem; }
+  .abt-mission-body p  { font-size:.95rem; line-height:1.75; color:var(--neutral-700); margin:0; }
+
+  /* VALUES */
+  .abt-values-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.15rem; }
+  .abt-val {
+    background:var(--neutral-white); border:1px solid var(--neutral-200);
+    border-radius:16px; padding:1.5rem 1.15rem; text-align:center;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .abt-val:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.07); }
+  .abt-val-icon {
+    width:46px; height:46px; border-radius:14px;
+    display:inline-grid; place-items:center; font-size:1.15rem; margin-bottom:.8rem;
+  }
+  .abt-val-icon.trust     { background:#e8f5e9; color:#2e7d32; }
+  .abt-val-icon.speed     { background:#e3f2fd; color:#1565c0; }
+  .abt-val-icon.community { background:#fce4ec; color:#c62828; }
+  .abt-val-icon.tech      { background:var(--purple-light); color:var(--purple); }
+  .abt-val h4 { font-size:.95rem; font-weight:800; color:var(--neutral-900); margin-bottom:.25rem; }
+  .abt-val p  { font-size:.84rem; color:var(--neutral-600); margin:0; line-height:1.55; }
+
+  /* TEAM */
+  .abt-team-wrap { display:flex; flex-direction:column; align-items:center; }
+  .abt-team-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:1.15rem; justify-content:center; width:100%;
+  }
+  .abt-member {
+    background:var(--neutral-white); border:1px solid var(--neutral-200);
+    border-radius:16px; padding:1.75rem 1.25rem 1.5rem; text-align:center;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  .abt-member:hover {
+    transform:translateY(-4px);
+    box-shadow:0 10px 30px rgba(74,36,157,.09);
+    border-color:color-mix(in srgb,var(--teal) 40%,var(--neutral-200));
+  }
+  .abt-avatar {
+    width:80px; height:80px; border-radius:50%;
+    margin:0 auto .85rem; position:relative; display:inline-block;
+  }
+  .abt-avatar::after {
+    content:''; position:absolute; inset:-3px; border-radius:50%;
+    background:linear-gradient(135deg,var(--teal),var(--purple)); z-index:0;
+  }
+  .abt-avatar-inner {
+    width:80px; height:80px; border-radius:50%;
+    border:3px solid var(--neutral-white); position:relative; z-index:1;
+    background:linear-gradient(135deg,var(--neutral-100),var(--neutral-200));
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.75rem; color:var(--neutral-400); overflow:hidden;
+  }
+  .abt-avatar-inner img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+  .abt-member-name { font-size:1rem; font-weight:800; color:var(--neutral-900); margin-bottom:.25rem; }
+  .abt-member-role {
+    display:inline-block; padding:.2rem .7rem; border-radius:999px;
+    font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+    background:color-mix(in srgb,var(--teal) 10%,transparent);
+    color:var(--teal); border:1px solid color-mix(in srgb,var(--teal) 22%,transparent);
+    margin-bottom:.6rem;
+  }
+  .abt-member-desc { font-size:.84rem; color:var(--neutral-600); line-height:1.5; margin:0; }
+
+  /* CLOSING */
+  .abt-closing {
+    text-align:center; padding:2.25rem 1.75rem; border-radius:18px;
+    background:linear-gradient(135deg,
+      color-mix(in srgb,var(--teal) 5%,var(--neutral-white)),
+      color-mix(in srgb,var(--purple) 5%,var(--neutral-white)));
+    border:1px solid color-mix(in srgb,var(--teal) 18%,var(--neutral-200));
+  }
+  .abt-closing-icon {
+    width:44px; height:44px; border-radius:12px;
+    background:linear-gradient(135deg,var(--purple),var(--teal));
+    color:#fff; display:inline-grid; place-items:center;
+    font-size:1.1rem; margin-bottom:.75rem;
+  }
+  .abt-closing p { font-size:.95rem; color:var(--neutral-700); line-height:1.75; max-width:780px; margin:0 auto; }
+  .abt-closing .sig { margin-top:1rem; font-size:.84rem; font-weight:700; color:var(--neutral-400); }
+
+  .abt-footer {
+    text-align:center; padding:1rem 0; margin-top:.75rem;
+    border-top:1px solid var(--neutral-200); font-size:.84rem; color:var(--neutral-400);
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    .abt-values-grid { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:700px){
+    .abt-hero { padding:2rem 1.15rem 1.75rem; border-radius:14px; }
+    .abt-hero h1 { font-size:1.45rem; }
+    .abt-hero .tagline { font-size:.87rem; }
+    .abt-mission { flex-direction:column; gap:.85rem; padding:1.35rem 1.15rem; }
+    .abt-mission-body h3 { font-size:1.05rem; }
+    .abt-mission-body p { font-size:.87rem; }
+    .abt-values-grid { grid-template-columns:repeat(2,1fr); gap:.7rem; }
+    .abt-team-grid { grid-template-columns:repeat(2,1fr); gap:.7rem; }
+    .abt-team-grid .abt-member:nth-child(5) { grid-column:1/-1; max-width:280px; justify-self:center; }
+    .abt-avatar,.abt-avatar-inner { width:68px; height:68px; }
+    .abt-avatar-inner { font-size:1.5rem; }
+  }
+  @media(max-width:420px){
+    .abt-hero { padding:1.65rem 1rem 1.5rem; }
+    .abt-hero h1 { font-size:1.25rem; }
+    .abt-team-grid { grid-template-columns:1fr; gap:.65rem; }
+    .abt-team-grid .abt-member:nth-child(5) { grid-column:auto; max-width:none; }
+    .abt-member { padding:1.1rem .85rem 1rem; }
+    .abt-avatar,.abt-avatar-inner { width:58px; height:58px; }
+    .abt-avatar-inner { font-size:1.25rem; }
+  }
+
+  /* DARK MODE */
+  body.dark-mode .abt-hero {
+    background:linear-gradient(160deg,color-mix(in srgb,var(--dm-4) 65%,var(--dm-1)),color-mix(in srgb,var(--dm-2) 80%,var(--dm-3))) !important;
+  }
+  body.dark-mode .abt-mission,
+  body.dark-mode .abt-val,
+  body.dark-mode .abt-member {
+    background:var(--dm-2) !important;
+    border-color:color-mix(in srgb,var(--dm-3) 55%,#0000) !important;
+  }
+  body.dark-mode .abt-sh h2,
+  body.dark-mode .abt-mission-body h3 { color:var(--text) !important; }
+  body.dark-mode .abt-sh p,
+  body.dark-mode .abt-mission-body p,
+  body.dark-mode .abt-val p,
+  body.dark-mode .abt-member-desc,
+  body.dark-mode .abt-closing p { color:var(--muted) !important; }
+  body.dark-mode .abt-val h4,
+  body.dark-mode .abt-member-name { color:var(--text) !important; }
+  body.dark-mode .abt-val-icon.trust     { background:rgba(46,125,50,.18) !important; }
+  body.dark-mode .abt-val-icon.speed     { background:rgba(21,101,192,.18) !important; }
+  body.dark-mode .abt-val-icon.community { background:rgba(198,40,40,.18) !important; }
+  body.dark-mode .abt-val-icon.tech      { background:rgba(74,36,157,.18) !important; }
+  body.dark-mode .abt-closing {
+    background:color-mix(in srgb,var(--dm-2) 60%,var(--dm-1)) !important;
+    border-color:color-mix(in srgb,var(--dm-3) 55%,#0000) !important;
+  }
+  body.dark-mode .abt-avatar-inner {
+    background:linear-gradient(135deg,var(--dm-1),var(--dm-3)) !important;
+    border-color:var(--dm-2) !important; color:var(--muted) !important;
+  }
+  body.dark-mode .abt-footer {
+    border-color:color-mix(in srgb,var(--dm-3) 55%,#0000) !important;
+    color:var(--muted) !important;
+  }
+  body.dark-mode .abt-closing .sig { color:var(--muted) !important; }
+</style>
+
+<div class="abt">
+
+  <!-- 1. HERO -->
+  <section class="abt-section abt-hero fade-up">
+    <div class="abt-hero-badge">
+      <i class="fa-solid fa-shield-halved"></i> Trusted Campus Platform
+    </div>
+    <h1>About Find&#8209;It&#8209;Fast</h1>
+    <p class="tagline">
+      Helping students and staff reconnect with lost belongings through smart technology and a caring community.
+    </p>
+  </section>
+
+  <!-- 2. MISSION -->
+  <section class="abt-section fade-up">
+    <div class="abt-mission">
+      <div class="abt-mission-icon"><i class="fa-solid fa-bullseye"></i></div>
+      <div class="abt-mission-body">
+        <h3>Our Mission</h3>
+        <p>
+          Losing something important shouldn't mean losing hope. Find&#8209;It&#8209;Fast bridges
+          the gap between lost items and their owners using smart matching technology and a
+          supportive community. Whether it's a phone, a wallet, or a set of keys &mdash; we help
+          you reconnect with what matters.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. VALUES -->
+  <section class="abt-section fade-up">
+    <div class="abt-sh">
+      <h2><i class="fa-solid fa-star"></i> What We Stand For</h2>
+      <p>The principles that guide everything we build</p>
+    </div>
+    <div class="abt-values-grid">
+      <div class="abt-val">
+        <div class="abt-val-icon trust"><i class="fa-solid fa-shield-halved"></i></div>
+        <h4>Trust</h4>
+        <p>Verified accounts &amp; secure claim process to protect every user.</p>
+      </div>
+      <div class="abt-val">
+        <div class="abt-val-icon speed"><i class="fa-solid fa-bolt"></i></div>
+        <h4>Speed</h4>
+        <p>Real&#8209;time notifications so matches reach you instantly.</p>
+      </div>
+      <div class="abt-val">
+        <div class="abt-val-icon community"><i class="fa-solid fa-hand-holding-heart"></i></div>
+        <h4>Community</h4>
+        <p>Built by students, for students &mdash; empathy drives every feature.</p>
+      </div>
+      <div class="abt-val">
+        <div class="abt-val-icon tech"><i class="fa-solid fa-microchip"></i></div>
+        <h4>Smart Tech</h4>
+        <p>ML&#8209;powered matching connects lost &amp; found reports automatically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. TEAM -->
+  <section class="abt-section fade-up">
+    <div class="abt-sh">
+      <h2><i class="fa-solid fa-users"></i> Meet the Team</h2>
+      <p>The people behind Find&#8209;It&#8209;Fast</p>
+    </div>
+    <div class="abt-team-wrap">
+      <div class="abt-team-grid">
+        <div class="abt-member">
+          <div class="abt-avatar"><div class="abt-avatar-inner">
+            <img src="{{ url_for('static', filename='images/team/edizon.jpg') }}" alt="Edizon">
+          </div></div>
+          <div class="abt-member-name">Mark Edizon S. Marino</div>
+          <div class="abt-member-role">Full&#8209;Stack Lead</div>
+          
+        </div>
+        <div class="abt-member">
+            <div class="abt-avatar"><div class="abt-avatar-inner"><i class="fa-solid fa-user"></i></div></div>
+            <div class="abt-member-name">Madelyn S. Tenorio</div>
+            <div class="abt-member-role">Project Manager</div>
+          </div>
+        <div class="abt-member">
+          <div class="abt-avatar"><div class="abt-avatar-inner">
+            <img src="{{ url_for('static', filename='images/team/grace.jpg') }}" alt="Grace">
+          </div></div>
+          <div class="abt-member-name">Grace P. Delos Santos</div>
+          <div class="abt-member-role">UI / UX Designer</div>
+        </div>
+        <div class="abt-member">
+          <div class="abt-avatar"><div class="abt-avatar-inner">
+            <img src="{{ url_for('static', filename='images/team/pol.jpg') }}" alt="Pol">
+          </div></div>
+          <div class="abt-member-name">John Paul C. Bitome</div>
+          <div class="abt-member-role">Business Analyst</div>
+        </div>
+        <div class="abt-member">
+          <div class="abt-avatar"><div class="abt-avatar-inner">
+            <img src="{{ url_for('static', filename='images/team/rey.jpg') }}" alt="Rey">
+          </div></div>
+          <div class="abt-member-name">John Rey M. Soneja</div>
+          <div class="abt-member-role">Documentation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. CLOSING -->
+  <section class="abt-section abt-closing fade-up">
+    <div class="abt-closing-icon"><i class="fa-solid fa-heart"></i></div>
+    <p>
+      Built with care to help people reconnect with what matters.
+      Our vision is to extend this platform beyond campus &mdash; empowering communities everywhere.
+    </p>
+    <div class="sig">&mdash; The Find&#8209;It&#8209;Fast Team</div>
+  </section>
+
+  <div class="abt-footer">
+    &copy; 2025 Find&#8209;It&#8209;Fast &middot; Capstone Project by BSIT 4C, <br> CATSU
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.abt .fade-up');
+  if(!els.length) return;
+  var d=0;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        setTimeout(function(){ e.target.classList.add('visible'); }, d);
+        d+=90; io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.15});
+  els.forEach(function(el){ io.observe(el); });
+  setTimeout(function(){ d=0; },600);
+})();
+</script>
+{% endblock %}

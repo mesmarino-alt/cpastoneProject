@@ -1438,6 +1438,10 @@
       <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}">
         <i class="fa-solid fa-bell me-2"></i> Notifications
       </a>
+
+      <a href="{{ url_for('user.about') }}" class="{{ 'active' if request.endpoint == 'user.about' }}">
+        <i class="fa-solid fa-circle-info me-2"></i> About Us
+      </a>
     </div>
 
     <div class="sidebar-logout">
@@ -1732,6 +1736,9 @@
       </a>
       <a href="{{ url_for('notifications.notifications_page') }}" class="{{ 'active' if request.endpoint == 'notifications.notifications_page' }}" data-close-drawer="true">
         <i class="fa-solid fa-bell"></i> Notifications
+      </a>
+      <a href="{{ url_for('user.about') }}" class="{{ 'active' if request.endpoint == 'user.about' }}" data-close-drawer="true">
+        <i class="fa-solid fa-circle-info"></i> About Us
       </a>
 
       <hr style="border-color: var(--neutral-200);">

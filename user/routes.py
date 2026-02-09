@@ -1039,5 +1039,11 @@ def api_submit_suggestion():
     return jsonify({'ok': True}), 201
 
 
+@user_bp.route('/about')
+@login_required
+def about():
+    return render_template('user/about.html')
+
+
 #ML Routes Import
 import user.user_matches
