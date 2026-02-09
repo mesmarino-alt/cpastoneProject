@@ -5,9 +5,15 @@
 # Default is 15 minutes, we need more time
 buildTimeout = 3600
 
-[buildConfig]
-# Install pip dependencies with optimizations for large packages
-pip = "pip install --no-cache-dir -r requirements.txt"
+[phases.setup]
+# Required for cryptography wheels / SSL bindings in slim environments
+aptPkgs = ["libssl-dev", "libffi-dev"]
+
+[phases.install]
+cmds = [
+  "python -m pip install --upgrade pip setuptools wheel",
+  "python -m pip install --no-cache-dir -r requirements.txt",
+]
 
 [start]
-cmd = "gunicorn app:app"
+cmd = "gunicorn wsgi:app -b 0.0.0.0:${PORT:-8000}"
