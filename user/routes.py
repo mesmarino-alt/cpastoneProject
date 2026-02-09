@@ -820,7 +820,7 @@ def api_lost_item(item_id):
                    li.last_seen, li.last_seen_at, li.status, li.photo, li.reported_at,
                    COALESCE(c.status, NULL) as claim_status
             FROM lost_items li
-            LEFT JOIN claims c ON c.lost_item_id = li.i
+            LEFT JOIN claims c ON c.lost_item_id = li.id
             WHERE li.id=%s AND (li.status IN ('approved', 'claimed') OR li.user_id=%s)
         """, (item_id, int(current_user.get_id())))
         row = cur.fetchone()
