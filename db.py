@@ -71,4 +71,45 @@ def _ensure_schema(conn):
         print("[DB] Schema initialized successfully.")
     except Exception as e:
         print(f"[DB] Warning: schema initialization error (tables may already exist): {e}")
+
+    # Seed admin account if none exists
+    _seed_admin(conn)
+
     _SCHEMA_INITIALIZED = True
+
+def _seed_admin(conn):
+    """Create a default admin user if no admin account exists in the database.
+
+    Configure via environment variables (set these in Railway):
+        ADMIN_NAME        – display name       (default: Admin)
+        ADMIN_STUDENT_ID  – student/employee ID (default: ADMIN-001)
+        ADMIN_EMAIL       – login email         (default: admin@finditfast.com)
+        ADMIN_PASSWORD    – login password      (default: admin123)
+
+    ⚠️  Change ADMIN_PASSWORD in Railway env vars before going live!
+    """
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM users WHERE role='admin' LIMIT 1")
+            if cur.fetchone():
+                return  # admin already exists
+
+        # Import bcrypt here to avoid circular imports
+        from flask_bcrypt import generate_password_hash
+
+        name       = os.getenv('ADMIN_NAME', 'Admin')
+        student_id = os.getenv('ADMIN_STUDENT_ID', 'ADMIN-001')
+        email      = os.getenv('ADMIN_EMAIL', 'admin@finditfast.com')
+        password   = os.getenv('ADMIN_PASSWORD', 'admin123')
+
+        pw_hash = generate_password_hash(password).decode('utf-8')
+
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO users (name, student_id, email, password_hash, role, active, created_at)
+                VALUES (%s, %s, %s, %s, 'admin', 1, NOW())
+            """, (name, student_id, email, pw_hash))
+        conn.commit()
+        print(f"[DB] ✓ Default admin account created: {email}")
+    except Exception as e:
+        print(f"[DB] Warning: could not seed admin account: {e}")
